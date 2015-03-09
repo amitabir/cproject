@@ -5,7 +5,8 @@
 #define MIN_WORLD_INDEX 1
 #define MAX_WORLD_INDEX 5
 #define DEFAULT_TURNS_NUMBER 20
-#define FILE_NAME_LENGTH 12
+#define FILE_NAME_LENGTH 18
+#define FILE_ERROR_MESSAGE_MAX_LENGTH 100
 static const char WORLD_FILE_DIR[] = "worlds";
 static const char WORLD_FILE_PREFIX[] = "world_";
 static const char WORLD_FILE_ENDING[] = ".txt";
@@ -17,6 +18,13 @@ typedef struct world_file_data {
 	int numTurns;
 	int isMouseStarts;
 } WorldFileData;
+
+typedef enum {
+	READ_ERROR,
+	WRITE_ERROR,
+	OPEN_ERROR,
+	CLOSE_ERROR
+} FileErrorType;
 
 int writeWorldToFile(int worldIndex, WorldFileData *worldData);
 int readWorldFromFile(int worldIndex, WorldFileData *worldData);
