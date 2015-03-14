@@ -1,7 +1,7 @@
 CFLAGS=-Wall -g -std=c99 -pedantic-errors
 MAIN_O_FILES=WorldFilesService.o MiniMax.o ListUtils.o
-TESTS_O_FILES=WorldFilesServiceTest.o
-TEST_EXEC_FILES=WorldFilesServiceTest
+TESTS_O_FILES=WorldFilesServiceTest.o MoveLogicServiceTest.o
+TEST_EXEC_FILES=WorldFilesServiceTest MoveLogicServiceTest
 EXTRA_O_FILES=MiniMaxDemo.o ListUtilsDemo.o
 EXTRA_EXEC_FILES=MiniMaxDemo ListUtilsDemo
 TEST_PATH=test
@@ -9,7 +9,7 @@ MAIN_PATH=src/main
 
 all: test MiniMaxDemo ListUtilsDemo
 	
-test: WorldFilesServiceTest
+test: WorldFilesServiceTest MoveLogicServiceTest
 
 clean:
 	-rm $(MAIN_O_FILES) $(TEST_EXEC_FILES) $(TESTS_O_FILES) $(EXTRA_O_FILES) $(EXTRA_EXEC_FILES)
@@ -21,6 +21,27 @@ WorldFilesServiceTest.o: $(TEST_PATH)/WorldFilesServiceTest.c $(MAIN_PATH)/World
 	gcc -c $(CFLAGS) $(TEST_PATH)/WorldFilesServiceTest.c
 	
 WorldFilesServiceTest: WorldFilesServiceTest.o WorldFilesService.o
+	gcc -o $@ $^ $(CFLAGS)
+
+GameModel.o: $(MAIN_PATH)/GameModel.c $(MAIN_PATH)/GameModel.h
+	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c	
+
+GameLogicService.o: $(MAIN_PATH)/GameLogicService.c $(MAIN_PATH)/GameLogicService.h
+	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c	
+
+BoardPoint.o: $(MAIN_PATH)/BoardPoint.c $(MAIN_PATH)/BoardPoint.h
+	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
+	
+Evaluation.o: $(MAIN_PATH)/Evaluation.c $(MAIN_PATH)/Evaluation.h
+	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
+	
+MoveLogicService.o: $(MAIN_PATH)/MoveLogicService.c $(MAIN_PATH)/MoveLogicService.h
+	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
+	
+MoveLogicServiceTest.o: $(TEST_PATH)/MoveLogicServiceTest.c $(MAIN_PATH)/MoveLogicService.h
+	gcc -c $(CFLAGS) $(TEST_PATH)/MoveLogicServiceTest.c
+	
+MoveLogicServiceTest: MoveLogicServiceTest.o MoveLogicService.o BoardPoint.o Evaluation.o MiniMax.o ListUtils.o WorldFilesService.o GameLogicService.o GameModel.o
 	gcc -o $@ $^ $(CFLAGS)
 	
 ListUtils.o: $(MAIN_PATH)/ListUtils.c $(MAIN_PATH)/ListUtils.h
