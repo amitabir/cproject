@@ -51,7 +51,7 @@ ListRef getChildren(void* state) {
 
 int main() {
 	int root = 0;
-	struct MiniMaxResult best = getBestChild(&root, 2, getChildren, free, evaluate, 0);
+	struct MiniMaxResult best = getBestChild(&root, 2, getChildren, free, evaluate, 0, -1000, 1000);
 	printf("The best child is at position %d with value %d.\n", best.index, best.value);
 	return 0;
 }

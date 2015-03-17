@@ -9,7 +9,9 @@ struct MiniMaxResult getBestChild(
 	ListRef (*getChildren) (void* state),
 	FreeFunc freeState,
 	int (*evaluate) (void* state),
-	int isMaxPlayer) {
+	int isMaxPlayer,
+	int alpha,
+	int beta) {
 		
 		struct MiniMaxResult childResult; // result for recursive calls on children
 		int currChildIndex = 0; // holds the current child index
@@ -17,8 +19,8 @@ struct MiniMaxResult getBestChild(
 		int bestChildValue = isMaxPlayer ? MIN_EVALUATION - 1 : MAX_EVALUATION + 1; // holds the best child value
 		ListRef childrenList; // the children list for the state
 		void *childState; // the current child state in the list
-				
-		if (maxDepth == 0) { 
+					
+		if (maxDepth == 0) {
 			// The end of the recursion
 			struct MiniMaxResult totalResult = {bestChildIndex, (*evaluate)(state)};
 			return totalResult;
@@ -41,7 +43,7 @@ struct MiniMaxResult getBestChild(
 			ListRef tempList = childrenList;
 			do {
 				childState = headData(tempList);
-				childResult = getBestChild(childState, maxDepth - 1, getChildren, freeState, evaluate, !isMaxPlayer);
+				childResult = getBestChild(childState, maxDepth - 1, getChildren, freeState, evaluate, !isMaxPlayer, alpha, beta);
 				
 				// Check if some error occured during recursive calls
 				if (childResult.index == -1) {
@@ -54,6 +56,24 @@ struct MiniMaxResult getBestChild(
 					bestChildValue = childResult.value;
 					bestChildIndex = currChildIndex;
 				}
+				
+				// Alpha-Beta pruning
+				if (isMaxPlayer) {
+					if (bestChildValue > alpha) {
+						alpha = childResult.value;
+					}
+					if (beta <= alpha) {
+						break;
+					}
+				} else {
+					if (bestChildValue < beta) {
+						beta = childResult.value;
+					}
+					if (beta <= alpha) {
+						break;
+					}
+				}
+
 				tempList = tail(tempList);
 				currChildIndex++;
 			} while (tempList != NULL);

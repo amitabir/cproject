@@ -34,7 +34,8 @@ struct MiniMaxResult {
  * The freeState function will be used to deallocate any lists returned by GetChildren.
  * The evaluate function will be used to evaluate the state score.
  * The player who's turn it is to play at the given state is assumed to be the MAX player if and only if isMaxPlayer is non-zero,
- * otherwise, it is assumed to be the MIN player.
+ * otherwise, it is assumed to be the MIN player. 
+ * The value of alpha will hold the best already explored option for the max player, and beta will hold the best already explored option for the min player
  *
  * Will NOT crash in case one of the given functions fails but result will be undefined.
  */
@@ -44,6 +45,8 @@ struct MiniMaxResult getBestChild(
 		ListRef (*getChildren) (void* state),
 		FreeFunc freeState,
 		int (*evaluate) (void* state),
-		int isMaxPlayer);
+		int isMaxPlayer,
+		int alpha,
+		int beta);
 
 #endif /* MINIMAX_H_ */
