@@ -27,10 +27,10 @@ BoardPoint getMovedPoint(BoardPoint origPoint, MoveDirection direction) {
 	result.col = origPoint.col;
 	switch(direction) {
 		case UP:
-			result.row++;
+			result.row--;
 			break;
 		case DOWN: 
-			result.row--;
+			result.row++;
 			break;
 		case LEFT:
 			result.col--;
@@ -48,11 +48,11 @@ BoardPoint getMovedPoint(BoardPoint origPoint, MoveDirection direction) {
 int isMoveValid(char **board, BoardPoint point, MoveDirection direction) {
 	BoardPoint newPoint;
 	newPoint = getMovedPoint(point, direction);
-	
-	if (newPoint.row > BOARD_ROWS || newPoint.row < 0 || newPoint.col > BOARD_COLS || newPoint.col < 0) {
+
+	if (newPoint.row >= BOARD_ROWS || newPoint.row < 0 || newPoint.col >= BOARD_COLS || newPoint.col < 0) {
 		return 0;
 	}
-	
+
 	if (board[newPoint.row][newPoint.col] == WALL_TILE) {
 		return 0;
 	}
@@ -183,12 +183,13 @@ int childIndexToMoveIndex(GameState *gameState, int childIndex)  {
 /* This function receives a pointer to a two dimensional int array which represents the game board, and int numberSteps which
 represent the number of steps to look forward and an int isUserTurn that represents whose turn it is. The return value
 is an int the represent the index of the best column. */
-int findBestMoveDirectionIndex(char **board, int numTurns, BoardPoint catPoint, BoardPoint mousePoint, BoardPoint cheesePoint, int isMouseTurn, int numberSteps) {
+int findBestMoveDirection(char **board, int numTurns, BoardPoint catPoint, BoardPoint mousePoint, BoardPoint cheesePoint,
+	 	int isMouseTurn, int numberSteps, MoveDirection *bestMove) {
 	// Creating an initial state
 	int bestMoveIndex;
 	GameState *initialState = createState(board, numTurns, catPoint, mousePoint, cheesePoint, isMouseTurn);
 	if (initialState == NULL) { // If state creation has failed
-		return -1;
+		return 0;
 	}
 	// Getting the best child using the MiniMax algorithm
 	struct MiniMaxResult result = getBestChild(initialState, numberSteps, getChildren, freeState, stateEvaluation, isMouseTurn,
@@ -197,10 +198,11 @@ int findBestMoveDirectionIndex(char **board, int numTurns, BoardPoint catPoint, 
 	// An index -1 returned means that the getBestChild method has failed (due to standart function error).
 	if (result.index == -1) {
 		freeState(initialState);
-		return -1;
+		return 0;
 	}
 	
 	bestMoveIndex = childIndexToMoveIndex(initialState, result.index);
 	freeState(initialState);
-	return bestMoveIndex;
+	*bestMove = moveIndexToMoveDirection(bestMoveIndex);
+	return 1;
 }

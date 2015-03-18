@@ -9,4 +9,6 @@ int handleMachineMove(GameModel *game);
 
 void initGameFromWorldFile(GameModel *game, WorldFileData *worldFileData);
 
+GameModel *createGameFromConfigAndWorldFile(GameConfigurationModel *gameConfig, WorldFileData *worldFileData);
+
 #endif /* GAME_LOGIC_SERVICE_H_ */

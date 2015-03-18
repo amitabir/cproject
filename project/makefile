@@ -9,7 +9,7 @@ MAIN_PATH=src/main
 
 all: test MiniMaxDemo ListUtilsDemo
 	
-test: WorldFilesServiceTest MoveLogicServiceTest
+test: WorldFilesServiceTest MoveLogicServiceTest EvaluationTest
 
 clean:
 	-rm $(MAIN_O_FILES) $(TEST_EXEC_FILES) $(TESTS_O_FILES) $(EXTRA_O_FILES) $(EXTRA_EXEC_FILES)
@@ -24,7 +24,10 @@ WorldFilesServiceTest: WorldFilesServiceTest.o WorldFilesService.o
 	gcc -o $@ $^ $(CFLAGS)
 
 GameModel.o: $(MAIN_PATH)/GameModel.c $(MAIN_PATH)/GameModel.h
-	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c	
+	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
+
+GameConfigModel.o: $(MAIN_PATH)/GameConfigModel.c $(MAIN_PATH)/GameConfigModel.h
+	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
 
 GameLogicService.o: $(MAIN_PATH)/GameLogicService.c $(MAIN_PATH)/GameLogicService.h
 	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c	
@@ -41,7 +44,13 @@ MoveLogicService.o: $(MAIN_PATH)/MoveLogicService.c $(MAIN_PATH)/MoveLogicServic
 MoveLogicServiceTest.o: $(TEST_PATH)/MoveLogicServiceTest.c $(MAIN_PATH)/MoveLogicService.h
 	gcc -c $(CFLAGS) $(TEST_PATH)/MoveLogicServiceTest.c
 	
-MoveLogicServiceTest: MoveLogicServiceTest.o MoveLogicService.o BoardPoint.o Evaluation.o MiniMax.o ListUtils.o WorldFilesService.o GameLogicService.o GameModel.o
+MoveLogicServiceTest: MoveLogicServiceTest.o MoveLogicService.o BoardPoint.o Evaluation.o MiniMax.o ListUtils.o WorldFilesService.o GameLogicService.o GameModel.o GameConfigModel.o
+	gcc -o $@ $^ $(CFLAGS)
+	
+EvaluationTest.o: $(TEST_PATH)/EvaluationTest.c $(MAIN_PATH)/MoveLogicService.h
+	gcc -c $(CFLAGS) $(TEST_PATH)/EvaluationTest.c
+	
+EvaluationTest: EvaluationTest.o MoveLogicService.o BoardPoint.o Evaluation.o MiniMax.o ListUtils.o WorldFilesService.o GameLogicService.o GameModel.o GameConfigModel.o
 	gcc -o $@ $^ $(CFLAGS)
 	
 ListUtils.o: $(MAIN_PATH)/ListUtils.c $(MAIN_PATH)/ListUtils.h

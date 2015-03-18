@@ -1,6 +1,7 @@
 #include "GameLogicService.h"
 #include "MoveLogicService.h"
 #include "GameModel.h"
+#include "GameConfigModel.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -35,23 +36,24 @@
 // }
 
 int handleMachineMove(GameModel *game) {
-	int numberSteps, bestMoveIndex;
+	int numberSteps;
+	MoveDirection bestMove;
+	
 	if (game->isMouseTurn) {
 		numberSteps = game->gameConfig->mouseDifficulty;
 	} else {
 		numberSteps = game->gameConfig->catDifficulty;
 	}
 	
-	bestMoveIndex = findBestMoveDirectionIndex(game->board, game->numTurns, game->catPoint, game->mousePoint,
-	 		game->cheesePoint, game->isMouseTurn, numberSteps);
-	if (bestMoveIndex == -1) { // some fatal error occured
+	if(!findBestMoveDirection(game->board, game->numTurns, game->catPoint, game->mousePoint, game->cheesePoint,
+		 	game->isMouseTurn, numberSteps, &bestMove)) {
 		return 0;
 	}
 	
 	if (game->isMouseTurn) {
-		makeMouseMove(game, moveIndexToMoveDirection(bestMoveIndex));
+		makeMouseMove(game, bestMove);
 	} else {
-		makeCatMove(game, moveIndexToMoveDirection(bestMoveIndex));
+		makeCatMove(game, bestMove);
 	}
 	
 	game->isMouseTurn = !game->isMouseTurn;
@@ -67,12 +69,15 @@ void handleTile(GameModel *game, char currTile, int i, int j) {
 			break;
 		case CAT_TILE:
 			setCatPoint(game, i, j);
+			setBoardTile(game, EMPTY_TILE, i, j);
 			break;
 		case MOUSE_TILE:
 			setMousePoint(game, i, j);
+			setBoardTile(game, EMPTY_TILE, i, j);
 			break;
 		case CHEESE_TILE:
 			setCheesePoint(game, i, j);
+			setBoardTile(game, EMPTY_TILE, i, j);
 			break;
 		default:
 			break;
@@ -87,8 +92,14 @@ void initGameFromWorldFile(GameModel *game, WorldFileData *worldFileData) {
 	setNumMovesLeft(game, worldFileData->numTurns);
 	for (i = 0; i < BOARD_ROWS; i++) {
 		for (j = 0; j < BOARD_COLS; j++) {
-			currTile = game->board[i][j];
+			currTile = worldFileData->board[i][j];
 			handleTile(game, currTile, i, j);
 		}
 	}
+}
+
+GameModel *createGameFromConfigAndWorldFile(GameConfigurationModel *gameConfig, WorldFileData *worldFileData) {
+	GameModel *result = createGame(gameConfig);
+	initGameFromWorldFile(result, worldFileData);
+	return result;
 }

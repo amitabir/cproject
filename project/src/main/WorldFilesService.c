@@ -37,7 +37,6 @@ void handleFileError(FILE *fp, FileErrorType errorType, int worldIndex) {
 int writeWorldToFile(int worldIndex, WorldFileData *worldData) {
 	FILE *fp = NULL;
 	const char *startPlayer = NULL;
-	char numTurnsStr[3];
 	int i,j;
 	
 	char fileName[FILE_NAME_LENGTH];
@@ -48,16 +47,17 @@ int writeWorldToFile(int worldIndex, WorldFileData *worldData) {
 		return 0;
 	}
 
+	if (fprintf(fp, "%d\n", worldData->numTurns) < 0) {
+		handleFileError(fp, WRITE_ERROR, worldIndex);
+		return 0;
+	}
+
 	worldData->isMouseStarts ? (startPlayer = MOUSE_STARTS_STR) : (startPlayer = CAT_STARTS_STR);
 	if (fprintf(fp, "%s\n", startPlayer) < 0) {
 		handleFileError(fp, WRITE_ERROR, worldIndex);
 		return 0;
 	}
-	sprintf(numTurnsStr, "%d", worldData->numTurns);
-	if (fprintf(fp, "%s\n", numTurnsStr) < 0) {
-		handleFileError(fp, WRITE_ERROR, worldIndex);
-		return 0;
-	}
+
 	for (i = 0; i < BOARD_ROWS; i++) {
 		for (j = 0; j < BOARD_COLS; j++) {
 			if (fprintf(fp, "%c", worldData->board[i][j]) < 0) {
@@ -80,11 +80,11 @@ int writeWorldToFile(int worldIndex, WorldFileData *worldData) {
 
 int readWorldFromFile(int worldIndex, WorldFileData *worldData) {
 	FILE *fp = NULL;
-	char startPlayer[5];
+	char startPlayer[6];
 	char currentBoardChar;
 	int isMouseStarts;
-	
 	char fileName[FILE_NAME_LENGTH];
+	
 	getWorldFileName(worldIndex, fileName);
 	fp = fopen(fileName, "r");
 	if (!fp) {
@@ -92,19 +92,22 @@ int readWorldFromFile(int worldIndex, WorldFileData *worldData) {
 		return 0;
 	}
 	
-	if (fscanf(fp, "%s\n", startPlayer) < 1) {
-		handleFileError(fp, READ_ERROR, worldIndex);
-		return 0;
-	}
-	strcmp(startPlayer, CAT_STARTS_STR) == 0 ? (isMouseStarts = 0) : (isMouseStarts = 1);
-	worldData->isMouseStarts = isMouseStarts;
 	if (fscanf(fp, "%d\n", &(worldData->numTurns)) < 1) {
 		handleFileError(fp, READ_ERROR, worldIndex);
 		return 0;
 	}
+	
+	if (fscanf(fp, "%s\n", startPlayer) < 1) {
+		handleFileError(fp, READ_ERROR, worldIndex);
+		return 0;
+	}
+
+	strcmp(startPlayer, CAT_STARTS_STR) == 0 ? (isMouseStarts = 0) : (isMouseStarts = 1);
+	worldData->isMouseStarts = isMouseStarts;
+
 	char **row = worldData->board;
 	char *col = *row;
-	
+
 	while ((currentBoardChar = fgetc(fp)) != EOF) {
 		if (currentBoardChar != '\n') {
 			*col = currentBoardChar;
@@ -114,11 +117,12 @@ int readWorldFromFile(int worldIndex, WorldFileData *worldData) {
 			col = *row;
 		}
 	}
-	
+
 	if (fclose(fp)) {
 		handleFileError(fp, CLOSE_ERROR, worldIndex);
 		return 0;
 	}
+	
 	return 1;
 }
 	

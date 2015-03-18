@@ -25,8 +25,7 @@ WinnerType hasWinner(char **board, BoardPoint catPoint, BoardPoint mousePoint, B
 
 int isMoveValid(char **board, BoardPoint point, MoveDirection direction);
 
-int findBestMoveDirectionIndex(char **board, int numTurns, BoardPoint catPoint, BoardPoint mousePoint, BoardPoint cheesePoint, int isMouseTurn, int numberSteps);
-
-MoveDirection moveIndexToMoveDirection(int moveIndex);
+int findBestMoveDirection(char **board, int numTurns, BoardPoint catPoint, BoardPoint mousePoint, BoardPoint cheesePoint,
+	 int isMouseTurn, int numberSteps, MoveDirection *bestMove);
 
 #endif /* MOVE_LOGIC_SERVICE_H_ */

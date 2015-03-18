@@ -78,7 +78,7 @@ void setNumMovesLeft(GameModel *game, int numTurns) {
 
 void makeMove(GameModel *game, BoardPoint *point, MoveDirection direction) {
 	BoardPoint newPoint;
-	
+
 	if (isMoveValid(game->board, *point, direction)) {
 		newPoint = getMovedPoint(*point, direction);
 		point->row = newPoint.row;
