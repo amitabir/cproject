@@ -123,7 +123,7 @@ BoardPoint getPlayerPoint(GameState *gameState) {
 
 /* This function receives a void pointer state which is a GameState struct pointer and return a ListRef to its children list.
  A child is created for every move direction that is valid. If there is a winner, an empty list is returned. */
-ListRef getChildren(void *state) {
+ListRef getGameStateChildren(void *state) {
 	// Casting the void pointer to GameState pointer
 	GameState *gameState = (GameState *) state;
  	ListRef childrenList = newList(NULL);
@@ -192,7 +192,7 @@ int findBestMoveDirection(char **board, int numTurns, BoardPoint catPoint, Board
 		return 0;
 	}
 	// Getting the best child using the MiniMax algorithm
-	struct MiniMaxResult result = getBestChild(initialState, numberSteps, getChildren, freeState, stateEvaluation, isMouseTurn,
+	struct MiniMaxResult result = getBestChild(initialState, numberSteps, getGameStateChildren, freeState, stateEvaluation, isMouseTurn,
 		 												MIN_EVALUATION, MAX_EVALUATION);
 	
 	// An index -1 returned means that the getBestChild method has failed (due to standart function error).

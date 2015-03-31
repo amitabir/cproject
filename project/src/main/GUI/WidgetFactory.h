@@ -7,11 +7,13 @@
 #include "Panel.h"
 #include "Label.h"
 
-Widget *createWindow(SDL_Rect position, char *caption);
+Widget *createWindow(int id, int posX, int posY, int width, int height, const char *caption);
 
-Widget *createButton(SDL_Rect position, void* (*onClick)(struct widget*), void* (*onMouseHover)(struct widget*));
+Widget *createButton(int id, int posX, int posY, int width, int height, Color colorKey, char *text, int textPosX, int textPosY, char *imageFileName,
+		char *markedImageFileName);
 
-//Widget *createPanel(SDL_Rect *position, void (*logic)(struct widget*, SDL_Event*));
+Widget *createPanel(int id, int posX, int posY, int width, int height);
 
-//Widget *createLabel(SDL_Rect *position, void (*logic)(struct widget*, SDL_Event*));
+Widget *createLabel(int id, int posX, int posY, int width, int height);
+
 #endif

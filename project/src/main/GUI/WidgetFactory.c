@@ -1,19 +1,28 @@
 #include "WidgetFactory.h"
 
-
-Widget *createWindow(SDL_Rect position, char *caption) {
-	return createWidget(NULL, position, caption, WINDOW, window_draw, NULL, NULL);
+Widget *createWindow(int id, int posX, int posY, int width, int height, const char *caption) {
+	return createWidget(id, NULL, posX, posY, width, height, caption, WINDOW, window_draw);
 }
 
-Widget *createButton(SDL_Rect position, void* (*onClick)(struct widget*), void* (*onMouseHover)(struct widget*)) {
-	return createWidget(NULL, position, NULL, BUTTON, button_draw, onClick, onMouseHover);
+Widget *createButton(int id, int posX, int posY, int width, int height, Color colorKey, char *text, int textPosX, int textPosY, char *imageFileName,
+		char *markedImageFileName) {
+	Widget* button = createWidget(id, NULL, posX, posY, width, height, NULL, BUTTON, button_draw);
+	setColorKey(button, colorKey);
+	setText(button, text, textPosX, textPosY);
+	if (imageFileName != NULL) {
+		setImage(button, imageFileName);
+	}
+	if (markedImageFileName != NULL) {
+		setMarkedImage(button, markedImageFileName);
+	}
+	return button;
 }
 
-/*Widget *createPanel(SDL_Rect *position) {
-	return createWidget(NULL, position, NULL, PANEL, panel_draw, panel_handle_event, panel_logic);
+Widget *createPanel(int id, int posX, int posY, int width, int height) {
+	return createWidget(id ,NULL, posX, posY, width, height, NULL, PANEL, panel_draw);
 }
 
-Widget *createLabel(SDL_Rect *position) {
-	return createWidget(NULL, position, NULL, LABEL, label_draw, label_handle_event, label_logic);
-}*/
+Widget *createLabel(int id, int posX, int posY, int width, int height) {
+	return createWidget(id ,NULL, posX, posY, width, height, NULL, LABEL, label_draw);
+}
 

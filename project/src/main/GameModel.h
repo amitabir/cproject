@@ -29,7 +29,7 @@ typedef struct game_model {
 	int isMouseTurn;
 	int numTurns;
 	int isGameOver;
-	int isGamePaused;
+	int isPaused;
 } GameModel;
 
 

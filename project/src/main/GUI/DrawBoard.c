@@ -1,18 +1,17 @@
 #include "DrawBoard.h"
 
-void draw_board_rec(Widget *widget){
-	Widget *temp_widget = NULL;
+void draw_board_rec(Widget *widget) {
+	Widget *currWidget = NULL;
 	getDrawFunc(widget)(widget);
 	ListRef curr = getChildren(widget);
-	while (curr != NULL){
-		temp_widget = (Widget *) headData(curr);
-		setScreen(temp_widget,getScreen(widget));
-		draw_board_rec(temp_widget);
+	while (curr != NULL) {
+		currWidget = (Widget *) headData(curr);
+		draw_board_rec(currWidget);
 		curr = tail(curr);
 	}
 }
 
-void draw_board(Widget *window){
+void draw_board(Widget *window) {
 	draw_board_rec(window);
 	SDL_Flip(getScreen(window));
 }

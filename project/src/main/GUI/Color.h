@@ -11,10 +11,8 @@ typedef struct color {
 
 Color createColor(Uint8 r,	Uint8 g, Uint8 b);
 
-void setColor(Color *color, Uint8 r,	Uint8 g, Uint8 b);
+Uint32 getFormattedColor(Color colorKey, SDL_Surface *surface);
 
-Uint32 getColorForSurface(SDL_Surface *surface, Uint8 r, Uint8 g, Uint8 b); 
-
-void setColorKey(SDL_Surface *surface, Uint8 r, Uint8 g, Uint8 b);
+int setColorKeyForSurface(Color colorKey, SDL_Surface *surface);
 
 #endif

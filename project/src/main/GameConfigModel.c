@@ -2,7 +2,15 @@
 #include <stdio.h>
 #include "GameConfigModel.h"
 
-GameConfigurationModel *createGameConfig(int isCatHuman, int catDifficulty,	int isMouseHuman, int mouseDifficulty) {
+#define DEFAUL_SKILL_LEVEL 1
+#define DEFAULT_IS_HUMAN 0
+#define DEFAULT_WORLD_INDEX 1
+
+GameConfigurationModel *createGameConfigDefault() {
+	return createGameConfig(DEFAULT_IS_HUMAN, DEFAUL_SKILL_LEVEL, DEFAULT_IS_HUMAN, DEFAUL_SKILL_LEVEL, DEFAULT_WORLD_INDEX);
+}
+
+GameConfigurationModel *createGameConfig(int isCatHuman, int catDifficulty,	int isMouseHuman, int mouseDifficulty, int worldIndex) {
 	GameConfigurationModel *gameConfig;
 	
 	// Create the game configuration struct
@@ -16,6 +24,7 @@ GameConfigurationModel *createGameConfig(int isCatHuman, int catDifficulty,	int 
 	gameConfig->catDifficulty = catDifficulty;
 	gameConfig->isMouseHuman = isMouseHuman;
 	gameConfig->mouseDifficulty = mouseDifficulty;
+	gameConfig->worldIndex = worldIndex;
 	return gameConfig;
 }
 

@@ -45,7 +45,7 @@ GameModel *createGame(GameConfigurationModel *gameConfig) {
 	
 	game->gameConfig = gameConfig; // TODO Maybe we should copy here?
 	game->isGameOver = 0;
-	game->isGamePaused = 0;
+	game->isPaused = 0;
 	return game;
 }
 

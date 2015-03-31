@@ -1,15 +1,19 @@
 #ifndef GUI_STATE_H_
 #define GUI_STATE_H_
 
-#define STATES_NUMBER 12
+#include <SDL.h>
+#include "GUI/Widget.h"
+#include "GameConfigModel.h"
+
+#define STATES_NUMBER 2
 
 typedef enum {
 	MAIN_MENU,
-	CONFIG_CAT_TYPE,
-	CONFIG_CAT_LEVEL,
-	CONFIG_MOUSE_TYPE,
-	CONFIG_MOUSE_LEVEL,
-	GAME,
+	CAT_CHOOSE,
+	CAT_CHOOSE_SKILL,
+	MOUSE_CHOOSE,
+	MOUSE_CHOOSE_SKILL,
+	GAME_PLAY,
 	LOAD_GAME, 
 	CREATE_GAME,
 	EDIT_GAME,
@@ -42,7 +46,22 @@ typedef struct GUI {
 
 	// The function pointer for deactivating this GUI - freeing the model and viewState and any other resources used.
 	// Returns the initialization data for the next state (can be NULL if not required).
-	void* (*stop) (struct GUI* gui);
-} GUI;
+	void* (*stop) (struct GUI* gui, StateId nextStateId);
+} GUIState;
+
+
+typedef struct selection_model {
+	StateId stateId;
+	GameConfigurationModel *gameConfig;
+	int markedButtonIndex;
+	struct selection_model *previousStateModel;
+} SelectionModel;
+
+SelectionModel *createSelectionModelByState(StateId stateId, void *initData);
+void markButton(Widget *window, int *markButtonPtr, int newButtonToMark);
+void* viewTranslateEventSelectionWindow(void* viewState, SDL_Event* event);
+StateId presenterHandleEventSelectionWindow(void* model, Widget *window, void* logicalEvent, int *markButtonPtr, 
+			StateId (*handleButtonSelected)(void *model, Widget *window, int buttonId), StateId sameStateId, int buttonsNumber);
+
 
 #endif /* GUI_STATE_H_ */

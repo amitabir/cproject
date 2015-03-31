@@ -6,8 +6,10 @@ typedef struct game_conf_model {
 	int catDifficulty;
 	int isMouseHuman;
 	int mouseDifficulty;
+	int worldIndex;
 } GameConfigurationModel;
 
-GameConfigurationModel *createGameConfig(int isCatHuman, int catDifficulty,	int isMouseHuman, int mouseDifficulty);
+GameConfigurationModel *createGameConfigDefault(); // ALL defaults
+GameConfigurationModel *createGameConfig(int isCatHuman, int catDifficulty,	int isMouseHuman, int mouseDifficulty, int worldIndex);
 
 #endif /* GAME_CONFIG_MODEL_H_ */
