@@ -21,31 +21,7 @@ WinnerType hasWinner(char **board, BoardPoint catPoint, BoardPoint mousePoint, B
 	return NO_WIN;
 }
 
-BoardPoint getMovedPoint(BoardPoint origPoint, MoveDirection direction) {
-	BoardPoint result;
-	result.row = origPoint.row;
-	result.col = origPoint.col;
-	switch(direction) {
-		case UP:
-			result.row--;
-			break;
-		case DOWN: 
-			result.row++;
-			break;
-		case LEFT:
-			result.col--;
-			break;
-		case RIGHT:
-			result.col++;
-			break;
-		default:
-			break;
-	}
-	
-	return result;
-}
-
-int isMoveValid(char **board, BoardPoint point, MoveDirection direction) {
+int isMoveValid(char **board, BoardPoint cheesePoint, BoardPoint point, MoveDirection direction) {
 	BoardPoint newPoint;
 	newPoint = getMovedPoint(point, direction);
 
@@ -56,6 +32,11 @@ int isMoveValid(char **board, BoardPoint point, MoveDirection direction) {
 	if (board[newPoint.row][newPoint.col] == WALL_TILE) {
 		return 0;
 	}
+	
+	if (newPoint.row == cheesePoint.row &&  newPoint.col == cheesePoint.col) {
+		return 0;
+	}
+	
 	return 1;
 }
 
@@ -136,7 +117,7 @@ ListRef getGameStateChildren(void *state) {
  		
 		// Going through the possible moves and creating a child for each one that is valid
  		for (moveIndex = 0; moveIndex < NUM_POSSIBLE_MOVES; moveIndex++) {
-			if (isMoveValid(gameState->board, playerPoint, moveIndexToMoveDirection(moveIndex))) {
+			if (isMoveValid(gameState->board, gameState->cheesePoint, playerPoint, moveIndexToMoveDirection(moveIndex))) {
 				GameState *childState = createStateFromParent(gameState, moveIndexToMoveDirection(moveIndex));
 				if (childState == NULL) { // standart function failed
 					destroyList(childrenList, freeState);
@@ -167,7 +148,7 @@ int childIndexToMoveIndex(GameState *gameState, int childIndex)  {
 	BoardPoint playerPoint = getPlayerPoint(gameState);
 	
 	for (moveIndex = 0; moveIndex < NUM_POSSIBLE_MOVES; moveIndex++) {
-		if (isMoveValid(gameState->board, playerPoint, moveIndexToMoveDirection(moveIndex))) {
+		if (isMoveValid(gameState->board, gameState->cheesePoint, playerPoint, moveIndexToMoveDirection(moveIndex))) {
 			// If the available moves count equals the childIndex, it means we've found the right move.
 			if (availableMoves == childIndex) {
 				result = moveIndex;

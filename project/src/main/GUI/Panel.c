@@ -1,6 +1,6 @@
 #include "Panel.h"
 
-void panel_draw(Widget *panel){
+void panelDraw(Widget *panel){
 	SDL_Rect rect;
 	rect.x = getPosX(panel);
 	rect.y = getPosY(panel);

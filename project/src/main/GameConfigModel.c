@@ -1,13 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "GameConfigModel.h"
+#include "Constants.h"
 
-#define DEFAUL_SKILL_LEVEL 1
-#define DEFAULT_IS_HUMAN 0
-#define DEFAULT_WORLD_INDEX 1
+#define DEFAULT_IS_HUMAN 1
 
 GameConfigurationModel *createGameConfigDefault() {
-	return createGameConfig(DEFAULT_IS_HUMAN, DEFAUL_SKILL_LEVEL, DEFAULT_IS_HUMAN, DEFAUL_SKILL_LEVEL, DEFAULT_WORLD_INDEX);
+	return createGameConfig(DEFAULT_IS_HUMAN, MIN_DIFFICULTY, DEFAULT_IS_HUMAN, MIN_DIFFICULTY, MIN_WORLD_INDEX);
 }
 
 GameConfigurationModel *createGameConfig(int isCatHuman, int catDifficulty,	int isMouseHuman, int mouseDifficulty, int worldIndex) {

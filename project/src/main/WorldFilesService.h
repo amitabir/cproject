@@ -28,5 +28,6 @@ typedef enum {
 
 int writeWorldToFile(int worldIndex, WorldFileData *worldData);
 int readWorldFromFile(int worldIndex, WorldFileData *worldData);
+char *worldIndexToStr(int worldIndex);
 	
 #endif /* WORLD_FILE_SERVICE_H_ */

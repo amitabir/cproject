@@ -11,14 +11,6 @@ typedef enum {
 	NO_WIN
 } WinnerType;
 
-typedef enum {
-	UP,
-	DOWN,
-	LEFT,
-	RIGHT
-} MoveDirection;
-
-
 typedef struct game_model {
 	GameConfigurationModel *gameConfig;
 	WinnerType winType;
@@ -30,8 +22,10 @@ typedef struct game_model {
 	int numTurns;
 	int isGameOver;
 	int isPaused;
+	char *validMsg;
 } GameModel;
 
+GameModel *createEmptyGame();
 
 GameModel *createGame(GameConfigurationModel *gameConfig);
 

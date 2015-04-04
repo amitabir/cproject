@@ -1,5 +1,5 @@
 CFLAGS=-Wall -g -std=c99 -lm -pedantic-errors
-MAIN_O_FILES=WorldFilesService.o MiniMax.o ListUtils.o GameModel.o GameConfigModel.o GameLogicService.o BoardPoint.o Evaluation.o MoveLogicService.o MainMenu.o CatChoose.o CatChooseSkill.o GamePlay.o GUIStatesFactory.o GUIState.o CatAndMouse.o LogicalEvents.o
+MAIN_O_FILES=WorldFilesService.o MiniMax.o ListUtils.o GameModel.o GameConfigModel.o GameLogicService.o BoardPoint.o Evaluation.o MoveLogicService.o MainMenu.o LoadGame.o ChooseType.o ChooseSkill.o GamePlay.o EditGame.o Error.o GUIStatesFactory.o GUIState.o CatAndMouse.o LogicalEvents.o
 GUI_O_FILES=BitmapFont.o Widget.o Color.o WidgetFactory.o Button.o Window.o Label.o Panel.o DrawBoard.o Events.o
 TESTS_O_FILES=WorldFilesServiceTest.o GameLogicServiceTest.o EvaluationTest.o
 TEST_EXEC_FILES=WorldFilesServiceTest GameLogicServiceTest EvaluationTest
@@ -87,13 +87,22 @@ LogicalEvents.o: $(MAIN_PATH)/LogicalEvents.c $(MAIN_PATH)/LogicalEvents.h
 MainMenu.o: $(MAIN_PATH)/MainMenu.c $(MAIN_PATH)/MainMenu.h
 	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c $(SDL_COMPILE_FLAGS)
 	
-CatChoose.o: $(MAIN_PATH)/CatChoose.c $(MAIN_PATH)/CatChoose.h
+LoadGame.o: $(MAIN_PATH)/LoadGame.c $(MAIN_PATH)/LoadGame.h
 	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c $(SDL_COMPILE_FLAGS)
 	
-CatChooseSkill.o: $(MAIN_PATH)/CatChooseSkill.c $(MAIN_PATH)/CatChooseSkill.h
+ChooseType.o: $(MAIN_PATH)/ChooseType.c $(MAIN_PATH)/ChooseType.h
+	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c $(SDL_COMPILE_FLAGS)
+	
+ChooseSkill.o: $(MAIN_PATH)/ChooseSkill.c $(MAIN_PATH)/ChooseSkill.h
 	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c $(SDL_COMPILE_FLAGS)
 	
 GamePlay.o: $(MAIN_PATH)/GamePlay.c $(MAIN_PATH)/GamePlay.h
+	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c $(SDL_COMPILE_FLAGS)
+
+EditGame.o: $(MAIN_PATH)/EditGame.c $(MAIN_PATH)/EditGame.h
+	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c $(SDL_COMPILE_FLAGS)
+	
+Error.o: $(MAIN_PATH)/Error.c $(MAIN_PATH)/Error.h
 	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c $(SDL_COMPILE_FLAGS)
 	
 GUIStatesFactory.o: $(MAIN_PATH)/GUIStatesFactory.c $(MAIN_PATH)/GUIStatesFactory.h

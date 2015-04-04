@@ -2,29 +2,24 @@
 #include "Widget.h"
 #include "BitmapFont.h"
 
-// TODO remove
-#include <string.h>
-
-void button_draw(Widget *button) {
+void buttonDraw(Widget *button) {
 	if (!button->preparedForDraw) {
 		prepareImageWidgetForDrawing(button);
 	}
 
-	SDL_Surface *fontImage1 = (loadImage("images/Fonts.bmp"));
-    SDL_Surface *fontImage = SDL_DisplayFormat( fontImage1 );
-    SDL_FreeSurface( fontImage1 );	
-    SDL_SetColorKey( fontImage, SDL_SRCCOLORKEY, SDL_MapRGB(fontImage->format, 0xFF, 0xFF, 0xFF ) );
- 	BitmapFont *font = createFontFromImage(fontImage, SDL_MapRGB(fontImage->format, 0xFF, 0xFF, 0xFF), 10, 10);
-
 	SDL_Surface *image;
-	if (isMarked(button)) {
-		image = getMarkedImage(button);
+	if (!isEnabled(button)) {
+		image = getDisabledImage(button);
 	} else {
-		image = getImage(button);
+		if (isMarked(button)) {
+			image = getMarkedImage(button);
+		} else {
+			image = getImage(button);
+		}
 	}
 	
 	if (button->text != NULL) {
-		addTextToSurface(font, button->textPosX, button->textPosY, button->text, image);
+		addTextToSurface(getBitmapFont(button), button->textPosX, button->textPosY, button->text, image);
 	}
 
 	SDL_Rect size;

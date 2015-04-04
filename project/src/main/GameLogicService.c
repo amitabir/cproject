@@ -1,6 +1,7 @@
 #include "GameLogicService.h"
 #include "MoveLogicService.h"
 #include "GameModel.h"
+#include "Constants.h"
 #include "GameConfigModel.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,10 +57,8 @@ int handleMachineMove(GameModel *game) {
 		makeCatMove(game, bestMove);
 	}
 	
-	game->isMouseTurn = !game->isMouseTurn;
 	return 1;
 }
-
 
 void handleTile(GameModel *game, char currTile, int i, int j) {
 	switch(currTile) {
@@ -102,4 +101,85 @@ GameModel *createGameFromConfigAndWorldFile(GameConfigurationModel *gameConfig, 
 	GameModel *result = createGame(gameConfig);
 	initGameFromWorldFile(result, worldFileData);
 	return result;
+}
+
+void resetGameFromWorldFile(GameModel *game) {
+	WorldFileData *worldData = NULL;
+	int i;
+	
+	// Move this somewhere else
+	worldData = (WorldFileData*) malloc(sizeof(WorldFileData));
+	worldData->board = (char**) malloc(BOARD_ROWS*sizeof(char*));
+	for (i =0; i < BOARD_ROWS; i++) {
+		worldData->board[i] =  (char*) malloc(BOARD_COLS*sizeof(char));
+	}
+	
+	readWorldFromFile(game->gameConfig->worldIndex, worldData);
+	initGameFromWorldFile(game, worldData);
+	
+	game->isGameOver = 0;
+	game->isPaused = 0;
+}
+
+GameModel *createGameFromConfig(GameConfigurationModel *gameConfig) {
+	WorldFileData *worldData = NULL;
+	int i;
+	
+	worldData = (WorldFileData*) malloc(sizeof(WorldFileData));
+	worldData->board = (char**) malloc(BOARD_ROWS*sizeof(char*));
+	for (i =0; i < BOARD_ROWS; i++) {
+		worldData->board[i] =  (char*) malloc(BOARD_COLS*sizeof(char));
+	}
+	
+	// TODO free world data
+	
+	readWorldFromFile(gameConfig->worldIndex, worldData);
+	return createGameFromConfigAndWorldFile(gameConfig, worldData);
+}
+
+void updateConfigForGame(GameModel *gameModel, GameConfigurationModel *newConfig) {
+	free(gameModel->gameConfig);
+	gameModel->gameConfig = createGameConfig(newConfig->isCatHuman, newConfig->catDifficulty,
+		 		newConfig->isMouseHuman, newConfig->mouseDifficulty, newConfig->worldIndex);
+}
+
+WorldFileData *createWorldDataFromGame(GameModel *game) {
+	WorldFileData *worldData = NULL;
+	int i, j;
+	
+	// Move this somewhere else
+	worldData = (WorldFileData*) malloc(sizeof(WorldFileData));
+	worldData->board = (char**) malloc(BOARD_ROWS*sizeof(char*));
+	for (i = 0; i < BOARD_ROWS; i++) {
+		worldData->board[i] =  (char*) malloc(BOARD_COLS*sizeof(char));
+	}
+	
+	worldData->isMouseStarts = game->isMouseTurn;
+	worldData->numTurns = game->numTurns;
+	
+	for (i = 0; i < BOARD_ROWS; i++) {
+		for (j = 0; j < BOARD_COLS; j++) {
+			worldData->board[i][j] = game->board[i][j];
+		}
+	}
+	
+	worldData->board[game->catPoint.row][game->catPoint.col] = CAT_TILE;
+	worldData->board[game->mousePoint.row][game->mousePoint.col] = MOUSE_TILE;
+	worldData->board[game->cheesePoint.row][game->cheesePoint.col] = CHEESE_TILE;
+	
+	return worldData;
+}
+
+int checkGameValidSetMsg(GameModel *game) {
+	if (isEmptyPoint(game->catPoint)) {
+		game->validMsg = "Cat is missing";
+		return 0;
+	} else if (isEmptyPoint(game->mousePoint)) {
+		game->validMsg = "Mouse is missing";
+		return 0;
+	} else if (isEmptyPoint(game->cheesePoint)) {
+		game->validMsg = "Cheese is missing";
+		return 0;
+	}
+	return 1;
 }

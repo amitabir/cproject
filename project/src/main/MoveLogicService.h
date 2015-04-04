@@ -23,7 +23,7 @@ BoardPoint getMovedPoint(BoardPoint origPoint, MoveDirection direction);
 
 WinnerType hasWinner(char **board, BoardPoint catPoint, BoardPoint mousePoint, BoardPoint cheesePoint, int numTurns);
 
-int isMoveValid(char **board, BoardPoint point, MoveDirection direction);
+int isMoveValid(char **board, BoardPoint cheesePoint, BoardPoint point, MoveDirection direction);
 
 int findBestMoveDirection(char **board, int numTurns, BoardPoint catPoint, BoardPoint mousePoint, BoardPoint cheesePoint,
 	 int isMouseTurn, int numberSteps, MoveDirection *bestMove);

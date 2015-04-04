@@ -4,7 +4,9 @@
 #include <SDL.h>
 #include <SDL_video.h>
 #include "Color.h"
-#include "ListUtils.h"
+#include "../ListUtils.h"
+#include "BitmapFont.h"
+
 
 typedef enum {
         WINDOW,
@@ -31,9 +33,12 @@ typedef struct widget {
     ListRef children;
 	char *imageFileName;
 	char *markedImageFileName;
+	char *disabledImageFileName;
     SDL_Surface *image;
 	SDL_Surface *markedImage;
+    SDL_Surface *disabledImage;
     SDL_Surface *screen;
+	BitmapFont *bitmapFont;
 	char *text;
 	int textPosX;
 	int textPosY;
@@ -83,12 +88,18 @@ Widget *getParent(Widget *widget);
 ListRef getChildren(Widget *widget);
 SDL_Surface *getImage(Widget *widget);
 SDL_Surface *getMarkedImage(Widget *widget);
+SDL_Surface *getDisabledImage(Widget *widget);
 SDL_Surface *getScreen(Widget *widget);
 void setImage(Widget *widget, char *filename);
 void setMarkedImage(Widget *widget, char *filename);
+void setDisabledImage(Widget *widget, char *filename);
 void setScreen(Widget *widget, SDL_Surface *screen);
 void addWidget(Widget *parent, Widget *child);
 void removeWidget(Widget *parent, Widget *child);
+void removeAllChildren(Widget *widget);
+
+void setBitmapFont(Widget *widget, BitmapFont *bitmapFont);
+BitmapFont *getBitmapFont(Widget *widget);
 
 Widget *getChildAtindex(Widget *parent, int childIndex);
 int findChildIndex(Widget *parent, Widget *child);

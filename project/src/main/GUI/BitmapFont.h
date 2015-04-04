@@ -1,5 +1,9 @@
-#include "SDL.h"
+#ifndef BITMAP_FONT_H_
+#define BITMAP_FONT_H_
+
+#include <SDL.h>
 #include "string.h"
+#include "Color.h"
 
 typedef struct bitmap_font {
 	SDL_Surface *bitmap;
@@ -8,6 +12,8 @@ typedef struct bitmap_font {
 	int space;
 } BitmapFont;
 
-BitmapFont *createFontFromImage(SDL_Surface *fontImg, Uint32 imgBgColor, int numCellRows, int numCellsCols);
+BitmapFont *createFontFromImage(SDL_Surface *fontImg, Color imgBgColor, int numCellRows, int numCellsCols);
 void addTextToSurface(BitmapFont *bitmapFont, int textLocationX, int textLocationY, char *text, SDL_Surface *surface);
 void destroyBitmapFont(BitmapFont *bitmapFont);
+
+#endif

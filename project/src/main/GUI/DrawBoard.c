@@ -2,12 +2,14 @@
 
 void draw_board_rec(Widget *widget) {
 	Widget *currWidget = NULL;
-	getDrawFunc(widget)(widget);
-	ListRef curr = getChildren(widget);
-	while (curr != NULL) {
-		currWidget = (Widget *) headData(curr);
-		draw_board_rec(currWidget);
-		curr = tail(curr);
+	if (isVisible(widget)) {
+		getDrawFunc(widget)(widget);
+		ListRef curr = getChildren(widget);
+		while (curr != NULL) {
+			currWidget = (Widget *) headData(curr);
+			draw_board_rec(currWidget);
+			curr = tail(curr);
+		}
 	}
 }
 

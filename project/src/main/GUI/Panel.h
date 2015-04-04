@@ -3,6 +3,6 @@
 #include <SDL.h>
 #include "Widget.h"
 
-void panel_draw(Widget *panel);
-void panel_handle_event(Widget *window, SDL_Event *event);
+void panelDraw(Widget *panel);
+
 #endif

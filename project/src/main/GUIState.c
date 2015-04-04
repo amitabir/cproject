@@ -3,7 +3,7 @@
 #include "LogicalEvents.h"
 #include "GUI/Events.h"
 
-SelectionModel *createSelectionModel(StateId stateId, SelectionModel *previousStateModel, GameConfigurationModel *previousConfig) {
+SelectionModel *createSelectionModel(StateId stateId, SelectionModel *previousStateModel, GameConfigurationModel *previousConfig, GameModel *game) {
 	SelectionModel *selectionModel = NULL;
 	selectionModel = (SelectionModel *) malloc(sizeof(SelectionModel));
 	selectionModel->stateId = stateId;
@@ -15,19 +15,20 @@ SelectionModel *createSelectionModel(StateId stateId, SelectionModel *previousSt
 		selectionModel->gameConfig = createGameConfigDefault();
 	}
 	selectionModel->markedButtonIndex = 0;
+	selectionModel->game = game;
 	return selectionModel;
 }
 
 SelectionModel *createSelectionModelByState(StateId stateId, void *initData) {
 	if (initData == NULL) {
-		return createSelectionModel(stateId, NULL, NULL);
+		return createSelectionModel(stateId, NULL, NULL, NULL);
 	} else {		
 		SelectionModel *previousStateModel = (SelectionModel *) initData;
 		if (previousStateModel->stateId == stateId) {
 			// Restore previous state
 			return initData;
 		} else { // Arrived from another state
-			return createSelectionModel(stateId, previousStateModel, previousStateModel->gameConfig);
+			return createSelectionModel(stateId, previousStateModel, previousStateModel->gameConfig, previousStateModel->game);
 		}
 	}
 }

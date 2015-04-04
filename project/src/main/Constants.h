@@ -18,5 +18,9 @@
 #define MIN_DIFFICULTY 1
 #define MAX_DIFFICULTY 9
 
+// World Indices
+#define MIN_WORLD_INDEX 1
+#define MAX_WORLD_INDEX 5
+
 #endif /* CONSTANTS_H_ */
 

@@ -3,6 +3,7 @@
 
 #include "CatAndMouse.h"
 #include "GUIState.h"
+#include "LogicalEvents.h"
 #include "GUIStatesFactory.h"
 
 
@@ -24,45 +25,50 @@ int main(int argc, char* args[]) {
 	// initialize GUI structs mapping by state ids:
 	GUIState guiStates[STATES_COUNT];
 
-	guiStates[MAIN_MENU] = createGUIForState(MAIN_MENU);
-	guiStates[CAT_CHOOSE] = createGUIForState(CAT_CHOOSE);
-	guiStates[CAT_CHOOSE_SKILL] = createGUIForState(CAT_CHOOSE_SKILL);
-	guiStates[MOUSE_CHOOSE] = createGUIForState(MOUSE_CHOOSE);
-	guiStates[MOUSE_CHOOSE_SKILL] = createGUIForState(MOUSE_CHOOSE_SKILL);
-	guiStates[GAME_PLAY] = createGUIForState(GAME_PLAY);
-	
-	
+	int stateId;
+	for (stateId = 0; stateId < STATES_COUNT; stateId++) {
+		guiStates[stateId] = createGUIForState(stateId);
+	}
 
  	// Starting the default/initial GUI:
 	StateId nextStateId = MAIN_MENU;
 
 	GUIState activeGUI = guiStates[nextStateId];
 	activeGUI.start(&activeGUI, NULL);
+	
+	int shouldWait;
 
 	while (!isError && nextStateId != QUIT) {
 		SDL_Event event;
-		while (SDL_PollEvent(&event) != 0) {
-
-			// translating the SDL event to a logical event using the view:
-			void* logicalEvent = activeGUI.viewTranslateEvent(activeGUI.viewState, &event);
+		void* logicalEvent;
+		// translating the SDL event to a logical event using the view:
+		if (SDL_PollEvent(&event) != 0) {
+			shouldWait = 0;
+			logicalEvent = activeGUI.viewTranslateEvent(activeGUI.viewState, &event);
+		} else {
+			shouldWait = 1;
+			logicalEvent = createLogicalEvent(NO_EVENT);
+		}
 			
-			// Handling the logical event using the presenter:
-			nextStateId = activeGUI.presenterHandleEvent(activeGUI.model, activeGUI.viewState, logicalEvent);
-			
-			// if state has changed, stop the active GUI and move to the next one:
-			if (activeGUI.stateId != nextStateId) {
-				if (nextStateId == QUIT) {
-					break;
-				}
-				else {
-					void* nextGuiInitData = activeGUI.stop(&activeGUI, nextStateId);
+		// Handling the logical event using the presenter:
+		nextStateId = activeGUI.presenterHandleEvent(activeGUI.model, activeGUI.viewState, logicalEvent);
+		
+		// if state has changed, stop the active GUI and move to the next one:
+		if (activeGUI.stateId != nextStateId) {
+			if (nextStateId == QUIT) {
+				break;
+			}
+			else {
+				void* nextGuiInitData = activeGUI.stop(&activeGUI, nextStateId);
 
-					activeGUI = guiStates[nextStateId];
-					activeGUI.start(&activeGUI, nextGuiInitData);
-				}
+				activeGUI = guiStates[nextStateId];
+				activeGUI.start(&activeGUI, nextGuiInitData);
 			}
 		}
-		SDL_Delay(POLLING_DELAY);
+		
+		if (shouldWait) {
+			SDL_Delay(POLLING_DELAY);
+		}		
 	}
 
 	//API may be extended with a "provideInitData" flag or something similar:

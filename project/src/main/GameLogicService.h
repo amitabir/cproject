@@ -9,6 +9,16 @@ int handleMachineMove(GameModel *game);
 
 void initGameFromWorldFile(GameModel *game, WorldFileData *worldFileData);
 
+GameModel *createGameFromConfig(GameConfigurationModel *gameConfig);
+
 GameModel *createGameFromConfigAndWorldFile(GameConfigurationModel *gameConfig, WorldFileData *worldFileData);
+
+void resetGameFromWorldFile(GameModel *game);
+
+void updateConfigForGame(GameModel *gameModel, GameConfigurationModel *newConfig);
+
+WorldFileData *createWorldDataFromGame(GameModel *game);
+
+int checkGameValidSetMsg(GameModel *game);
 
 #endif /* GAME_LOGIC_SERVICE_H_ */

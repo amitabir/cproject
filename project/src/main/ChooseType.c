@@ -7,7 +7,7 @@
 #include "GUI/GUIConstants.h"
 #include "GUIState.h"
 #include "LogicalEvents.h"
-#include "CatChoose.h"
+#include "ChooseType.h"
 
 
 #define BUTTONS_NUMBER 3
@@ -29,7 +29,23 @@ int isCatSelectionWindow(StateId stateId) {
 	return 0;
 }
 
-Widget* createCatChooseView(int isCatWindow) {
+int getButtonIdByPlayerType(int isHuman) {
+	if (isHuman) {
+		return BUTTON_HUMAN_TYPE;
+	} else {
+		return BUTTON_MACHINE_TYPE;
+	}
+}
+
+void setMarkedButtonByConfig(SelectionModel *model, int isCatWindow) {
+	if (isCatWindow) {
+		model->markedButtonIndex = getButtonIdByPlayerType(model->gameConfig->isCatHuman);
+	} else {
+		model->markedButtonIndex = getButtonIdByPlayerType(model->gameConfig->isMouseHuman);
+	}
+}
+
+Widget* createChooseTypeView(int isCatWindow) {
 	Widget *window = NULL, *buttonHuman = NULL, *buttonMachine = NULL, *buttonBack = NULL, *panel = NULL, *buttonsPanel = NULL, *titleLabel = NULL;
 	Color colorKey = createColor(0xFF, 0xFF, 0xFF);
 	
@@ -68,17 +84,19 @@ Widget* createCatChooseView(int isCatWindow) {
 	return window;
 }
 
-void startCatChoose(GUIState* catChooseState, void* initData) {
-	catChooseState->viewState = createCatChooseView(isCatSelectionWindow(catChooseState->stateId));
-	SelectionModel *model = createSelectionModelByState(catChooseState->stateId, initData);
-	catChooseState->model = model;
+void startChooseType(GUIState* chooseTypeState, void* initData) {
+	int isCatWindow = isCatSelectionWindow(chooseTypeState->stateId);
+	chooseTypeState->viewState = createChooseTypeView(isCatWindow);
+	SelectionModel *model = createSelectionModelByState(chooseTypeState->stateId, initData);
+	chooseTypeState->model = model;
 		
-	markButton((Widget *) catChooseState->viewState, &(model->markedButtonIndex), model->markedButtonIndex);	
-	draw_board((Widget *) catChooseState->viewState);
+	setMarkedButtonByConfig(model, isCatWindow);
+	markButton((Widget *) chooseTypeState->viewState, &(model->markedButtonIndex), model->markedButtonIndex);	
+	draw_board((Widget *) chooseTypeState->viewState);
 }
 
 
-void* viewTranslateEventCatChoose(void* viewState, SDL_Event* event) {
+void* viewTranslateEventChooseType(void* viewState, SDL_Event* event) {
 	return viewTranslateEventSelectionWindow(viewState, event);
 }
 
@@ -90,14 +108,18 @@ void updateConfig(SelectionModel *selectionModel, int isCatWindow, int isHuman) 
 	}
 }
 
-StateId handleButtonSelectedCatChoose(void* model, Widget *window, int buttonId) {
+StateId handleButtonSelectedChooseType(void* model, Widget *window, int buttonId) {
 	SelectionModel *selectionModel = (SelectionModel *) model;	
 	int isCatWindow = isCatSelectionWindow(selectionModel->stateId);
 	switch (buttonId) {
 		case BUTTON_HUMAN_TYPE:
 			updateConfig(selectionModel, isCatWindow, 1);
 			if (isCatWindow) {
-				return MOUSE_CHOOSE;
+				if (selectionModel->game == NULL) {
+					return MOUSE_CHOOSE;
+				} else {
+					return GAME_PLAY;
+				}
 			} else {
 				return GAME_PLAY;
 			}
@@ -117,16 +139,16 @@ StateId handleButtonSelectedCatChoose(void* model, Widget *window, int buttonId)
 	return selectionModel->stateId;
 }
 
-StateId presenterHandleEventCatChoose(void* model, void* viewState, void* logicalEvent) {
+StateId presenterHandleEventChooseType(void* model, void* viewState, void* logicalEvent) {
 	SelectionModel *selectionModel = (SelectionModel *) model;		
 	return presenterHandleEventSelectionWindow(model, (Widget *) viewState, logicalEvent, &(selectionModel->markedButtonIndex), 
-					handleButtonSelectedCatChoose, selectionModel->stateId, BUTTONS_NUMBER);
+					handleButtonSelectedChooseType, selectionModel->stateId, BUTTONS_NUMBER);
 }
 
-void* stopCatChoose(GUIState* state, StateId nextStateId) {
+void* stopChooseType(GUIState* state, StateId nextStateId) {
 	SelectionModel *selectionModel = (SelectionModel *) state->model;		
 	
-	if (nextStateId == selectionModel->previousStateModel->stateId) {
+	if (nextStateId == selectionModel->previousStateModel->stateId && nextStateId != GAME_PLAY) {
 		return selectionModel->previousStateModel;
 	} else {
 		return selectionModel;

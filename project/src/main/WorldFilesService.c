@@ -2,9 +2,16 @@
 #include "Constants.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 void getWorldFileName(int worldIndex, char *fileName) {
 	sprintf(fileName, "%s/%s%d%s", WORLD_FILE_DIR, WORLD_FILE_PREFIX, worldIndex, WORLD_FILE_ENDING);
+}
+
+char *worldIndexToStr(int worldIndex) {
+	char *worldStr = (char *) malloc(8 * sizeof(char));
+	sprintf(worldStr, "World %d", worldIndex);
+	return worldStr;
 }
 
 void handleFileError(FILE *fp, FileErrorType errorType, int worldIndex) {
@@ -104,7 +111,7 @@ int readWorldFromFile(int worldIndex, WorldFileData *worldData) {
 
 	strcmp(startPlayer, CAT_STARTS_STR) == 0 ? (isMouseStarts = 0) : (isMouseStarts = 1);
 	worldData->isMouseStarts = isMouseStarts;
-
+	
 	char **row = worldData->board;
 	char *col = *row;
 

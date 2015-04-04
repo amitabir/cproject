@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include "GUI/Widget.h"
 #include "GameConfigModel.h"
+#include "GameModel.h"
 
 #define STATES_NUMBER 2
 
@@ -15,7 +16,7 @@ typedef enum {
 	MOUSE_CHOOSE_SKILL,
 	GAME_PLAY,
 	LOAD_GAME, 
-	CREATE_GAME,
+	GAME_EDITOR,
 	EDIT_GAME,
 	SAVE_GAME,
 	ERROR,
@@ -54,9 +55,11 @@ typedef struct selection_model {
 	StateId stateId;
 	GameConfigurationModel *gameConfig;
 	int markedButtonIndex;
+	GameModel *game;
 	struct selection_model *previousStateModel;
 } SelectionModel;
 
+SelectionModel *createSelectionModel(StateId stateId, SelectionModel *previousStateModel, GameConfigurationModel *previousConfig, GameModel *game);
 SelectionModel *createSelectionModelByState(StateId stateId, void *initData);
 void markButton(Widget *window, int *markButtonPtr, int newButtonToMark);
 void* viewTranslateEventSelectionWindow(void* viewState, SDL_Event* event);

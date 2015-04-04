@@ -77,14 +77,11 @@ StateId handleButtonSelectedMainMenu(void* model, Widget *window, int buttonId) 
 		case BUTTON_NEW_GAME:
 			return CAT_CHOOSE;
 		case BUTTON_LOAD_GAME:
-			printf("LOAD GAME! \n");
-			break;
+			return LOAD_GAME;
 		case BUTTON_CREATE_GAME:
-			printf("CREATE GAME! \n");
-			break;
+			return GAME_EDITOR;
 		case BUTTON_EDIT_GAME:
-			printf("EDIT GAME! \n");
-			break;
+			return EDIT_GAME;
 		case BUTTON_QUIT:
 			return QUIT;
 		default:
@@ -100,5 +97,8 @@ StateId presenterHandleEventMainMenu(void* model, void* viewState, void* logical
 }
 
 void* stopMainMenu(GUIState* state, StateId nextStateId) {
+	if (nextStateId == GAME_EDITOR) {
+		return NULL;
+	}
 	return state->model;
 }

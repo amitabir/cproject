@@ -5,11 +5,15 @@
 #include "WorldFilesService.h"
 #include "MoveLogicService.h"
 
+#define DEFAULT_NUM_TURNS 20
+#define DEFAULT_GAME_OVER 0
+#define DEFAULT_GAME_PAUSED 0
+
 /* This function dynamically allocates the game board (two dimensional char array). 
    Returns NULL pointer if the malloc has failed. */
 char** createBoard() {
         char **board;
-        int i;
+        int i, j;
 			
         if ((board = (char**)malloc(BOARD_ROWS * sizeof(char*))) == NULL) {
                 perror("Error: standard function malloc has failed");
@@ -23,10 +27,18 @@ char** createBoard() {
                     return NULL;
                 }
         }
+		
+		// Init board with empty tiles
+		for (i = 0; i < BOARD_ROWS; i++) {
+			for (j = 0; j < BOARD_COLS; j++) {
+				board[i][j] = EMPTY_TILE;
+			}
+		}
+		
         return board;
 }
 
-GameModel *createGame(GameConfigurationModel *gameConfig) {
+GameModel *createEmptyGame() {
 	GameModel *game;
 	
 	// Create the game struct
@@ -43,9 +55,19 @@ GameModel *createGame(GameConfigurationModel *gameConfig) {
 		return NULL;
 	}
 	
-	game->gameConfig = gameConfig; // TODO Maybe we should copy here?
-	game->isGameOver = 0;
-	game->isPaused = 0;
+	game->catPoint = createEmptyPoint();
+	game->mousePoint = createEmptyPoint();
+	game->cheesePoint = createEmptyPoint();
+	game->isGameOver = DEFAULT_GAME_OVER;
+	game->isPaused = DEFAULT_GAME_PAUSED;
+	game->numTurns = DEFAULT_NUM_TURNS;
+	game->gameConfig = NULL;
+	return game;
+}
+
+GameModel *createGame(GameConfigurationModel *gameConfig) {
+	GameModel *game = createEmptyGame();
+	game->gameConfig = gameConfig; // TODO Maybe we should copy here
 	return game;
 }
 
@@ -79,16 +101,22 @@ void setNumMovesLeft(GameModel *game, int numTurns) {
 void makeMove(GameModel *game, BoardPoint *point, MoveDirection direction) {
 	BoardPoint newPoint;
 
-	if (isMoveValid(game->board, *point, direction)) {
+	if (isMoveValid(game->board, game->cheesePoint, *point, direction)) {
 		newPoint = getMovedPoint(*point, direction);
 		point->row = newPoint.row;
 		point->col = newPoint.col;
-	}
-	
-	WinnerType winType = hasWinner(game->board, game->catPoint, game->mousePoint, game->cheesePoint, game->numTurns);
-	if (winType != NO_WIN) {
-		game->winType = winType;
-		game->isGameOver = 1;
+		
+		game->numTurns--;
+		game->isMouseTurn = !game->isMouseTurn;
+		
+		WinnerType winType = hasWinner(game->board, game->catPoint, game->mousePoint, game->cheesePoint, game->numTurns);
+		if (winType != NO_WIN) {
+			game->winType = winType;
+			game->isGameOver = 1;
+		} else if (game->numTurns == 0) {
+			game->winType = DRAW;
+			game->isGameOver = 1;
+		}
 	}
 }
 

@@ -12,7 +12,7 @@ int coors_in_widget(Uint16 x, Uint16 y, Widget *widget){
 	}
 }
 
-Widget *findWidgetFromTree(Uint16 x, Uint16 y, Widget *widget){
+Widget *findWidgetFromTree(Uint16 x, Uint16 y, Widget *widget) {
 	if (!hasChildren(widget)){
 		return widget;
 	}

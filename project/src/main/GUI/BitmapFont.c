@@ -1,4 +1,3 @@
-#include "SDL.h"
 #include "string.h"
 #include "BitmapFont.h"
 
@@ -30,7 +29,6 @@ int findCharLeftSide(SDL_Surface *bitmap, Uint32 bgColor, int cellRow, int cellC
         for (row = 0; row < cellHeight; row++) {
             pX = cellWidth * cellCol + col;
             pY = cellHeight * cellRow + row;			
-
             if (getPixelFromSurface(pX, pY, bitmap) != bgColor) {
                 return pX;
             }
@@ -130,9 +128,13 @@ void addTextToSurface(BitmapFont *bitmapFont, int textLocationX, int textLocatio
     }
 }
 
-BitmapFont *createFontFromImage(SDL_Surface *fontImg, Uint32 imgBgColor, int numCellRows, int numCellsCols) {
+BitmapFont *createFontFromImage(SDL_Surface *fontImg, Color fontImgBgColor, int numCellRows, int numCellsCols) {
+    SDL_Surface *fontImageOpt = SDL_DisplayFormat(fontImg);
+    SDL_FreeSurface(fontImg);
+    SDL_SetColorKey(fontImageOpt, SDL_SRCCOLORKEY, getFormattedColor(fontImgBgColor, fontImageOpt) );
+	
 	BitmapFont *result = (BitmapFont*) malloc(sizeof(BitmapFont));
-	buildFont(result, fontImg, imgBgColor, numCellRows, numCellsCols);
+	buildFont(result, fontImageOpt, getFormattedColor(fontImgBgColor, fontImageOpt), numCellRows, numCellsCols);
 	return result;
 }
 
