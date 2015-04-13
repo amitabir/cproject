@@ -105,5 +105,5 @@ Widget *getChildAtindex(Widget *parent, int childIndex);
 int findChildIndex(Widget *parent, Widget *child);
 
 void (*getDrawFunc(Widget *widget))(Widget *widget);
-
+void freeWidget(Widget *widget);
 #endif

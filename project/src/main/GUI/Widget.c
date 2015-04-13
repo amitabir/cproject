@@ -324,3 +324,36 @@ BitmapFont *getBitmapFont(Widget *widget) {
 	}
 	return NULL;
 }
+
+void freeChildren(Widget *parent) {
+	Widget *currChild;
+	ListRef curr = parent->children;
+	while (curr != NULL) {
+		currChild = (Widget *) headData(curr);
+		freeWidget(currChild);
+		curr = tail(curr);
+	}
+}
+
+void freeWidget(Widget *widget) {
+	freeChildren(widget);
+	
+	if (widget->image != NULL) {
+		SDL_FreeSurface(widget->image);
+	}
+	
+	if (widget->markedImage != NULL) {
+		SDL_FreeSurface(widget->markedImage);
+	}
+	
+	if (widget->disabledImage != NULL) {
+		SDL_FreeSurface(widget->disabledImage);
+	}
+	
+	// Only the window have it
+	if (widget->parent == NULL) {
+		freeBitmapFont(widget->bitmapFont);
+		SDL_FreeSurface(widget->screen);
+ 	}
+	free(widget);
+}

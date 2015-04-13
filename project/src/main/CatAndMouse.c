@@ -9,6 +9,9 @@
 
 int isError = 0;
 
+// TODO remove
+int counter = 0;
+
 int init() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
             fprintf(stderr, "ERROR: unable to init SDL: %s\n", SDL_GetError());
@@ -66,9 +69,7 @@ int main(int argc, char* args[]) {
 			}
 		}
 		
-		if (shouldWait) {
-			SDL_Delay(POLLING_DELAY);
-		}		
+		SDL_Delay(POLLING_DELAY);
 	}
 
 	//API may be extended with a "provideInitData" flag or something similar:

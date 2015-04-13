@@ -138,7 +138,7 @@ BitmapFont *createFontFromImage(SDL_Surface *fontImg, Color fontImgBgColor, int 
 	return result;
 }
 
-void destroyBitmapFont(BitmapFont *bitmapFont) {
+void freeBitmapFont(BitmapFont *bitmapFont) {
 	 SDL_FreeSurface(bitmapFont->bitmap);
 	 free(bitmapFont);
 }

@@ -172,6 +172,7 @@ void startEditGame(GUIState* editGameState, void* initData) {
 
 void* viewTranslateEventEditGame(void* viewState, SDL_Event* event) {
 	Widget *widget;
+	MoveDirection *moveDirection;
 	
 	switch (event->type) {
 		case SDL_QUIT:
@@ -187,11 +188,20 @@ void* viewTranslateEventEditGame(void* viewState, SDL_Event* event) {
 				return getSelectedButtonEventForId(getId(widget));
 			}
 		case SDL_KEYDOWN:
+			 moveDirection = (MoveDirection *) malloc(sizeof(MoveDirection));
 			switch (event->key.keysym.sym) {
-				case SDLK_UP: return getMoveDirectionLogicalEvent(UP);
-				case SDLK_DOWN: return getMoveDirectionLogicalEvent(DOWN);
-				case SDLK_LEFT: return getMoveDirectionLogicalEvent(LEFT);
-				case SDLK_RIGHT: return getMoveDirectionLogicalEvent(RIGHT);
+				case SDLK_UP: 
+					*moveDirection = UP;
+					return getMoveDirectionLogicalEvent(moveDirection);
+				case SDLK_DOWN: 
+					*moveDirection = DOWN;
+					return getMoveDirectionLogicalEvent(moveDirection);
+				case SDLK_LEFT: 
+					*moveDirection = LEFT;
+					return getMoveDirectionLogicalEvent(moveDirection);
+				case SDLK_RIGHT: 
+					*moveDirection = RIGHT;
+					return getMoveDirectionLogicalEvent(moveDirection);
 				case SDLK_s: return getSelectedButtonEventForId(BUTTON_SAVE_WORLD);
 				case SDLK_F1: return getSelectedButtonEventForId(BUTTON_MAIN_MENU);
 	            case SDLK_ESCAPE: return getSelectedButtonEventForId(BUTTON_QUIT);

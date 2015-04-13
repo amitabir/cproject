@@ -173,7 +173,7 @@ int findBestMoveDirection(char **board, int numTurns, BoardPoint catPoint, Board
 		return 0;
 	}
 	// Getting the best child using the MiniMax algorithm
-	struct MiniMaxResult result = getBestChild(initialState, numberSteps, getGameStateChildren, freeState, stateEvaluation, isMouseTurn,
+	struct MiniMaxResult result = getBestChild(initialState, numberSteps, getGameStateChildren, freeState, stateEvaluation, !isMouseTurn,
 		 												MIN_EVALUATION, MAX_EVALUATION);
 	
 	// An index -1 returned means that the getBestChild method has failed (due to standart function error).

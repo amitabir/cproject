@@ -310,12 +310,13 @@ LogicalEvent *getMovePointLogicalEvent(Uint16 xPos, Uint16 yPos) {
 	return createLogicalEventWithParams(MOVE_POINT, point);
 }
 
-LogicalEvent *getMoveDirectionLogicalEvent(MoveDirection moveDirection) {
-	return createLogicalEventWithParams(MOVE_DIRECTION, &moveDirection);
+LogicalEvent *getMoveDirectionLogicalEvent(MoveDirection *moveDirection) {
+	return createLogicalEventWithParams(MOVE_DIRECTION, moveDirection);
 }
 
 void* viewTranslateEventGamePlay(void* viewState, SDL_Event* event) {
 	Widget *widget;
+	MoveDirection *moveDirection;
 	
 	switch (event->type) {
 		case SDL_QUIT:
@@ -323,7 +324,7 @@ void* viewTranslateEventGamePlay(void* viewState, SDL_Event* event) {
 		case SDL_MOUSEBUTTONUP:
 			widget = findWidgetFromTree(event->button.x, event->button.y, (Widget *) viewState);
 			if (!isClickable(widget) || !isEnabled(widget)) {
-				return createLogicalEvent(NO_EVENT);
+				return createLogicalEvent(IRRELEVANT_EVENT);
 			} else {
 				int buttonId = getId(widget);
 				if (buttonId == BUTTON_GRID) {
@@ -333,20 +334,32 @@ void* viewTranslateEventGamePlay(void* viewState, SDL_Event* event) {
 			}
 		case SDL_KEYDOWN:
 			switch (event->key.keysym.sym) {
-				case SDLK_UP: return getMoveDirectionLogicalEvent(UP);
-				case SDLK_DOWN: return getMoveDirectionLogicalEvent(DOWN);
-				case SDLK_LEFT: return getMoveDirectionLogicalEvent(LEFT);
-				case SDLK_RIGHT: return getMoveDirectionLogicalEvent(RIGHT);
+				case SDLK_UP: 
+					moveDirection = (MoveDirection *) malloc(sizeof(MoveDirection));
+					*moveDirection = UP;
+					return getMoveDirectionLogicalEvent(moveDirection);
+				case SDLK_DOWN: 
+					moveDirection = (MoveDirection *) malloc(sizeof(MoveDirection));
+					*moveDirection = DOWN;
+					return getMoveDirectionLogicalEvent(moveDirection);
+				case SDLK_LEFT: 
+					moveDirection = (MoveDirection *) malloc(sizeof(MoveDirection));
+					*moveDirection = LEFT;
+					return getMoveDirectionLogicalEvent(moveDirection);
+				case SDLK_RIGHT: 
+					moveDirection = (MoveDirection *) malloc(sizeof(MoveDirection));	
+					*moveDirection = RIGHT;
+					return getMoveDirectionLogicalEvent(moveDirection);
 	            case SDLK_SPACE: return getSelectedButtonEventForId(BUTTON_PAUSE);
                 case SDLK_F1: return getSelectedButtonEventForId(BUTTON_RECONFIG_MOUSE);
 	            case SDLK_F2: return getSelectedButtonEventForId(BUTTON_RECONFIG_CAT);
 	            case SDLK_F3: return getSelectedButtonEventForId(BUTTON_RESTART_GAME);
 	            case SDLK_F4: return getSelectedButtonEventForId(BUTTON_MAIN_MENU);
 	            case SDLK_ESCAPE: return getSelectedButtonEventForId(BUTTON_QUIT);
-				default: return createLogicalEvent(NO_EVENT);
+				default: return createLogicalEvent(IRRELEVANT_EVENT);
 			}
 		default:
-			return createLogicalEvent(NO_EVENT);
+			return createLogicalEvent(IRRELEVANT_EVENT);
 	}
 }
 
@@ -413,7 +426,7 @@ StateId presenterHandleEventGamePlay(void* model, void* viewState, void* logical
 	MoveDirection moveDirection;
 	
 	switch (logicalEventPtr->type) {
-		case NO_EVENT:
+		case NO_EVENT:	
 			if (!isCurrentPlayerHuman(gameModel) && !gameModel->isGameOver && !gameModel->isPaused) {
 				handleMachineTurn(gameModel, window);
 			}
@@ -422,13 +435,13 @@ StateId presenterHandleEventGamePlay(void* model, void* viewState, void* logical
 			clickedBtnId = (int *) logicalEventPtr->eventParams;
 			return handleButtonSelectedGamePlay(model, window, *clickedBtnId);
 		case MOVE_POINT:
-				newPoint = (BoardPoint *) logicalEventPtr->eventParams;
-				makeMove = getMoveDirectionFromCurrentPlayerPoint(gameModel, *newPoint, &moveDirection);
-				break;
+			newPoint = (BoardPoint *) logicalEventPtr->eventParams;
+			makeMove = getMoveDirectionFromCurrentPlayerPoint(gameModel, *newPoint, &moveDirection);			
+			break;
 		case MOVE_DIRECTION:
-				moveDirection = *((MoveDirection *) logicalEventPtr->eventParams);
-				makeMove = 1;
-				break;
+			moveDirection = *((MoveDirection *) logicalEventPtr->eventParams);
+			makeMove = 1;
+			break;
 		case QUIT_PRESSED:
 			return QUIT;
 		default:

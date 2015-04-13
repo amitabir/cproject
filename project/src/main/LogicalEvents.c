@@ -1,8 +1,6 @@
 #include <stdlib.h>
 #include "LogicalEvents.h"
 
-
-
 LogicalEvent *createLogicalEvent(LogicalEventType type) {
 	return createLogicalEventWithParams(type, NULL);
 }

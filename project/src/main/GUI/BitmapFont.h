@@ -14,6 +14,6 @@ typedef struct bitmap_font {
 
 BitmapFont *createFontFromImage(SDL_Surface *fontImg, Color imgBgColor, int numCellRows, int numCellsCols);
 void addTextToSurface(BitmapFont *bitmapFont, int textLocationX, int textLocationY, char *text, SDL_Surface *surface);
-void destroyBitmapFont(BitmapFont *bitmapFont);
+void freeBitmapFont(BitmapFont *bitmapFont);
 
 #endif
