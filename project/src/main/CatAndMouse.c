@@ -5,7 +5,7 @@
 #include "GUIState.h"
 #include "LogicalEvents.h"
 #include "GUIStatesFactory.h"
-
+#include "ConsoleMode.h"
 
 int isError = 0;
 
@@ -21,6 +21,17 @@ int init() {
 }
 
 int main(int argc, char* args[]) {
+	if(argc > 2){
+		//handle error
+		return 0;
+	} else if(argc == 2){
+		if(!consoleMode()){
+			//handle error
+			return 0;
+		}
+		return 1;
+	}
+
 	if (!init()) {
 		exit(1);
 	}
