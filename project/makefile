@@ -1,5 +1,5 @@
 CFLAGS=-Wall -g -std=c99 -lm -pedantic-errors
-MAIN_O_FILES=WorldFilesService.o MiniMax.o ListUtils.o GameModel.o GameConfigModel.o GameLogicService.o BoardPoint.o Evaluation.o MoveLogicService.o MainMenu.o LoadGame.o ChooseType.o ChooseSkill.o GamePlay.o EditGame.o Error.o GUIStatesFactory.o GUIState.o CatAndMouse.o LogicalEvents.o
+MAIN_O_FILES=WorldFilesService.o MiniMax.o ListUtils.o GameModel.o GameConfigModel.o GameLogicService.o BoardPoint.o Evaluation.o MoveLogicService.o MainMenu.o LoadGame.o ChooseType.o ChooseSkill.o GamePlay.o EditGame.o Error.o GUIStatesFactory.o GUIState.o CatAndMouse.o LogicalEvents.o ConsoleMode.o
 GUI_O_FILES=BitmapFont.o Widget.o Color.o WidgetFactory.o Button.o Window.o Label.o Panel.o DrawBoard.o Events.o
 TESTS_O_FILES=WorldFilesServiceTest.o GameLogicServiceTest.o EvaluationTest.o
 TEST_EXEC_FILES=WorldFilesServiceTest GameLogicServiceTest EvaluationTest
@@ -140,6 +140,9 @@ MiniMaxDemo: MiniMaxDemo.o MiniMax.o ListUtils.o
 	
 ListUtilsDemo: ListUtilsDemo.o ListUtils.o
 	gcc -o $@ $^ $(CFLAGS)
+
+ConsoleMode.o: $(MAIN_PATH)/ConsoleMode.c $(MAIN_PATH)/ConsoleMode.h
+	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
 
 #Game Main Program
 CatAndMouse.o : $(MAIN_PATH)/CatAndMouse.c $(MAIN_PATH)/CatAndMouse.h
