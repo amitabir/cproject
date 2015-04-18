@@ -26,8 +26,10 @@ typedef enum {
 	CLOSE_ERROR
 } FileErrorType;
 
+WorldFileData *createEmptyWorldFileData();
+void freeWorldFileData(WorldFileData *worldData);
 int writeWorldToFile(int worldIndex, WorldFileData *worldData);
+int parseWorldFile(FILE *fp, int worldIndex, WorldFileData *worldData);
 int readWorldFromFile(int worldIndex, WorldFileData *worldData);
-char *worldIndexToStr(int worldIndex);
 	
 #endif /* WORLD_FILE_SERVICE_H_ */

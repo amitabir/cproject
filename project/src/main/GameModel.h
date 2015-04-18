@@ -25,6 +25,10 @@ typedef struct game_model {
 	char *validMsg;
 } GameModel;
 
+char** createBoard();
+
+void freeBoard(char **board);
+
 GameModel *createEmptyGame();
 
 GameModel *createGame(GameConfigurationModel *gameConfig);
@@ -44,6 +48,8 @@ void setNumMovesLeft(GameModel *game, int numTurns);
 void makeCatMove(GameModel *game, MoveDirection direction);
 
 void makeMouseMove(GameModel *game, MoveDirection direction);
+
+void checkGameOver(GameModel *game);
 
 void freeGame(GameModel *game);
 

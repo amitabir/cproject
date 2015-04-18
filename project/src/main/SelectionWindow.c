@@ -1,71 +1,67 @@
-#include "GUI/Widget.h"
-#include "GUI/Window.h"
-#include "GUI/DrawBoard.h"
-#include "GUI/WidgetFactory.h"
-#include "GUI/Events.h"
-#include "GUI/Color.h"
-#include "GUI/GUIConstants.h"
-#include "GUIState.h"
+#include "SelectionWindow.h"
 #include "LogicalEvents.h"
+#include "GUI/UITree.h"
+#include "GameModel.h"
 
-Widget* createSelectionWindowView(SelectionViewState viewState) {
-	Widget *window = NULL, *buttonsPanel = NULL, *panel = NULL;
-buttonsPanel	
-	window = createWindow(0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, viewState->windowCaption);
-	setBgColor(window, createColor(0xFF, 0xFF, 0xFF));
-	
-	panel = createPanel(0, 200, 100, 400, 600);
-	setBgColor(panel, createColor(0xFF, 0xFF, 0xFF));
-	addWidget(window, panel);
-	
-	titleLabel = createLabel(0, 95, 0, 200, 70);
-	setText(titleLabel, viewState->labelText, 20, 20);
-	setBgColor(titleLabel, createColor(0xFF, 0xFF, 0xFF));
-	addWidget(panel, titleLabel);
-	
-	buttonsPanel = viewState->createButtonsPanel();
-	addWidget(panel, buttonsPanel)
-	
-	return window;
+SelectionModel *createSelectionModel(StateId stateId, SelectionModel *previousStateModel, GameConfigurationModel *previousConfig, GameModel *game) {
+	SelectionModel *selectionModel = NULL;
+	selectionModel = (SelectionModel *) malloc(sizeof(SelectionModel));
+	selectionModel->stateId = stateId;
+	selectionModel->previousStateModel = previousStateModel;
+	if (previousConfig != NULL) {
+		selectionModel->gameConfig = createGameConfig(previousConfig->isCatHuman, previousConfig->catDifficulty,
+			 		previousConfig->isMouseHuman, previousConfig->mouseDifficulty, previousConfig->worldIndex);
+	} else {
+		selectionModel->gameConfig = createGameConfigDefault();
+	}
+	selectionModel->markedButtonIndex = 0;
+	selectionModel->game = game;
+	return selectionModel;
 }
 
-void markButton(Widget *window, SelectionModel *selectionModel, int buttonIndex) {
+SelectionModel *createSelectionModelByState(StateId stateId, void *initData) {
+	if (initData == NULL) {
+		return createSelectionModel(stateId, NULL, NULL, NULL);
+	} else {		
+		SelectionModel *previousStateModel = (SelectionModel *) initData;
+		if (previousStateModel->stateId == stateId) {
+			// Restore previous state
+			return initData;
+		} else { // Arrived from another state
+			return createSelectionModel(stateId, previousStateModel, previousStateModel->gameConfig, previousStateModel->game);
+		}
+	}
+}
+
+void freeSelectionModel(SelectionModel *selectionModel, int freePrevious, int shouldFreeGame) {
+	if (selectionModel->gameConfig != NULL) {
+		freeConfig(selectionModel->gameConfig);
+	}
+	
+	if (selectionModel->previousStateModel != NULL && freePrevious) {
+		freeSelectionModel(selectionModel->previousStateModel, 1, shouldFreeGame);
+	}
+	
+	if (selectionModel->game != NULL && shouldFreeGame) {
+		freeGame(selectionModel->game);
+	}
+	
+	free(selectionModel);
+}
+
+void markButton(Widget *window, int *markButtonPtr, int newButtonToMark) {
 	Widget *panel = getChildAtindex(window, 0);
 	Widget *buttonsPanel = getChildAtindex(panel, 1);
-	Widget *button = getChildAtindex(buttonsPanel, catChooseModel->markedButtonIndex);
+	Widget *button = getChildAtindex(buttonsPanel, *markButtonPtr);
+	
 	if (button != NULL) {
 		setMarked(button, 0);
 	}
-	selectionModel->markedButtonIndex = buttonIndex;
-	button = getChildAtindex(buttonsPanel, catChooseModel->markedButtonIndex);
+	*markButtonPtr = newButtonToMark;
+	button = getChildAtindex(buttonsPanel, newButtonToMark);
 	if (button != NULL) {
 		setMarked(button, 1);
 	}
-	draw_board(window);
-}
-
-void startSelectionWindow(GUIState* state, void* initData) {
-	// Create View
-	SelectionViewState *viewState = (SelectionViewState *) state->viewState;
-	viewState->window = createSelectionWindowView(viewState);
-	
-	// Create Model
-	SelectionModel *selectionModel = (SelectionModel *) initData;
-	SelectionModel *selectionModel = (SelectionModel *) state->model;
-	
-	if (initData->previousState != NULL) {
-		SelectionModel *previousModel = (SelectionModel *) initData->previousState;
-		selectionModel->model = selectionModel->createModel(previousModel->model);
-		selectionModel->previousState = previousModel->previousState;
-		selectionModel->markedButtonId = previousModel->markedButtonId;
-	} else {
-		selectionModel->model = selectionModel->createModel(NULL);
-		selectionModel->previousState = NULL;
-		selectionModel->markedButtonId = 0;
-	}
-	
-	markButton(viewState->window, selectionModel, selectionModel->markedButtonId);	
-	draw_board(viewState->window);
 }
 
 void* viewTranslateEventSelectionWindow(void* viewState, SDL_Event* event) {
@@ -77,55 +73,81 @@ void* viewTranslateEventSelectionWindow(void* viewState, SDL_Event* event) {
 		case SDL_MOUSEBUTTONUP:
 			widget = findWidgetFromTree(event->button.x, event->button.y, (Widget *) viewState);
 			if (!isClickable(widget)) {
-				return createLogicalEvent(NO_EVENT);
-			} else {
+				return createLogicalEvent(IRRELEVANT_EVENT);
+			} else if (isMarkable(widget)) {
 				int *clickedIndexPtr = (int *)malloc(sizeof(int));
 				*clickedIndexPtr = getId(widget);
 				LogicalEvent *widgetLogicalEvent = createLogicalEventWithParams(MARK_AND_SELECT_BUTTON, clickedIndexPtr);
+				return widgetLogicalEvent;
+			} else {
+				int *clickedIndexPtr = (int *)malloc(sizeof(int));
+				*clickedIndexPtr = getId(widget);
+				LogicalEvent *widgetLogicalEvent = createLogicalEventWithParams(SELECT_BUTTON, clickedIndexPtr);
 				return widgetLogicalEvent;
 			}
 		case SDL_KEYDOWN:
 			switch (event->key.keysym.sym) {
                 case SDLK_TAB: 
 					return createLogicalEvent(MARK_NEXT_BUTTON);
-					break;
                 case SDLK_RETURN:
 					return createLogicalEvent(SELECT_MARKED_BUTTON);
-					break;
 				default:
-					 return createLogicalEvent(NO_EVENT);
+					 return createLogicalEvent(IRRELEVANT_EVENT);
 			}
 		default:
-			return createLogicalEvent(NO_EVENT);
+			return createLogicalEvent(IRRELEVANT_EVENT);
 	}
 }
 
-StateId presenterHandleEventCatChoose(void* model, void* viewState, void* logicalEvent) {
-	SelectionViewState *viewState = (SelectionViewState *) state->viewState;	
-	SelectionModel *selectionModel = (SelectionModel *) initData;
+StateId presenterHandleEventSelectionWindow(void* model, Widget *window, void* logicalEvent, int *markButtonPtr, 
+				StateId (*handleButtonSelected)(void *model, Widget *window, int buttonId), StateId sameStateId, int buttonsNumber) {
+	StateId result;
 	LogicalEvent *logicalEventPtr = (LogicalEvent *) logicalEvent;
-	int *clickedBtnIndex;
+	int *clickedBtnId;
 	
 	switch (logicalEventPtr->type) {
 		case MARK_NEXT_BUTTON:
-			markButton(viewState->window, selectionModel, (selectionModel->markedButtonId + 1) % viewState->getButtonsNumber());
+			markButton(window, markButtonPtr, (*markButtonPtr + 1) % buttonsNumber);
+			drawUITree(window);
+			result = sameStateId;
+			break;
+		case SELECT_BUTTON:
+			clickedBtnId = (int *) logicalEventPtr->eventParams;
+			result = handleButtonSelected(model, window, *clickedBtnId);
 			break;
 		case SELECT_MARKED_BUTTON:
-			return selectionModel->handleButtonSelected(selectionModel->model, viewState->window);
-		case MARK_AND_SELECT_BUTTON:
-			clickedBtnIndex = (int *) logicalEventPtr->eventParams;
-			markButton(viewState, model, *clickedBtnIndex);
-			return selectionModel->handleButtonSelected(selectionModel->model, viewState->window);
-		case QUIT_PRESSED:
-			return QUIT;
-		default:
+			result = handleButtonSelected(model, window, *markButtonPtr);
 			break;
+		case MARK_AND_SELECT_BUTTON:
+			clickedBtnId = (int *) logicalEventPtr->eventParams;
+			markButton(window, markButtonPtr, *clickedBtnId);
+			drawUITree(window);
+			result = handleButtonSelected(model, window, *clickedBtnId);
+			break;
+		case QUIT_PRESSED:
+			result = QUIT;
+			break;
+		default:
+			result = sameStateId;
 	}
-	// TODO free logical event
-	return selectionModel->stateId;
+	freeLogicalEvent(logicalEvent);
+	return result;
 }
 
-void* stopSelectionWindow(GUIState* state) {
-	// TODO think about freeing the previous data when back isn't clicked
-	return state->model;
+void* stopSelectionWindow(GUIState* state, StateId nextStateId) {
+	freeWidget((Widget *) state->viewState);
+	SelectionModel *selectionModel = (SelectionModel *) state->model;
+	
+	if (nextStateId == QUIT) {
+		if (selectionModel != NULL) {
+			freeSelectionModel(selectionModel, 1, 1);
+		}
+	}
+	
+	if (nextStateId == selectionModel->previousStateModel->stateId && nextStateId != GAME_PLAY) {
+		freeSelectionModel((SelectionModel *) state->model, 0, 0);
+		return selectionModel->previousStateModel;
+	} else {
+		return selectionModel;
+	}
 }

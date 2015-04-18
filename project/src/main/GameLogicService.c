@@ -6,36 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
-// /* Helper function that receives a pointer to the game and initailizes it - fill the board with empty slots and init the flags. */
-// void initGame(Connect4Game *game) {
-// 	// Using initBoard to initialize the game board
-// 	initBoard(game->board);
-// 	// Initializing rest of the game fields
-// 	game->isUserTurn = 1;
-// 	game->isGameOver = 0;
-// 	game->numberSteps = -1;
-// }
-//
-// /* Inintializing a new game received in the pointer given.
-// 	Returns 1 if the initialization has succeeded, 0 otherwise. */
-// int startGame(Connect4Game *game) {
-// 	// Creating a new board using the createBoard function
-// 	game->board = createBoard();
-// 	if (game->board == NULL) {
-// 		// Board creation has failed - 0 is returned.
-// 		return 0;
-// 	}
-// 	// Using initGame to initialize the game
-// 	initGame(game);
-// 	return 1;
-// }
-//
-// /* Receiving a pointer to an existing game and restarting it by setting all the flags to initial values and clear the board. */
-// void restartGame(Connect4Game *game) {
-// 	initGame(game);
-// }
-
 int handleMachineMove(GameModel *game) {
 	int numberSteps;
 	MoveDirection bestMove;
@@ -105,17 +75,11 @@ GameModel *createGameFromConfigAndWorldFile(GameConfigurationModel *gameConfig, 
 
 void resetGameFromWorldFile(GameModel *game) {
 	WorldFileData *worldData = NULL;
-	int i;
 	
-	// Move this somewhere else
-	worldData = (WorldFileData*) malloc(sizeof(WorldFileData));
-	worldData->board = (char**) malloc(BOARD_ROWS*sizeof(char*));
-	for (i =0; i < BOARD_ROWS; i++) {
-		worldData->board[i] =  (char*) malloc(BOARD_COLS*sizeof(char));
-	}
-	
+	worldData = createEmptyWorldFileData();
 	readWorldFromFile(game->gameConfig->worldIndex, worldData);
 	initGameFromWorldFile(game, worldData);
+	freeWorldFileData(worldData);
 	
 	game->isGameOver = 0;
 	game->isPaused = 0;
@@ -123,18 +87,13 @@ void resetGameFromWorldFile(GameModel *game) {
 
 GameModel *createGameFromConfig(GameConfigurationModel *gameConfig) {
 	WorldFileData *worldData = NULL;
-	int i;
+	GameModel *result = NULL;
 	
-	worldData = (WorldFileData*) malloc(sizeof(WorldFileData));
-	worldData->board = (char**) malloc(BOARD_ROWS*sizeof(char*));
-	for (i =0; i < BOARD_ROWS; i++) {
-		worldData->board[i] =  (char*) malloc(BOARD_COLS*sizeof(char));
-	}
-	
-	// TODO free world data
-	
+	worldData = createEmptyWorldFileData();
 	readWorldFromFile(gameConfig->worldIndex, worldData);
-	return createGameFromConfigAndWorldFile(gameConfig, worldData);
+	result = createGameFromConfigAndWorldFile(gameConfig, worldData);
+	freeWorldFileData(worldData);
+	return result;
 }
 
 void updateConfigForGame(GameModel *gameModel, GameConfigurationModel *newConfig) {
@@ -146,14 +105,8 @@ void updateConfigForGame(GameModel *gameModel, GameConfigurationModel *newConfig
 WorldFileData *createWorldDataFromGame(GameModel *game) {
 	WorldFileData *worldData = NULL;
 	int i, j;
-	
-	// Move this somewhere else
-	worldData = (WorldFileData*) malloc(sizeof(WorldFileData));
-	worldData->board = (char**) malloc(BOARD_ROWS*sizeof(char*));
-	for (i = 0; i < BOARD_ROWS; i++) {
-		worldData->board[i] =  (char*) malloc(BOARD_COLS*sizeof(char));
-	}
-	
+
+	worldData = createEmptyWorldFileData();
 	worldData->isMouseStarts = game->isMouseTurn;
 	worldData->numTurns = game->numTurns;
 	

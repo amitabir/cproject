@@ -11,5 +11,6 @@ typedef struct game_conf_model {
 
 GameConfigurationModel *createGameConfigDefault(); // ALL defaults
 GameConfigurationModel *createGameConfig(int isCatHuman, int catDifficulty,	int isMouseHuman, int mouseDifficulty, int worldIndex);
+void freeConfig(GameConfigurationModel *gameConfig);
 
 #endif /* GAME_CONFIG_MODEL_H_ */

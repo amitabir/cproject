@@ -1,16 +1,16 @@
 #include <string.h>
 #include "GUI/Widget.h"
 #include "GUI/Window.h"
-#include "GUI/DrawBoard.h"
+#include "GUI/UITree.h"
 #include "GUI/WidgetFactory.h"
-#include "GUI/Events.h"
 #include "GUI/Color.h"
 #include "GUI/GUIConstants.h"
-#include "GUIState.h"
+#include "SelectionWindow.h"
 #include "LogicalEvents.h"
 #include "WorldFilesService.h"
 #include "GameLogicService.h"
 #include "Constants.h"
+#include "WorldSelection.h"
 
 
 #define BUTTONS_NUMBER 3
@@ -19,6 +19,7 @@ static char *LOAD_GAME_LABEL_TITLE = "Load Game";
 static char *EDIT_GAME_LABEL_TITLE = "Edit Game";
 static char *SAVE_GAME_LABEL_TITLE = "Save Game";
 
+int saved = 0;
 
 typedef enum {
 	BUTTON_WORLD_INDEX,
@@ -78,10 +79,12 @@ Widget* createLoadGameView(StateId stateId) {
 }
 
 void updateWorldIndexButton(Widget *window, int worldIndex) {
+	char worldIndexStr[8];
 	Widget *panel = getChildAtindex(window, 0);
 	Widget *buttonsPanel = getChildAtindex(panel, 1);
 	Widget *worldIndexButton = getChildAtindex(buttonsPanel, BUTTON_WORLD_INDEX);
-	setText(worldIndexButton, worldIndexToStr(worldIndex), 20, 20);
+	sprintf(worldIndexStr, "World %d", worldIndex);
+	setText(worldIndexButton, worldIndexStr, 20, 20);
 }
 
 void startLoadGame(GUIState* loadGameState, void* initData) {
@@ -91,7 +94,7 @@ void startLoadGame(GUIState* loadGameState, void* initData) {
 	
 	updateWorldIndexButton((Widget *) loadGameState->viewState, model->gameConfig->worldIndex);
 	markButton((Widget *) loadGameState->viewState, &(model->markedButtonIndex), model->markedButtonIndex);	
-	draw_board((Widget *) loadGameState->viewState);
+	drawUITree((Widget *) loadGameState->viewState);
 }
 
 void* viewTranslateEventLoadGame(void* viewState, SDL_Event* event) {
@@ -113,10 +116,14 @@ void handleWorldIndexDown(SelectionModel *selectionModel, Widget *window) {
 }
 
 void handleSaveGame(SelectionModel *selectionModel) {
-	WorldFileData *worldData;
+	WorldFileData *worldData = NULL;
+	
 	worldData = createWorldDataFromGame(selectionModel->game);
-	selectionModel->game->gameConfig = selectionModel->gameConfig;
+	updateConfigForGame(selectionModel->game, selectionModel->gameConfig);
 	writeWorldToFile(selectionModel->gameConfig->worldIndex, worldData);
+	freeWorldFileData(worldData);
+	
+	saved = 1;
 }
 
 StateId handleButtonSelectedLoadGame(void* model, Widget *window, int buttonId) {
@@ -137,13 +144,13 @@ StateId handleButtonSelectedLoadGame(void* model, Widget *window, int buttonId) 
 		case BUTTON_WORLD_UP:
 			if (selectionModel->markedButtonIndex == BUTTON_WORLD_INDEX) {
 				handleWorldIndexUp(selectionModel, window);
-				draw_board(window);
+				drawUITree(window);
 			}
 			break;
 		case BUTTON_WORLD_DOWN:
 				if (selectionModel->markedButtonIndex == BUTTON_WORLD_INDEX) {
 				handleWorldIndexDown(selectionModel, window);
-				draw_board(window);	
+				drawUITree(window);	
 			}	
 			break;
 		case BUTTON_BACK:
@@ -160,13 +167,19 @@ StateId presenterHandleEventLoadGame(void* model, void* viewState, void* logical
 					handleButtonSelectedLoadGame, selectionModel->stateId, BUTTONS_NUMBER);
 }
 
+
 void* stopLoadGame(GUIState* state, StateId nextStateId) {
-	SelectionModel *selectionModel = (SelectionModel *) state->model;		
+	freeWidget((Widget *) state->viewState);
+	SelectionModel *selectionModel = (SelectionModel *) state->model;
 	
-	if (nextStateId == selectionModel->previousStateModel->stateId) {
+	if (nextStateId == QUIT) {
+		freeSelectionModel((SelectionModel *) state->model, 1, 1);
+	}
+	
+	if (nextStateId == selectionModel->previousStateModel->stateId && !saved) {		
+		freeSelectionModel((SelectionModel *) state->model, 0, 0);
 		return selectionModel->previousStateModel;
 	} else {
 		return selectionModel;
 	}
-	// TODO think about freeing the previous data when back isn't clicked
 }

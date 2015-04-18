@@ -10,6 +10,7 @@ void labelDraw(Widget *label) {
 	if (labelSurface == NULL) {
 		labelSurface = SDL_CreateRGBSurface(0, getWidth(label), getWidth(label), 32, 0, 0, 0, 0);
 		SDL_FillRect(labelSurface, NULL, getFormattedColor(getBgColor(label), labelSurface));
+		label->image = labelSurface;
 	}	
 	
 	addTextToSurface(getBitmapFont(label), label->textPosX, label->textPosY, label->text, labelSurface);

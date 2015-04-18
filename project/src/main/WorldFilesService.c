@@ -1,17 +1,26 @@
-#include "WorldFilesService.h"
-#include "Constants.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "WorldFilesService.h"
+#include "Constants.h"
+#include "BoardUtils.h"
+
+WorldFileData *createEmptyWorldFileData() {
+	WorldFileData* worldData;
+	worldData = (WorldFileData*) malloc(sizeof(WorldFileData));
+	worldData->board = createBoard();
+	return worldData;
+}
+
+void freeWorldFileData(WorldFileData *worldData) {
+	if (worldData->board != NULL) {
+		freeBoard(worldData->board);
+	}
+	free(worldData);
+}
 
 void getWorldFileName(int worldIndex, char *fileName) {
 	sprintf(fileName, "%s/%s%d%s", WORLD_FILE_DIR, WORLD_FILE_PREFIX, worldIndex, WORLD_FILE_ENDING);
-}
-
-char *worldIndexToStr(int worldIndex) {
-	char *worldStr = (char *) malloc(8 * sizeof(char));
-	sprintf(worldStr, "World %d", worldIndex);
-	return worldStr;
 }
 
 void handleFileError(FILE *fp, FileErrorType errorType, int worldIndex) {
@@ -85,11 +94,60 @@ int writeWorldToFile(int worldIndex, WorldFileData *worldData) {
 	return 1;
 }
 
-int readWorldFromFile(int worldIndex, WorldFileData *worldData) {
-	FILE *fp = NULL;
+int parseWorldFile(FILE *fp, int worldIndex, WorldFileData *worldData) {
 	char startPlayer[6];
+	char numTurnsStr[4];
 	char currentBoardChar;
 	int isMouseStarts;
+	int i,j;
+	
+	if (fscanf(fp, "%s\n", numTurnsStr) < 1) {
+		handleFileError(fp, READ_ERROR, worldIndex);
+		return 0;
+	}
+	
+	if (numTurnsStr[0] == 'q') {
+		return 0;
+	} else {		
+		sscanf(numTurnsStr, "%d\n", &(worldData->numTurns));
+	}
+	
+	if (fscanf(fp, "%s\n", startPlayer) < 1) {
+		handleFileError(fp, READ_ERROR, worldIndex);
+		return 0;
+	}	
+
+	strcmp(startPlayer, CAT_STARTS_STR) == 0 ? (isMouseStarts = 0) : (isMouseStarts = 1);
+	worldData->isMouseStarts = isMouseStarts;
+	
+	// char **row = worldData->board;
+	// char *col = *row;
+	
+	for (i = 0; i < BOARD_ROWS; i++) {
+		for (j = 0; j < BOARD_COLS; j++) {
+			currentBoardChar = fgetc(fp);
+			worldData->board[i][j] = currentBoardChar;
+		}
+		currentBoardChar = fgetc(fp);
+	}
+	
+	//
+	// while (row < BOARD_ROWS && col < BOARD_COLS) {
+	// 	currentBoardChar = fgetc(fp)
+	// 	if (currentBoardChar != '\n') {
+	// 		*col = currentBoardChar;
+	// 		col++;
+	// 	} else {
+	// 		row++;
+	// 		col = *row;
+	// 	}
+	// }
+	
+	return 1;
+}
+
+int readWorldFromFile(int worldIndex, WorldFileData *worldData) {
+	FILE *fp = NULL;
 	char fileName[FILE_NAME_LENGTH];
 	
 	getWorldFileName(worldIndex, fileName);
@@ -99,30 +157,8 @@ int readWorldFromFile(int worldIndex, WorldFileData *worldData) {
 		return 0;
 	}
 	
-	if (fscanf(fp, "%d\n", &(worldData->numTurns)) < 1) {
-		handleFileError(fp, READ_ERROR, worldIndex);
+	if (!parseWorldFile(fp, worldIndex, worldData)) {
 		return 0;
-	}
-	
-	if (fscanf(fp, "%s\n", startPlayer) < 1) {
-		handleFileError(fp, READ_ERROR, worldIndex);
-		return 0;
-	}
-
-	strcmp(startPlayer, CAT_STARTS_STR) == 0 ? (isMouseStarts = 0) : (isMouseStarts = 1);
-	worldData->isMouseStarts = isMouseStarts;
-	
-	char **row = worldData->board;
-	char *col = *row;
-
-	while ((currentBoardChar = fgetc(fp)) != EOF) {
-		if (currentBoardChar != '\n') {
-			*col = currentBoardChar;
-			col++;
-		} else {
-			row++;
-			col = *row;
-		}
 	}
 
 	if (fclose(fp)) {

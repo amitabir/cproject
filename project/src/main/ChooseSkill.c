@@ -1,12 +1,11 @@
 #include <string.h>
 #include "GUI/Widget.h"
 #include "GUI/Window.h"
-#include "GUI/DrawBoard.h"
+#include "GUI/UITree.h"
 #include "GUI/WidgetFactory.h"
-#include "GUI/Events.h"
 #include "GUI/Color.h"
 #include "GUI/GUIConstants.h"
-#include "GUIState.h"
+#include "SelectionWindow.h"
 #include "LogicalEvents.h"
 #include "Constants.h"
 
@@ -77,18 +76,14 @@ Widget* createChooseSkillView(int isCatWindow) {
 	return window;
 }
 
-char *skillToStr(int skill) {
-	char *skillStr = (char *) malloc(2 * sizeof(char));
-	sprintf(skillStr, "%d", skill);
-	return skillStr;
-}
-
 void updateSkillButton(Widget *window, int skillNumber) {
+	char skillStr[2];
 	Widget *panel = getChildAtindex(window, 0);
 	Widget *buttonsPanel = getChildAtindex(panel, 1);
 	Widget *skillButton;
 	skillButton = getChildAtindex(buttonsPanel, BUTTON_SKILL_LEVEL);
-	setText(skillButton, skillToStr(skillNumber), 45, 20);
+	sprintf(skillStr, "%d", skillNumber);
+	setText(skillButton, skillStr, 45, 20);
 }
 
 void startChooseSkill(GUIState* chooseSkillState, void* initData) {	
@@ -106,7 +101,7 @@ void startChooseSkill(GUIState* chooseSkillState, void* initData) {
 	}
 	updateSkillButton(window, skillLevel);
 	markButton(window, &(model->markedButtonIndex), model->markedButtonIndex);	
-	draw_board(window);
+	drawUITree(window);
 }
 
 void* viewTranslateEventChooseSkill(void* viewState, SDL_Event* event) {
@@ -158,13 +153,13 @@ StateId handleButtonSelectedChooseSkill(void* model, Widget *window, int buttonI
 		case BUTTON_SKILL_UP:
 			if (selectionModel->markedButtonIndex == BUTTON_SKILL_LEVEL) {
 				handleSkillUp(selectionModel, window, isCatWindow);
-				draw_board(window);
+				drawUITree(window);
 			}
 			break;
 		case BUTTON_SKILL_DOWN:
 				if (selectionModel->markedButtonIndex == BUTTON_SKILL_LEVEL) {
 				handleSkillDown(selectionModel, window, isCatWindow);
-				draw_board(window);	
+				drawUITree(window);	
 			}	
 			break;
 		case BUTTON_BACK:
@@ -179,15 +174,4 @@ StateId presenterHandleEventChooseSkill(void* model, void* viewState, void* logi
 	SelectionModel *selectionModel = (SelectionModel *) model;
 	return presenterHandleEventSelectionWindow((SelectionModel *) model, (Widget *) viewState, logicalEvent, &(selectionModel->markedButtonIndex), 
 					handleButtonSelectedChooseSkill, selectionModel->stateId, BUTTONS_NUMBER);
-}
-
-void* stopChooseSkill(GUIState* state, StateId nextStateId) {
-	SelectionModel *selectionModel = (SelectionModel *) state->model;		
-	
-	if (nextStateId == selectionModel->previousStateModel->stateId) {
-		return selectionModel->previousStateModel;
-	} else {
-		return selectionModel;
-	}
-	// TODO think about freeing the previous data when back isn't clicked
 }

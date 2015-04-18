@@ -249,8 +249,13 @@ void setText(Widget *widget, char *text, int textPosX, int textPosY) {
 	widget->textPosY = textPosY;
 	if (widget->text != NULL) {
 		reloadImages(widget);
+		free(widget->text);
 	}
-	widget->text = text;
+	
+	if (text != NULL) {
+		widget->text = (char *) malloc(sizeof(char) * (strlen(text) + 1));
+		strcpy(widget->text, text);
+	}
 }
 
 void addWidget(Widget *parent, Widget *child) {
@@ -272,7 +277,9 @@ void addWidget(Widget *parent, Widget *child) {
 	}
 }
 void removeAllChildren(Widget *widget) {
-	// TODO destroyList(widget->children);
+	if (widget->children != NULL) {
+		destroyList(widget->children, freeWidget);
+	}
 	widget->children = NULL;
 }
 
@@ -325,18 +332,12 @@ BitmapFont *getBitmapFont(Widget *widget) {
 	return NULL;
 }
 
-void freeChildren(Widget *parent) {
-	Widget *currChild;
-	ListRef curr = parent->children;
-	while (curr != NULL) {
-		currChild = (Widget *) headData(curr);
-		freeWidget(currChild);
-		curr = tail(curr);
+void freeWidget(void *widgetPtr) {
+	Widget *widget = (Widget *) widgetPtr;
+	
+	if (widget->children != NULL) {
+		destroyList(widget->children, freeWidget);
 	}
-}
-
-void freeWidget(Widget *widget) {
-	freeChildren(widget);
 	
 	if (widget->image != NULL) {
 		SDL_FreeSurface(widget->image);
@@ -348,6 +349,10 @@ void freeWidget(Widget *widget) {
 	
 	if (widget->disabledImage != NULL) {
 		SDL_FreeSurface(widget->disabledImage);
+	}
+	
+	if (widget->text != NULL) {
+		free(widget->text);
 	}
 	
 	// Only the window have it

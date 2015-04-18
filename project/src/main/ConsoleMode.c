@@ -1,5 +1,6 @@
 #include "ConsoleMode.h"
 #include "Evaluation.h"
+#include "GameLogicService.h"
 
 //TODO delete from here
 char** createBoardTemp() {
@@ -27,6 +28,32 @@ char** createBoardTemp() {
                 }
 
         return board;
+}
+
+int consoleMode2() {
+	WorldFileData *worldData = createEmptyWorldFileData();
+	int result = parseWorldFile(stdin, 0, worldData);
+	if (!result) {
+		return 1;
+	}
+	printf("Finished Parsing! \n");
+	GameModel *gameModel = createEmptyGame();
+	initGameFromWorldFile(gameModel, worldData);
+	freeWorldFileData(worldData);
+		
+	int score = getScoreForState(gameModel->board, gameModel->catPoint, gameModel->mousePoint, gameModel->cheesePoint);
+	printf("%d \n", score);
+	freeGame(gameModel);
+	
+	return 0;
+}
+
+int consoleMode3() {
+	int quit = 0;
+	while(!quit) {
+		quit = consoleMode2();
+	}
+	return 1;
 }
 
 

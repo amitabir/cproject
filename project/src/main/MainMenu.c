@@ -1,12 +1,11 @@
 #include "MainMenu.h"
 #include "GUI/Widget.h"
 #include "GUI/Window.h"
-#include "GUI/DrawBoard.h"
+#include "GUI/UITree.h"
 #include "GUI/WidgetFactory.h"
-#include "GUI/Events.h"
 #include "GUI/Color.h"
 #include "GUI/GUIConstants.h"
-#include "GUIState.h"
+#include "SelectionWindow.h"
 #include "LogicalEvents.h"
 
 #define BUTTONS_NUMBER 5
@@ -61,11 +60,11 @@ Widget* createMainMenuView() {
 
 void startMainMenu(GUIState* mainMenuState, void* initData) {
 	mainMenuState->viewState = createMainMenuView();
-	SelectionModel *model = createSelectionModelByState(mainMenuState->stateId, initData);	
+	SelectionModel *model = createSelectionModelByState(mainMenuState->stateId, initData);
 	mainMenuState->model = model;
-		
-	markButton((Widget *) mainMenuState->viewState, &(model->markedButtonIndex), model->markedButtonIndex);	
-	draw_board((Widget *) mainMenuState->viewState);
+
+	markButton((Widget *) mainMenuState->viewState, &(model->markedButtonIndex), model->markedButtonIndex);
+ 	drawUITree((Widget *) mainMenuState->viewState);
 }
 
 void* viewTranslateEventMainMenu(void* viewState, SDL_Event* event) {
@@ -97,7 +96,12 @@ StateId presenterHandleEventMainMenu(void* model, void* viewState, void* logical
 }
 
 void* stopMainMenu(GUIState* state, StateId nextStateId) {
+	freeWidget((Widget *) state->viewState);
 	if (nextStateId == GAME_EDITOR) {
+		return NULL;
+	}
+	if (nextStateId == QUIT) {
+		freeSelectionModel((SelectionModel *) state->model, 1, 1);
 		return NULL;
 	}
 	return state->model;

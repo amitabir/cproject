@@ -3,28 +3,25 @@
 
 #include <SDL.h>
 #include "GUIState.h"
+#include "GUI/Widget.h"
+#include "GameConfigModel.h"
+#include "GameModel.h"
 
-typedef struct selection_view_state {
-	Widget *window;
-	char *windowCaption;
-	char *labelText;
-	Widget* (*createButtonsPanel)();
-	int (*getButtonsNumber)();
-} SelectionViewState;
-	
 typedef struct selection_model {
-	void *model;
-	void* (*createModel)(void *initData);
-	StateId (*handleButtonSelected)(void *model, Widget *window);
-	void *previousStateData;
-	int markedButtonId;
 	StateId stateId;
+	GameConfigurationModel *gameConfig;
+	int markedButtonIndex;
+	GameModel *game;
+	struct selection_model *previousStateModel;
 } SelectionModel;
 
-void startSelectionWindow(GUIState* state, void* initData);
+SelectionModel *createSelectionModel(StateId stateId, SelectionModel *previousStateModel, GameConfigurationModel *previousConfig, GameModel *game);
+SelectionModel *createSelectionModelByState(StateId stateId, void *initData);
+void freeSelectionModel(SelectionModel *selectionModel, int freePrevious, int shouldFreeGame);
+void markButton(Widget *window, int *markButtonPtr, int newButtonToMark);
 void* viewTranslateEventSelectionWindow(void* viewState, SDL_Event* event);
-StateId presenterHandleEventSelectionWindow(void* model, void* viewState, void* logicalEvent);
-void* stopSelectionWindow(GUIState* state);
-
+StateId presenterHandleEventSelectionWindow(void* model, Widget *window, void* logicalEvent, int *markButtonPtr, 
+StateId (*handleButtonSelected)(void *model, Widget *window, int buttonId), StateId sameStateId, int buttonsNumber);
+void* stopSelectionWindow(GUIState* state, StateId nextStateId);
 
 #endif /* SELECTION_WINDOW_H_ */

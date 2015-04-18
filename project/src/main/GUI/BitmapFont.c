@@ -54,8 +54,40 @@ int findCharRightSide(SDL_Surface *bitmap, Uint32 bgColor, int cellRow, int cell
 	return 0; // Shouldn't get here
 }
 
+int findCharTopSide(SDL_Surface *bitmap, Uint32 bgColor, int cellRow, int cellCol, int cellWidth, int cellHeight) {
+	int col,row;
+	int pX, pY;
+	
+	for (row = 0; row < cellHeight; row++) {
+    	for (col = 0; col < cellWidth; col++) {
+            pX = cellWidth * cellCol + col;
+            pY = cellHeight * cellRow + row;			
+            if (getPixelFromSurface(pX, pY, bitmap) != bgColor) {
+                return pY;
+            }
+        }
+    }
+	return 0; // Shouldn't get here
+}
+
+int findCharBottomSide(SDL_Surface *bitmap, Uint32 bgColor, int cellRow, int cellCol, int cellWidth, int cellHeight) {
+	int col,row;
+	int pX, pY;
+	
+	for (row = cellHeight - 1; row >= 0; row--) {
+    	for (col = 0; col < cellWidth; col++) {
+            pX = cellWidth * cellCol + col;
+            pY = cellHeight * cellRow + row;			
+            if (getPixelFromSurface(pX, pY, bitmap) != bgColor) {
+                return pY;
+            }
+        }
+    }
+	return 0; // Shouldn't get here
+}
+
 void buildFont(BitmapFont *bitmapFont, SDL_Surface *fontImg, Uint32 imgBgColor, int numCellRows, int numCellsCols) {
-	int cellW, cellH, cols, rows, currentChar;
+	int cellW, cellH, cols, rows, currentChar, currTop;
 	
 	// TODO
     // // If surface is NULL
@@ -72,6 +104,9 @@ void buildFont(BitmapFont *bitmapFont, SDL_Surface *fontImg, Uint32 imgBgColor, 
     cellW = bitmap->w / numCellsCols;
     cellH = bitmap->h / numCellRows;
 	
+    int topA = cellW;
+    int baseA = cellH;
+	
     //The current character we're setting
     currentChar = 0;
 	
@@ -79,8 +114,17 @@ void buildFont(BitmapFont *bitmapFont, SDL_Surface *fontImg, Uint32 imgBgColor, 
     for (rows = 0; rows < numCellRows; rows++) {
         //Go through the cell columns
         for (cols = 0; cols < numCellsCols; cols++) {
-            chars[currentChar].y = cellH * rows;
-            chars[currentChar].h = cellH;
+            // chars[currentChar].y = cellH * rows;
+            // chars[currentChar].h = cellH;
+			
+            chars[currentChar].y = findCharTopSide(bitmap, imgBgColor, rows, cols, cellW, cellH);
+            chars[currentChar].h = findCharBottomSide(bitmap, imgBgColor, rows, cols, cellW, cellH) -  chars[currentChar].y + 1;
+
+			// if (currentChar == 'A') {
+// 				topA = findCharTopSide(bitmap, imgBgColor, rows, cols, cellW, cellH);
+//             	baseA = findCharBottomSide(bitmap, imgBgColor, rows, cols, cellW, cellH) - topA + 1;
+// 				printf("HA is %d \n", baseA);
+// 			}
 			
 			// Find the right and left sides of the character in the cell, and adjust cell width.
 			chars[currentChar].x = findCharLeftSide(bitmap, imgBgColor, rows, cols, cellW, cellH);
@@ -95,7 +139,7 @@ void buildFont(BitmapFont *bitmapFont, SDL_Surface *fontImg, Uint32 imgBgColor, 
     bitmapFont->space = cellW / 2;
 
     //Calculate new line
-    bitmapFont->newLine = cellH + 5;
+    bitmapFont->newLine = cellH + 1;
 }
 
 void addTextToSurface(BitmapFont *bitmapFont, int textLocationX, int textLocationY, char *text, SDL_Surface *surface) {
@@ -119,7 +163,7 @@ void addTextToSurface(BitmapFont *bitmapFont, int textLocationX, int textLocatio
 					ascii = (int) text[textIndex];
 
                	 	//Show the character
-               	 	apply_surface(currX, currY, bitmapFont->bitmap, surface, &(bitmapFont->chars[ascii-32]) );
+               	 	apply_surface(currX, currY + (15 - bitmapFont->chars[ascii-32].h), bitmapFont->bitmap, surface, &(bitmapFont->chars[ascii-32]) );
 
                 	//Move over the width of the character with one pixel of padding
                 	currX += bitmapFont->chars[ ascii-32 ].w + 1;

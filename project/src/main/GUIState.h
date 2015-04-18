@@ -2,11 +2,6 @@
 #define GUI_STATE_H_
 
 #include <SDL.h>
-#include "GUI/Widget.h"
-#include "GameConfigModel.h"
-#include "GameModel.h"
-
-#define STATES_NUMBER 2
 
 typedef enum {
 	MAIN_MENU,
@@ -49,22 +44,6 @@ typedef struct GUI {
 	// Returns the initialization data for the next state (can be NULL if not required).
 	void* (*stop) (struct GUI* gui, StateId nextStateId);
 } GUIState;
-
-
-typedef struct selection_model {
-	StateId stateId;
-	GameConfigurationModel *gameConfig;
-	int markedButtonIndex;
-	GameModel *game;
-	struct selection_model *previousStateModel;
-} SelectionModel;
-
-SelectionModel *createSelectionModel(StateId stateId, SelectionModel *previousStateModel, GameConfigurationModel *previousConfig, GameModel *game);
-SelectionModel *createSelectionModelByState(StateId stateId, void *initData);
-void markButton(Widget *window, int *markButtonPtr, int newButtonToMark);
-void* viewTranslateEventSelectionWindow(void* viewState, SDL_Event* event);
-StateId presenterHandleEventSelectionWindow(void* model, Widget *window, void* logicalEvent, int *markButtonPtr, 
-			StateId (*handleButtonSelected)(void *model, Widget *window, int buttonId), StateId sameStateId, int buttonsNumber);
 
 
 #endif /* GUI_STATE_H_ */

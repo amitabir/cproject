@@ -4,39 +4,11 @@
 #include "GameConfigModel.h"
 #include "WorldFilesService.h"
 #include "MoveLogicService.h"
+#include "BoardUtils.h"
 
 #define DEFAULT_NUM_TURNS 20
 #define DEFAULT_GAME_OVER 0
 #define DEFAULT_GAME_PAUSED 0
-
-/* This function dynamically allocates the game board (two dimensional char array). 
-   Returns NULL pointer if the malloc has failed. */
-char** createBoard() {
-        char **board;
-        int i, j;
-			
-        if ((board = (char**)malloc(BOARD_ROWS * sizeof(char*))) == NULL) {
-                perror("Error: standard function malloc has failed");
-                return NULL;
-        }
-
-        for (i = 0; i < BOARD_ROWS; i++) {
-                if ((board[i] = (char*)malloc(BOARD_COLS * sizeof(char))) == NULL) {
-                    perror("Error: standard function malloc has failed");
-					free(board);
-                    return NULL;
-                }
-        }
-		
-		// Init board with empty tiles
-		for (i = 0; i < BOARD_ROWS; i++) {
-			for (j = 0; j < BOARD_COLS; j++) {
-				board[i][j] = EMPTY_TILE;
-			}
-		}
-		
-        return board;
-}
 
 GameModel *createEmptyGame() {
 	GameModel *game;
@@ -62,12 +34,14 @@ GameModel *createEmptyGame() {
 	game->isPaused = DEFAULT_GAME_PAUSED;
 	game->numTurns = DEFAULT_NUM_TURNS;
 	game->gameConfig = NULL;
+	
 	return game;
 }
 
 GameModel *createGame(GameConfigurationModel *gameConfig) {
 	GameModel *game = createEmptyGame();
-	game->gameConfig = gameConfig; // TODO Maybe we should copy here
+	game->gameConfig = createGameConfig(gameConfig->isCatHuman, gameConfig->catDifficulty,
+		 		gameConfig->isMouseHuman, gameConfig->mouseDifficulty, gameConfig->worldIndex);
 	return game;
 }
 
@@ -109,14 +83,18 @@ void makeMove(GameModel *game, BoardPoint *point, MoveDirection direction) {
 		game->numTurns--;
 		game->isMouseTurn = !game->isMouseTurn;
 		
-		WinnerType winType = hasWinner(game->board, game->catPoint, game->mousePoint, game->cheesePoint, game->numTurns);
-		if (winType != NO_WIN) {
-			game->winType = winType;
-			game->isGameOver = 1;
-		} else if (game->numTurns == 0) {
-			game->winType = DRAW;
-			game->isGameOver = 1;
-		}
+		checkGameOver(game);
+	}
+}
+
+void checkGameOver(GameModel *game) {
+	WinnerType winType = hasWinner(game->board, game->catPoint, game->mousePoint, game->cheesePoint, game->numTurns);
+	if (winType != NO_WIN) {
+		game->winType = winType;
+		game->isGameOver = 1;
+	} else if (game->numTurns == 0) {
+		game->winType = DRAW;
+		game->isGameOver = 1;
 	}
 }
 
@@ -126,16 +104,6 @@ void makeCatMove(GameModel *game, MoveDirection direction) {
 
 void makeMouseMove(GameModel *game, MoveDirection direction) {
 	makeMove(game, &(game->mousePoint), direction);
-}
-
-/* This function receives a pointer to the board and frees it first by going through all of the rows and freeing
-the columns and at the end freeing the board pointer */
-void freeBoard(char **board) {
-	int i;
-	for (i = 0; i < BOARD_ROWS ; i++) {
-		free(board[i]);	
-	}
-	free(board);
 }
 
 /* Freeing the game by first using the freeBoard function to free the board and then freeing the game configuration struct and the game itself */

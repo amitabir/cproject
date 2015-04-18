@@ -25,7 +25,7 @@ int main(int argc, char* args[]) {
 		//handle error
 		return 0;
 	} else if(argc == 2){
-		if(!consoleMode()){
+		if(!consoleMode3()){
 			//handle error
 			return 0;
 		}

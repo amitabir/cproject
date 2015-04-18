@@ -20,6 +20,7 @@ typedef struct logical_event {
 
 LogicalEvent *createLogicalEvent(LogicalEventType type);
 LogicalEvent *createLogicalEventWithParams(LogicalEventType type, void *eventParams);
+void freeLogicalEvent(LogicalEvent *logicalEvent);
 
 #endif /* LOGICAL_EVENTS_H_ */
 

@@ -1,25 +1,18 @@
 #include "GUI/Widget.h"
 #include "GUI/Window.h"
-#include "GUI/DrawBoard.h"
+#include "GUI/UITree.h"
 #include "GUI/WidgetFactory.h"
-#include "GUI/Events.h"
 #include "GUI/Color.h"
 #include "GUI/GUIConstants.h"
-#include "GUIState.h"
+#include "SelectionWindow.h"
 #include "LogicalEvents.h"
 #include "GamePlay.h"
 #include "BoardPoint.h"
 #include "Constants.h"
-#include "GameModel.h"
 #include "WorldFilesService.h"
+#include "GeneralGameWindow.h"
 #include "GameLogicService.h"
 
-#define GRID_WIDTH 600
-#define GRID_HEIGHT 650
-#define GRID_X_POS 200
-#define GRID_Y_POS 150
-#define GRID_CELL_WIDTH GRID_WIDTH / BOARD_ROWS
-#define GRID_CELL_HEIGHT GRID_HEIGHT / BOARD_COLS
 #define DELAY_AFTER_MACHINE_CALC_MILLIS 1000
 
 static char *PAUSE_BUTTON_MACHINE_TURN_TEXT = "Pause Before Next Move (Space)";
@@ -42,63 +35,7 @@ typedef enum {
 	BUTTON_RESTART_GAME,
 	BUTTON_MAIN_MENU,
 	BUTTON_QUIT,
-	BUTTON_GRID
 } ButtonId;
-
-void setGridLabelCoordinates(Widget *label, BoardPoint point, int pad) {
-	int padding = 0;
-	if (pad) {
-		padding = 5;
-	}
-	setPosX(label, point.col * GRID_CELL_WIDTH + padding);
-	setPosY(label, point.row * GRID_CELL_HEIGHT + padding);
-}
-
-void placeWalls(Widget *gridButton, GameModel *gameModel) {
-	int i,j;
-	Widget *wallLabel;
-	for (i = 0; i < BOARD_ROWS; i++) {
-		for (j = 0; j < BOARD_COLS; j++) {
-			if (gameModel->board[i][j] == WALL_TILE) {
-				wallLabel = createLabel(0, 0, 0, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
-				BoardPoint wallPoint;
-				wallPoint.row = i;
-				wallPoint.col = j;
-				setGridLabelCoordinates(wallLabel, wallPoint, 1);
-				setImage(wallLabel, "images/wall.bmp");
-				addWidget(gridButton, wallLabel);
-			} 
-		}
-	}
-}
-
-Widget* createGridPanel(GameModel *gameModel) {
-	Widget *gridButton = NULL, *catLabel = NULL, *mouseLabel = NULL, *cheeseLabel = NULL;
-	Widget *gridPanel = createPanel(0, GRID_X_POS, GRID_Y_POS, GRID_WIDTH, GRID_HEIGHT);
-	setBgColor(gridPanel, createColor(0xFF, 0xFF, 0xFF));
-	
-	Color colorKey = createColor(0xFF, 0xFF, 0xFF);
-	gridButton = createButton(BUTTON_GRID, 0, 0, GRID_WIDTH, GRID_HEIGHT, colorKey, NULL, 0, 0, "images/grid.bmp", NULL);
-	addWidget(gridPanel, gridButton);
-	
-	catLabel = createLabel(0, 0, 0, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
-	setGridLabelCoordinates(catLabel, gameModel->catPoint, 1);
-	setImage(catLabel, "images/cat.bmp");
-	addWidget(gridButton, catLabel);
-	
-	mouseLabel = createLabel(0, 0, 0, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
-	setGridLabelCoordinates(mouseLabel, gameModel->mousePoint, 1);
-	setImage(mouseLabel, "images/mouse.bmp");
-	addWidget(gridButton, mouseLabel);
-	
-	cheeseLabel = createLabel(0, 0, 0, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
-	setGridLabelCoordinates(cheeseLabel, gameModel->cheesePoint, 1);
-	setImage(cheeseLabel, "images/cheese.bmp");
-	addWidget(gridButton, cheeseLabel);
-	
-	placeWalls(gridButton, gameModel);
-	return gridPanel;
-}
 
 Widget* createGamePlayView(GameModel *gameModel) {
 	Widget *window = NULL;
@@ -141,11 +78,11 @@ Widget* createGamePlayView(GameModel *gameModel) {
 	setBgColor(sidePanel, createColor(0xFF, 0xFF, 0xFF));
 	addWidget(window, sidePanel);
 	
-	reconfigureMouseButton = createButton(BUTTON_RECONFIG_MOUSE, 20, 50, 160, 60, colorKey, "Reconfigure Mouse (F1)", 5, 20, "images/smallButtonReg.bmp", "images/smallButtonMarked.bmp");
+	reconfigureMouseButton = createButton(BUTTON_RECONFIG_MOUSE, 20, 50, 160, 60, colorKey, "Reconfigure\nMouse (F1)", 5, 0, "images/smallButtonReg.bmp", "images/smallButtonMarked.bmp");
 	setDisabledImage(reconfigureMouseButton, "images/smallButtonDisabled.bmp");
 	addWidget(sidePanel, reconfigureMouseButton);
 	
-	reconfigureCatButton = createButton(BUTTON_RECONFIG_CAT, 20, 150, 160, 60, colorKey, "Reconfigure Cat (F2)", 5, 20, "images/smallButtonReg.bmp","images/smallButtonMarked.bmp");
+	reconfigureCatButton = createButton(BUTTON_RECONFIG_CAT, 20, 150, 160, 60, colorKey, "Reconfigure\nCat (F2)", 5, 0, "images/smallButtonReg.bmp","images/smallButtonMarked.bmp");
 	setDisabledImage(reconfigureCatButton, "images/smallButtonDisabled.bmp");
 	addWidget(sidePanel, reconfigureCatButton);
 	
@@ -171,16 +108,20 @@ int isCurrentPlayerHuman(GameModel *gameModel) {
 }
 
 GameModel *createGameModel(void *initData) {
+	GameModel *result;
 	SelectionModel *selectionModel = (SelectionModel *) initData;
 	if (selectionModel->game != NULL) {
 		updateConfigForGame(selectionModel->game, selectionModel->gameConfig);
-		return selectionModel->game;
+		result = selectionModel->game;
+	} else {
+		result = createGameFromConfig(selectionModel->gameConfig);
 	}
-	return createGameFromConfig(selectionModel->gameConfig);
+	freeSelectionModel(selectionModel, 1, 0);
+	return result;
 }
 
 void updateGameStatusLabel(GameModel *gameModel, Widget *gameStatusLabel) {
-	char *gameStatusText = (char *) malloc(18 * sizeof(char));
+	char gameStatusText[18];
 	if (gameModel->isMouseTurn) {
 		sprintf(gameStatusText, "Mouse's move (%d)", gameModel->numTurns);
 	} else {
@@ -278,7 +219,7 @@ void updateView(Widget *window, GameModel *gameModel) {
 	setGridLabelCoordinates(catLabel, gameModel->catPoint, 1);
 	setGridLabelCoordinates(mouseLabel, gameModel->mousePoint, 1);
 	
-	draw_board(window);
+	drawUITree(window);
 }
 
 void handleMachineTurn(GameModel *gameModel, Widget *window) {
@@ -290,33 +231,15 @@ void handleMachineTurn(GameModel *gameModel, Widget *window) {
 void startGamePlay(GUIState* gamePlayState, void* initData) {
 	GameModel *gameModel = createGameModel(initData);	
 	gamePlayState->model = gameModel;
-	
+		
 	Widget *window =  createGamePlayView(gameModel);
 	gamePlayState->viewState = window;
+	checkGameOver(gameModel);
 	updateView(window, gameModel);
-}
-
-LogicalEvent *getSelectedButtonEventForId(int buttonId) {
-	int *clickedIndexPtr = (int *)malloc(sizeof(int));
-	*clickedIndexPtr = buttonId;
-	return createLogicalEventWithParams(SELECT_BUTTON, clickedIndexPtr);
-}
-
-LogicalEvent *getMovePointLogicalEvent(Uint16 xPos, Uint16 yPos) {
-	BoardPoint *point = (BoardPoint *) malloc(sizeof(BoardPoint));
-	int cellH = GRID_CELL_HEIGHT, cellW = GRID_CELL_WIDTH;
-	point->row = (yPos - GRID_Y_POS) / cellH;
-	point->col = (xPos - GRID_X_POS) / cellW;
-	return createLogicalEventWithParams(MOVE_POINT, point);
-}
-
-LogicalEvent *getMoveDirectionLogicalEvent(MoveDirection *moveDirection) {
-	return createLogicalEventWithParams(MOVE_DIRECTION, moveDirection);
 }
 
 void* viewTranslateEventGamePlay(void* viewState, SDL_Event* event) {
 	Widget *widget;
-	MoveDirection *moveDirection;
 	
 	switch (event->type) {
 		case SDL_QUIT:
@@ -334,22 +257,10 @@ void* viewTranslateEventGamePlay(void* viewState, SDL_Event* event) {
 			}
 		case SDL_KEYDOWN:
 			switch (event->key.keysym.sym) {
-				case SDLK_UP: 
-					moveDirection = (MoveDirection *) malloc(sizeof(MoveDirection));
-					*moveDirection = UP;
-					return getMoveDirectionLogicalEvent(moveDirection);
-				case SDLK_DOWN: 
-					moveDirection = (MoveDirection *) malloc(sizeof(MoveDirection));
-					*moveDirection = DOWN;
-					return getMoveDirectionLogicalEvent(moveDirection);
-				case SDLK_LEFT: 
-					moveDirection = (MoveDirection *) malloc(sizeof(MoveDirection));
-					*moveDirection = LEFT;
-					return getMoveDirectionLogicalEvent(moveDirection);
-				case SDLK_RIGHT: 
-					moveDirection = (MoveDirection *) malloc(sizeof(MoveDirection));	
-					*moveDirection = RIGHT;
-					return getMoveDirectionLogicalEvent(moveDirection);
+				case SDLK_UP: return getMoveDirectionLogicalEvent(UP);
+				case SDLK_DOWN: return getMoveDirectionLogicalEvent(DOWN);
+				case SDLK_LEFT: return getMoveDirectionLogicalEvent(LEFT);
+				case SDLK_RIGHT: return getMoveDirectionLogicalEvent(RIGHT);
 	            case SDLK_SPACE: return getSelectedButtonEventForId(BUTTON_PAUSE);
                 case SDLK_F1: return getSelectedButtonEventForId(BUTTON_RECONFIG_MOUSE);
 	            case SDLK_F2: return getSelectedButtonEventForId(BUTTON_RECONFIG_CAT);
@@ -367,7 +278,7 @@ StateId handleButtonSelectedGamePlay(void* model, Widget *window, int buttonId) 
 	GameModel *gameModel = (GameModel *) model;	
 	switch (buttonId) {
 		case BUTTON_PAUSE:
-			gameModel->isPaused = !gameModel->isPaused;
+			gameModel->isPaused = !gameModel->isPaused;			
 			updateView(window, gameModel);
 			break;
 		case BUTTON_RECONFIG_MOUSE:
@@ -417,6 +328,7 @@ int getMoveDirectionFromCurrentPlayerPoint(GameModel *gameModel, BoardPoint newP
 }
 
 StateId presenterHandleEventGamePlay(void* model, void* viewState, void* logicalEvent) {
+	StateId result = GAME_PLAY;
 	LogicalEvent *logicalEventPtr = (LogicalEvent *) logicalEvent;
 	Widget *window = (Widget *) viewState;
 	GameModel *gameModel = (GameModel *) model;
@@ -433,7 +345,7 @@ StateId presenterHandleEventGamePlay(void* model, void* viewState, void* logical
 			break;
 		case SELECT_BUTTON:
 			clickedBtnId = (int *) logicalEventPtr->eventParams;
-			return handleButtonSelectedGamePlay(model, window, *clickedBtnId);
+			result = handleButtonSelectedGamePlay(model, window, *clickedBtnId);
 		case MOVE_POINT:
 			newPoint = (BoardPoint *) logicalEventPtr->eventParams;
 			makeMove = getMoveDirectionFromCurrentPlayerPoint(gameModel, *newPoint, &moveDirection);			
@@ -443,7 +355,7 @@ StateId presenterHandleEventGamePlay(void* model, void* viewState, void* logical
 			makeMove = 1;
 			break;
 		case QUIT_PRESSED:
-			return QUIT;
+			result = QUIT;
 		default:
 			break;
 	}
@@ -452,8 +364,8 @@ StateId presenterHandleEventGamePlay(void* model, void* viewState, void* logical
 		handleMove(gameModel, window, moveDirection);
 	}
 	
-	// TODO free logical event
-	return GAME_PLAY;
+	freeLogicalEvent(logicalEvent);
+	return result;
 }
 
 void* prepareInitDataForConfigureWindows(GameModel *gameModel, StateId stateOnBack) {
@@ -468,10 +380,12 @@ void* prepareInitDataForConfigureWindows(GameModel *gameModel, StateId stateOnBa
 }
 
 void* stopGamePlay(GUIState* state, StateId nextStateId) {
+	freeWidget((Widget *) state->viewState);
 	GameModel *gameModel = (GameModel *) state->model;
 	
 	switch (nextStateId) {
 		case MAIN_MENU:
+			freeGame(gameModel);
 			return NULL;
 		case MOUSE_CHOOSE:
 		case CAT_CHOOSE:
@@ -481,6 +395,7 @@ void* stopGamePlay(GUIState* state, StateId nextStateId) {
 		case CAT_CHOOSE_SKILL:
 			return prepareInitDataForConfigureWindows(gameModel, CAT_CHOOSE);
 		default:
+			freeGame(gameModel);
 			return NULL;
 	}
 }

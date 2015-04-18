@@ -1,6 +1,8 @@
 CFLAGS=-Wall -g -std=c99 -lm -pedantic-errors
-MAIN_O_FILES=WorldFilesService.o MiniMax.o ListUtils.o GameModel.o GameConfigModel.o GameLogicService.o BoardPoint.o Evaluation.o MoveLogicService.o MainMenu.o LoadGame.o ChooseType.o ChooseSkill.o GamePlay.o EditGame.o Error.o GUIStatesFactory.o GUIState.o CatAndMouse.o LogicalEvents.o ConsoleMode.o
-GUI_O_FILES=BitmapFont.o Widget.o Color.o WidgetFactory.o Button.o Window.o Label.o Panel.o DrawBoard.o Events.o
+MAIN_O_FILES=WorldFilesService.o MiniMax.o ListUtils.o GameModel.o GameConfigModel.o GameLogicService.o BoardPoint.o \
+ 	BoardUtils.o Evaluation.o MoveLogicService.o SelectionWindow.o GeneralGameWindow.o MainMenu.o WorldSelection.o ChooseType.o \
+ 	ChooseSkill.o GamePlay.o GameEditor.o Error.o GUIStatesFactory.o CatAndMouse.o LogicalEvents.o ConsoleMode.o
+GUI_O_FILES=BitmapFont.o Widget.o Color.o WidgetFactory.o Button.o Window.o Label.o Panel.o UITree.o
 TESTS_O_FILES=WorldFilesServiceTest.o GameLogicServiceTest.o EvaluationTest.o
 TEST_EXEC_FILES=WorldFilesServiceTest GameLogicServiceTest EvaluationTest
 EXEC_FILES=CatAndMouse
@@ -46,10 +48,7 @@ Label.o: $(GUI_PATH)/Label.c $(GUI_PATH)/Label.h
 Panel.o: $(GUI_PATH)/Panel.c $(GUI_PATH)/Panel.h
 	gcc -c $(CFLAGS) $(GUI_PATH)/$*.c $(SDL_COMPILE_FLAGS)
 	
-DrawBoard.o: $(GUI_PATH)/DrawBoard.c $(GUI_PATH)/DrawBoard.h
-	gcc -c $(CFLAGS) $(GUI_PATH)/$*.c $(SDL_COMPILE_FLAGS)
-
-Events.o: $(GUI_PATH)/Events.c $(GUI_PATH)/Events.h
+UITree.o: $(GUI_PATH)/UITree.c $(GUI_PATH)/UITree.h
 	gcc -c $(CFLAGS) $(GUI_PATH)/$*.c $(SDL_COMPILE_FLAGS)
 
 #Game Files
@@ -60,7 +59,7 @@ WorldFilesService.o: $(MAIN_PATH)/WorldFilesService.c $(MAIN_PATH)/WorldFilesSer
 WorldFilesServiceTest.o: $(TEST_PATH)/WorldFilesServiceTest.c $(MAIN_PATH)/WorldFilesService.h
 	gcc -c $(CFLAGS) $(TEST_PATH)/WorldFilesServiceTest.c
 	
-WorldFilesServiceTest: WorldFilesServiceTest.o WorldFilesService.o
+WorldFilesServiceTest: WorldFilesServiceTest.o WorldFilesService.o BoardUtils.o
 	gcc -o $@ $^ $(CFLAGS)
 
 GameModel.o: $(MAIN_PATH)/GameModel.c $(MAIN_PATH)/GameModel.h
@@ -75,7 +74,13 @@ GameLogicService.o: $(MAIN_PATH)/GameLogicService.c $(MAIN_PATH)/GameLogicServic
 BoardPoint.o: $(MAIN_PATH)/BoardPoint.c $(MAIN_PATH)/BoardPoint.h
 	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
 	
+BoardUtils.o: $(MAIN_PATH)/BoardUtils.c $(MAIN_PATH)/BoardUtils.h
+	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
+	
 Evaluation.o: $(MAIN_PATH)/Evaluation.c $(MAIN_PATH)/Evaluation.h
+	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
+	
+ConsoleMode.o: $(MAIN_PATH)/ConsoleMode.c $(MAIN_PATH)/ConsoleMode.h
 	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
 	
 MoveLogicService.o: $(MAIN_PATH)/MoveLogicService.c $(MAIN_PATH)/MoveLogicService.h
@@ -83,11 +88,17 @@ MoveLogicService.o: $(MAIN_PATH)/MoveLogicService.c $(MAIN_PATH)/MoveLogicServic
 	
 LogicalEvents.o: $(MAIN_PATH)/LogicalEvents.c $(MAIN_PATH)/LogicalEvents.h
 	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c	
+
+SelectionWindow.o: $(MAIN_PATH)/SelectionWindow.c $(MAIN_PATH)/SelectionWindow.h
+	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c $(SDL_COMPILE_FLAGS)	
 	
+GeneralGameWindow.o: $(MAIN_PATH)/GeneralGameWindow.c $(MAIN_PATH)/GeneralGameWindow.h
+	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c $(SDL_COMPILE_FLAGS)	
+
 MainMenu.o: $(MAIN_PATH)/MainMenu.c $(MAIN_PATH)/MainMenu.h
 	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c $(SDL_COMPILE_FLAGS)
 	
-LoadGame.o: $(MAIN_PATH)/LoadGame.c $(MAIN_PATH)/LoadGame.h
+WorldSelection.o: $(MAIN_PATH)/WorldSelection.c $(MAIN_PATH)/WorldSelection.h
 	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c $(SDL_COMPILE_FLAGS)
 	
 ChooseType.o: $(MAIN_PATH)/ChooseType.c $(MAIN_PATH)/ChooseType.h
@@ -99,7 +110,7 @@ ChooseSkill.o: $(MAIN_PATH)/ChooseSkill.c $(MAIN_PATH)/ChooseSkill.h
 GamePlay.o: $(MAIN_PATH)/GamePlay.c $(MAIN_PATH)/GamePlay.h
 	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c $(SDL_COMPILE_FLAGS)
 
-EditGame.o: $(MAIN_PATH)/EditGame.c $(MAIN_PATH)/EditGame.h
+GameEditor.o: $(MAIN_PATH)/GameEditor.c $(MAIN_PATH)/GameEditor.h
 	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c $(SDL_COMPILE_FLAGS)
 	
 Error.o: $(MAIN_PATH)/Error.c $(MAIN_PATH)/Error.h
@@ -108,19 +119,16 @@ Error.o: $(MAIN_PATH)/Error.c $(MAIN_PATH)/Error.h
 GUIStatesFactory.o: $(MAIN_PATH)/GUIStatesFactory.c $(MAIN_PATH)/GUIStatesFactory.h
 	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c $(SDL_COMPILE_FLAGS)
 	
-GUIState.o: $(MAIN_PATH)/GUIState.c $(MAIN_PATH)/GUIState.h
-	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c $(SDL_COMPILE_FLAGS)
-	
 GameLogicServiceTest.o: $(TEST_PATH)/GameLogicServiceTest.c $(MAIN_PATH)/MoveLogicService.h
 	gcc -c $(CFLAGS) $(TEST_PATH)/GameLogicServiceTest.c
 	
-GameLogicServiceTest: GameLogicServiceTest.o MoveLogicService.o BoardPoint.o Evaluation.o MiniMax.o ListUtils.o WorldFilesService.o GameLogicService.o GameModel.o GameConfigModel.o
+GameLogicServiceTest: GameLogicServiceTest.o MoveLogicService.o BoardPoint.o BoardUtils.o Evaluation.o MiniMax.o ListUtils.o WorldFilesService.o GameLogicService.o GameModel.o GameConfigModel.o
 	gcc -o $@ $^ $(CFLAGS)
 	
 EvaluationTest.o: $(TEST_PATH)/EvaluationTest.c $(MAIN_PATH)/MoveLogicService.h
 	gcc -c $(CFLAGS) $(TEST_PATH)/EvaluationTest.c
 	
-EvaluationTest: EvaluationTest.o MoveLogicService.o BoardPoint.o Evaluation.o MiniMax.o ListUtils.o WorldFilesService.o GameLogicService.o GameModel.o GameConfigModel.o
+EvaluationTest: EvaluationTest.o MoveLogicService.o BoardUtils.o BoardPoint.o Evaluation.o MiniMax.o ListUtils.o WorldFilesService.o GameLogicService.o GameModel.o GameConfigModel.o
 	gcc -o $@ $^ $(CFLAGS)
 	
 ListUtils.o: $(MAIN_PATH)/ListUtils.c $(MAIN_PATH)/ListUtils.h
@@ -140,9 +148,6 @@ MiniMaxDemo: MiniMaxDemo.o MiniMax.o ListUtils.o
 	
 ListUtilsDemo: ListUtilsDemo.o ListUtils.o
 	gcc -o $@ $^ $(CFLAGS)
-
-ConsoleMode.o: $(MAIN_PATH)/ConsoleMode.c $(MAIN_PATH)/ConsoleMode.h
-	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
 
 #Game Main Program
 CatAndMouse.o : $(MAIN_PATH)/CatAndMouse.c $(MAIN_PATH)/CatAndMouse.h

@@ -1,12 +1,13 @@
 #include "GUIStatesFactory.h"
 #include "MainMenu.h"
-#include "LoadGame.h"
+#include "WorldSelection.h"
 #include "ChooseType.h"
 #include "ChooseSkill.h"
 #include "GamePlay.h"
-#include "EditGame.h"
+#include "GameEditor.h"
 #include "Error.h"
 #include "GUIState.h"
+#include "SelectionWindow.h"
 
 GUIState createGUIForState(StateId stateId) {
 	GUIState guiState;
@@ -31,14 +32,14 @@ GUIState createGUIForState(StateId stateId) {
 			guiState.start = startChooseType;
 			guiState.viewTranslateEvent = viewTranslateEventChooseType;
 			guiState.presenterHandleEvent = presenterHandleEventChooseType;
-			guiState.stop = stopChooseType;
+			guiState.stop = stopSelectionWindow;
 			break;
 		case CAT_CHOOSE_SKILL:
 		case MOUSE_CHOOSE_SKILL:
 			guiState.start = startChooseSkill;
 			guiState.viewTranslateEvent = viewTranslateEventChooseSkill;
 			guiState.presenterHandleEvent = presenterHandleEventChooseSkill;
-			guiState.stop = stopChooseSkill;
+			guiState.stop = stopSelectionWindow;
 			break;
 		case GAME_PLAY:
 			guiState.start = startGamePlay;

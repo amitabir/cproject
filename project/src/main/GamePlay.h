@@ -3,17 +3,8 @@
 
 #include <SDL.h>
 #include "GUIState.h"
-
-// TODO remove?
-#include "LogicalEvents.h"
-
-// TODO maybe move these
-LogicalEvent *getSelectedButtonEventForId(int buttonId);
-LogicalEvent *getMovePointLogicalEvent(Uint16 xPos, Uint16 yPos);
-LogicalEvent *getMoveDirectionLogicalEvent(MoveDirection *moveDirection);
-void placeWalls(Widget *gridButton, GameModel *gameModel);
-void setGridLabelCoordinates(Widget *label, BoardPoint point, int pad);
-Widget* createGridPanel(GameModel *gameModel);
+#include "GameModel.h"
+#include "GUI/Widget.h"
 
 void startGamePlay(GUIState* mainMenuState, void* initData);
 void* viewTranslateEventGamePlay(void* viewState, SDL_Event* event);

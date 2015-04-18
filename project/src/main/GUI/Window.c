@@ -1,4 +1,4 @@
-#include "Window.h"
+	#include "Window.h"
 
 #define DEFAULT_BPP 0
 
@@ -14,7 +14,7 @@ int initScreen(Widget *window) {
     SDL_WM_SetCaption(window->caption, NULL);
 	
 	// Create Bitmap Font helper for this window and its children widgets
-	SDL_Surface *fontImg = (loadImage("images/Fonts.bmp"));
+	SDL_Surface *fontImg = (loadImage("images/4.bmp"));
 	Color fontImgBgColor = createColor(0xFF, 0xFF, 0xFF);
  	BitmapFont *bitmapFont = createFontFromImage(fontImg, fontImgBgColor, 10, 10);
 	setBitmapFont(window, bitmapFont);

@@ -12,3 +12,10 @@ LogicalEvent *createLogicalEventWithParams(LogicalEventType type, void *eventPar
 	result->eventParams = eventParams;
 	return result;
 }
+
+void freeLogicalEvent(LogicalEvent *logicalEvent) {
+	if (logicalEvent->eventParams != NULL) {
+		free(logicalEvent->eventParams);
+	}
+	free(logicalEvent);
+}

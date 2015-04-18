@@ -1,19 +1,19 @@
-#ifndef EDIT_GAME_H_
-#define EDIT_GAME_H_
+#ifndef GAME_EDITOR_H_
+#define GAME_EDITOR_H_
 
 #include <SDL.h>
 #include "GUIState.h"
 
-typedef struct edit_world_model {
+typedef struct game_editor_model {
 	StateId stateId;
 	GameModel *game;
 	BoardPoint markedPoint;
 	char *errorMsg;
-} EditGameModel;
+} GameEditorModel;
 
 void startEditGame(GUIState* editGameState, void* initData);
 void* viewTranslateEventEditGame(void* viewState, SDL_Event* event);
 StateId presenterHandleEventEditGame(void* model, void* viewState, void* logicalEvent);
 void* stopEditGame(GUIState* gui, StateId nextStateId);
 
-#endif /* EDIT_GAME_H_ */
+#endif /* GAME_EDITOR_H_ */

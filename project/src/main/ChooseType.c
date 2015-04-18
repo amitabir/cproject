@@ -1,11 +1,10 @@
 #include "GUI/Widget.h"
 #include "GUI/Window.h"
-#include "GUI/DrawBoard.h"
 #include "GUI/WidgetFactory.h"
-#include "GUI/Events.h"
+#include "GUI/UITree.h"
 #include "GUI/Color.h"
 #include "GUI/GUIConstants.h"
-#include "GUIState.h"
+#include "SelectionWindow.h"
 #include "LogicalEvents.h"
 #include "ChooseType.h"
 
@@ -92,7 +91,7 @@ void startChooseType(GUIState* chooseTypeState, void* initData) {
 		
 	setMarkedButtonByConfig(model, isCatWindow);
 	markButton((Widget *) chooseTypeState->viewState, &(model->markedButtonIndex), model->markedButtonIndex);	
-	draw_board((Widget *) chooseTypeState->viewState);
+	drawUITree((Widget *) chooseTypeState->viewState);
 }
 
 
@@ -143,15 +142,4 @@ StateId presenterHandleEventChooseType(void* model, void* viewState, void* logic
 	SelectionModel *selectionModel = (SelectionModel *) model;		
 	return presenterHandleEventSelectionWindow(model, (Widget *) viewState, logicalEvent, &(selectionModel->markedButtonIndex), 
 					handleButtonSelectedChooseType, selectionModel->stateId, BUTTONS_NUMBER);
-}
-
-void* stopChooseType(GUIState* state, StateId nextStateId) {
-	SelectionModel *selectionModel = (SelectionModel *) state->model;		
-	
-	if (nextStateId == selectionModel->previousStateModel->stateId && nextStateId != GAME_PLAY) {
-		return selectionModel->previousStateModel;
-	} else {
-		return selectionModel;
-	}
-	// TODO think about freeing the previous data when back isn't clicked
 }

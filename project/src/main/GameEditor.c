@@ -1,19 +1,20 @@
 #include "GUI/Widget.h"
 #include "GUI/Window.h"
-#include "GUI/DrawBoard.h"
+#include "GUI/UITree.h"
 #include "GUI/WidgetFactory.h"
-#include "GUI/Events.h"
 #include "GUI/Color.h"
 #include "GUI/GUIConstants.h"
-#include "GUIState.h"
+#include "SelectionWindow.h"
 #include "LogicalEvents.h"
 #include "GamePlay.h"
 #include "BoardPoint.h"
 #include "Constants.h"
 #include "GameModel.h"
 #include "WorldFilesService.h"
-#include "EditGame.h"
+#include "GameEditor.h"
 #include "GameLogicService.h"
+#include "GeneralGameWindow.h"
+
 
 #define GRID_WIDTH 600
 #define GRID_HEIGHT 650
@@ -31,10 +32,9 @@ typedef enum {
 	BUTTON_PLACE_CHEESE,
 	BUTTON_PLACE_WALL,
 	BUTTON_PLACE_EMPTY,
-	BUTTON_GRID
 } ButtonId;
 
-Widget* createEditGameView(EditGameModel *editModel) {
+Widget* createEditGameView(GameEditorModel *editModel) {
 	Widget *window = NULL;
 	
 	// Top panel widgets
@@ -58,7 +58,9 @@ Widget* createEditGameView(EditGameModel *editModel) {
 	titleLabel = createLabel(0, 350, 20, 300, 50);
 	setBgColor(titleLabel, createColor(0xFF, 0xFF, 0xFF));
 	if (editModel->game->gameConfig != NULL) {
-		setText(titleLabel, worldIndexToStr(editModel->game->gameConfig->worldIndex), 5, 10);
+		char worldIndexStr[8];
+		sprintf(worldIndexStr, "World %d", editModel->game->gameConfig->worldIndex);
+		setText(titleLabel, worldIndexStr, 5, 10);
 	} else {
 		setText(titleLabel, "Create World", 5, 10);
 	}
@@ -109,9 +111,9 @@ Widget* createEditGameView(EditGameModel *editModel) {
 	
 }
 
-EditGameModel *createEditGameModel(StateId stateId, void *initData) {	
-	EditGameModel *editModel = NULL;
-	editModel = (EditGameModel *) malloc(sizeof(EditGameModel));
+GameEditorModel *createGameEditorModel(StateId stateId, void *initData) {	
+	GameEditorModel *editModel = NULL;
+	editModel = (GameEditorModel *) malloc(sizeof(GameEditorModel));
 	editModel->stateId = stateId;
 	if (initData == NULL) {
 		editModel->game = createEmptyGame();
@@ -122,6 +124,7 @@ EditGameModel *createEditGameModel(StateId stateId, void *initData) {
 		} else {
 			editModel->game = createGameFromConfig(selectionModel->gameConfig);
 		}
+		freeSelectionModel(selectionModel, 1, 0);
 	}
 	editModel->markedPoint = createPoint(0,0);
 	return editModel;
@@ -154,15 +157,15 @@ void updateGridButton(Widget *gridButton, GameModel *gameModel) {
 	placeWalls(gridButton, gameModel);
 }
 
-void updateEditView(Widget *window, EditGameModel *editModel) {
+void updateEditView(Widget *window, GameEditorModel *editModel) {
 	Widget *gridPanel = getChildAtindex(window, 2);
 	Widget *gridButton = getChildAtindex(gridPanel, 0);
 	updateGridButton(gridButton, editModel->game);
-	draw_board(window);
+	drawUITree(window);
 }
 
 void startEditGame(GUIState* editGameState, void* initData) {
-	EditGameModel *editModel = createEditGameModel(editGameState->stateId, initData);	
+	GameEditorModel *editModel = createGameEditorModel(editGameState->stateId, initData);	
 	editGameState->model = editModel;
 	
 	Widget *window = createEditGameView(editModel);
@@ -172,7 +175,6 @@ void startEditGame(GUIState* editGameState, void* initData) {
 
 void* viewTranslateEventEditGame(void* viewState, SDL_Event* event) {
 	Widget *widget;
-	MoveDirection *moveDirection;
 	
 	switch (event->type) {
 		case SDL_QUIT:
@@ -180,7 +182,7 @@ void* viewTranslateEventEditGame(void* viewState, SDL_Event* event) {
 		case SDL_MOUSEBUTTONUP:
 			widget = findWidgetFromTree(event->button.x, event->button.y, (Widget *) viewState);
 			if (!isClickable(widget) && getId(getParent(widget)) != BUTTON_GRID) {
-				return createLogicalEvent(NO_EVENT);
+				return createLogicalEvent(IRRELEVANT_EVENT);
 			} else {
 				if (getId(widget) == BUTTON_GRID || getId(getParent(widget)) == BUTTON_GRID) {
 					return getMovePointLogicalEvent(event->button.x, event->button.y);
@@ -188,20 +190,11 @@ void* viewTranslateEventEditGame(void* viewState, SDL_Event* event) {
 				return getSelectedButtonEventForId(getId(widget));
 			}
 		case SDL_KEYDOWN:
-			 moveDirection = (MoveDirection *) malloc(sizeof(MoveDirection));
 			switch (event->key.keysym.sym) {
-				case SDLK_UP: 
-					*moveDirection = UP;
-					return getMoveDirectionLogicalEvent(moveDirection);
-				case SDLK_DOWN: 
-					*moveDirection = DOWN;
-					return getMoveDirectionLogicalEvent(moveDirection);
-				case SDLK_LEFT: 
-					*moveDirection = LEFT;
-					return getMoveDirectionLogicalEvent(moveDirection);
-				case SDLK_RIGHT: 
-					*moveDirection = RIGHT;
-					return getMoveDirectionLogicalEvent(moveDirection);
+				case SDLK_UP: return getMoveDirectionLogicalEvent(UP);
+				case SDLK_DOWN: return getMoveDirectionLogicalEvent(DOWN);
+				case SDLK_LEFT: return getMoveDirectionLogicalEvent(LEFT);
+				case SDLK_RIGHT: return getMoveDirectionLogicalEvent(RIGHT);
 				case SDLK_s: return getSelectedButtonEventForId(BUTTON_SAVE_WORLD);
 				case SDLK_F1: return getSelectedButtonEventForId(BUTTON_MAIN_MENU);
 	            case SDLK_ESCAPE: return getSelectedButtonEventForId(BUTTON_QUIT);
@@ -210,10 +203,10 @@ void* viewTranslateEventEditGame(void* viewState, SDL_Event* event) {
 	            case SDLK_p: return getSelectedButtonEventForId(BUTTON_PLACE_CHEESE);
 	            case SDLK_w: return getSelectedButtonEventForId(BUTTON_PLACE_WALL);
 	            case SDLK_SPACE: return getSelectedButtonEventForId(BUTTON_PLACE_EMPTY);
-				default: return createLogicalEvent(NO_EVENT);
+				default: return createLogicalEvent(IRRELEVANT_EVENT);
 			}
 		default:
-			return createLogicalEvent(NO_EVENT);
+			return createLogicalEvent(IRRELEVANT_EVENT);
 	}
 }
 
@@ -239,7 +232,7 @@ StateId handleSave(GameModel *game) {
 }
 
 StateId handleButtonSelectedEditGame(void* model, Widget *window, int buttonId) {
-	EditGameModel *editModel = (EditGameModel *) model;	
+	GameEditorModel *editModel = (GameEditorModel *) model;	
 	GameModel *game = editModel->game;
 	switch (buttonId) {
 		case BUTTON_SAVE_WORLD:
@@ -280,20 +273,21 @@ StateId handleButtonSelectedEditGame(void* model, Widget *window, int buttonId) 
 	return editModel->stateId;
 }
 
-void moveMarkedPoint(EditGameModel *editModel, Widget* window, BoardPoint newPoint) {
+void moveMarkedPoint(GameEditorModel *editModel, Widget* window, BoardPoint newPoint) {
 	if (newPoint.row >= 0 && newPoint.row < BOARD_ROWS && newPoint.col >=0 && newPoint.col < BOARD_COLS) {
 		editModel->markedPoint = newPoint;
 		Widget *gridPanel = getChildAtindex(window, 2);
 		Widget *markLabel = getChildAtindex(gridPanel, 1);
 		setGridLabelCoordinates(markLabel, editModel->markedPoint, 0);
-		draw_board(window);
+		drawUITree(window);
 	}
 }
 
 StateId presenterHandleEventEditGame(void* model, void* viewState, void* logicalEvent) {
 	LogicalEvent *logicalEventPtr = (LogicalEvent *) logicalEvent;
 	Widget *window = (Widget *) viewState;
-	EditGameModel *editModel = (EditGameModel *) model;
+	GameEditorModel *editModel = (GameEditorModel *) model;
+	StateId result = editModel->stateId;
 	int *clickedBtnId;
 	BoardPoint newPoint;
 	MoveDirection moveDirection;
@@ -301,7 +295,7 @@ StateId presenterHandleEventEditGame(void* model, void* viewState, void* logical
 	switch (logicalEventPtr->type) {
 		case SELECT_BUTTON:
 			clickedBtnId = (int *) logicalEventPtr->eventParams;
-			return handleButtonSelectedEditGame(model, window, *clickedBtnId);
+			result = handleButtonSelectedEditGame(model, window, *clickedBtnId);
 		case MOVE_POINT:
 				newPoint = *((BoardPoint *) logicalEventPtr->eventParams);
 				moveMarkedPoint(editModel, window, newPoint);
@@ -312,13 +306,13 @@ StateId presenterHandleEventEditGame(void* model, void* viewState, void* logical
 				moveMarkedPoint(editModel, window, newPoint);
 				break;
 		case QUIT_PRESSED:
-			return QUIT;
+			result = QUIT;
 		default:
 			break;
 	}
 	
-	// TODO free logical event
-	return editModel->stateId;
+	freeLogicalEvent(logicalEvent);
+	return result;
 }
 
 void* prepareInitDataForSaveWindow(GameModel *gameModel) {
@@ -331,9 +325,15 @@ void* prepareInitDataForSaveWindow(GameModel *gameModel) {
 }
 
 void* stopEditGame(GUIState* state, StateId nextStateId) {
-	if (nextStateId == SAVE_GAME || nextStateId == ERROR) {
-		EditGameModel *editModel = (EditGameModel *) state->model;
-		return prepareInitDataForSaveWindow(editModel->game);
+	void *nextStateInitData = NULL;
+	GameEditorModel *editModel = (GameEditorModel *) state->model;
+	freeWidget((Widget *) state->viewState);
+	
+	if (nextStateId == SAVE_GAME || nextStateId == ERROR) {	
+		nextStateInitData = prepareInitDataForSaveWindow(editModel->game);
+	} else {
+		freeGame(editModel->game);
 	}
-	return NULL;
+	free(editModel);
+	return nextStateInitData;
 }

@@ -1,6 +1,24 @@
-#include "Events.h"
+#include "UITree.h"
 
-int coors_in_widget(Uint16 x, Uint16 y, Widget *widget){
+void drawUITreeRec(Widget *widget) {
+	Widget *currWidget = NULL;
+	if (isVisible(widget)) {
+		getDrawFunc(widget)(widget);
+		ListRef curr = getChildren(widget);
+		while (curr != NULL) {
+			currWidget = (Widget *) headData(curr);
+			drawUITreeRec(currWidget);
+			curr = tail(curr);
+		}
+	}
+}
+
+void drawUITree(Widget *window) {
+	drawUITreeRec(window);
+	SDL_Flip(getScreen(window));
+}
+
+int isCoorsInWidget(Uint16 x, Uint16 y, Widget *widget){
 	int widget_x = getPosX(widget);
 	int widget_y = getPosY(widget);
 	int widget_w = getWidth(widget);
@@ -20,7 +38,7 @@ Widget *findWidgetFromTree(Uint16 x, Uint16 y, Widget *widget) {
 	ListRef curr = getChildren(widget);
 	while (curr != NULL) {
 		tempWidget = (Widget *) headData(curr);
-		if (coors_in_widget(x, y, tempWidget)) {
+		if (isCoorsInWidget(x, y, tempWidget)) {
 			tempWidget = findWidgetFromTree(x,y, tempWidget);
 			return tempWidget;
 		}
@@ -28,4 +46,3 @@ Widget *findWidgetFromTree(Uint16 x, Uint16 y, Widget *widget) {
 	}
 	return widget;
 }
-

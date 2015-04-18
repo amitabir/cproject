@@ -9,5 +9,6 @@
 #include "Evaluation.h"
 
 int consoleMode();
+int consoleMode3();
 
 #endif

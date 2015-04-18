@@ -1,12 +1,11 @@
 #include <string.h>
 #include "GUI/Widget.h"
 #include "GUI/Window.h"
-#include "GUI/DrawBoard.h"
+#include "GUI/UITree.h"
 #include "GUI/WidgetFactory.h"
-#include "GUI/Events.h"
 #include "GUI/Color.h"
 #include "GUI/GUIConstants.h"
-#include "GUIState.h"
+#include "SelectionWindow.h"
 #include "LogicalEvents.h"
 #include "Constants.h"
 
@@ -53,7 +52,7 @@ void startError(GUIState* errorState, void* initData) {
 	errorState->viewState = createErrorView(model->game->validMsg);
 	
 	markButton((Widget *) errorState->viewState, &(model->markedButtonIndex), model->markedButtonIndex);	
-	draw_board((Widget *) errorState->viewState);
+	drawUITree((Widget *) errorState->viewState);
 }
 
 void* viewTranslateEventError(void* viewState, SDL_Event* event) {
