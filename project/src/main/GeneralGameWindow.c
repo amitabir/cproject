@@ -9,14 +9,12 @@
 #define GRID_CELL_WIDTH GRID_WIDTH / BOARD_ROWS
 #define GRID_CELL_HEIGHT GRID_HEIGHT / BOARD_COLS
 
-LogicalEvent *getSelectedButtonEventForId(int buttonId) {
-	int *clickedIndexPtr = (int *)malloc(sizeof(int));
-	*clickedIndexPtr = buttonId;
-	return createLogicalEventWithParams(SELECT_BUTTON, clickedIndexPtr);
-}
-
 LogicalEvent *getMovePointLogicalEvent(Uint16 xPos, Uint16 yPos) {
-	BoardPoint *point = (BoardPoint *) malloc(sizeof(BoardPoint));
+	BoardPoint *point;
+	if ((point = (BoardPoint *) malloc(sizeof(BoardPoint))) == NULL) {
+		perror("ERROR: Standard function malloc has failed");
+		return NULL;
+	}
 	int cellH = GRID_CELL_HEIGHT, cellW = GRID_CELL_WIDTH;
 	point->row = (yPos - GRID_Y_POS) / cellH;
 	point->col = (xPos - GRID_X_POS) / cellW;
@@ -24,7 +22,11 @@ LogicalEvent *getMovePointLogicalEvent(Uint16 xPos, Uint16 yPos) {
 }
 
 LogicalEvent *getMoveDirectionLogicalEvent(MoveDirection moveDirection) {
-	MoveDirection *moveDirectionPtr = (MoveDirection *) malloc(sizeof(MoveDirection));
+	MoveDirection *moveDirectionPtr;
+	if ((moveDirectionPtr = (MoveDirection *) malloc(sizeof(MoveDirection))) == NULL) {
+		perror("ERROR: Standard function malloc has failed");
+		return NULL;
+	}
 	*moveDirectionPtr = moveDirection;
 	return createLogicalEventWithParams(MOVE_DIRECTION, moveDirectionPtr);
 }

@@ -13,9 +13,9 @@ GameModel *createGameFromConfig(GameConfigurationModel *gameConfig);
 
 GameModel *createGameFromConfigAndWorldFile(GameConfigurationModel *gameConfig, WorldFileData *worldFileData);
 
-void resetGameFromWorldFile(GameModel *game);
+int resetGameFromWorldFile(GameModel *game);
 
-void updateConfigForGame(GameModel *gameModel, GameConfigurationModel *newConfig);
+int updateConfigForGame(GameModel *gameModel, GameConfigurationModel *newConfig);
 
 WorldFileData *createWorldDataFromGame(GameModel *game);
 

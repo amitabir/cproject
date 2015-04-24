@@ -23,7 +23,7 @@ GameModel *createEmptyGame() {
 	// Create a new board using the createBoard function
 	game->board = createBoard();
 	if (game->board == NULL) {
-		// Board creation has failed - 0 is returned.
+		free(game);
 		return NULL;
 	}
 	
@@ -38,10 +38,15 @@ GameModel *createEmptyGame() {
 	return game;
 }
 
-GameModel *createGame(GameConfigurationModel *gameConfig) {
+GameModel *createGame(GameConfigurationModel *origGameConfig) {
 	GameModel *game = createEmptyGame();
-	game->gameConfig = createGameConfig(gameConfig->isCatHuman, gameConfig->catDifficulty,
-		 		gameConfig->isMouseHuman, gameConfig->mouseDifficulty, gameConfig->worldIndex);
+	GameConfigurationModel *gameConfig = createGameConfig(origGameConfig->isCatHuman, origGameConfig->catDifficulty,
+		 		origGameConfig->isMouseHuman, origGameConfig->mouseDifficulty, origGameConfig->worldIndex);
+	if (gameConfig == NULL) {
+		freeGame(game);
+		return NULL;
+	}
+	game->gameConfig = gameConfig;	
 	return game;
 }
 

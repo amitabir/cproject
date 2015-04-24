@@ -5,7 +5,10 @@
 
 SelectionModel *createSelectionModel(StateId stateId, SelectionModel *previousStateModel, GameConfigurationModel *previousConfig, GameModel *game) {
 	SelectionModel *selectionModel = NULL;
-	selectionModel = (SelectionModel *) malloc(sizeof(SelectionModel));
+	if ((selectionModel = (SelectionModel *) malloc(sizeof(SelectionModel))) == NULL) {
+		perror("ERROR: standard function malloc has failed");
+		return NULL;
+	}
 	selectionModel->stateId = stateId;
 	selectionModel->previousStateModel = previousStateModel;
 	if (previousConfig != NULL) {
@@ -14,6 +17,14 @@ SelectionModel *createSelectionModel(StateId stateId, SelectionModel *previousSt
 	} else {
 		selectionModel->gameConfig = createGameConfigDefault();
 	}
+	
+	// If configuration creation failed, free the pointer and return NULL.
+	if (selectionModel->gameConfig == NULL) {
+		free(selectionModel);
+		return NULL;
+	}
+	
+	// Set default parameters for the model
 	selectionModel->markedButtonIndex = 0;
 	selectionModel->game = game;
 	return selectionModel;
@@ -75,15 +86,9 @@ void* viewTranslateEventSelectionWindow(void* viewState, SDL_Event* event) {
 			if (!isClickable(widget)) {
 				return createLogicalEvent(IRRELEVANT_EVENT);
 			} else if (isMarkable(widget)) {
-				int *clickedIndexPtr = (int *)malloc(sizeof(int));
-				*clickedIndexPtr = getId(widget);
-				LogicalEvent *widgetLogicalEvent = createLogicalEventWithParams(MARK_AND_SELECT_BUTTON, clickedIndexPtr);
-				return widgetLogicalEvent;
+				return createSelectedButtonEventForId(MARK_AND_SELECT_BUTTON, getId(widget));
 			} else {
-				int *clickedIndexPtr = (int *)malloc(sizeof(int));
-				*clickedIndexPtr = getId(widget);
-				LogicalEvent *widgetLogicalEvent = createLogicalEventWithParams(SELECT_BUTTON, clickedIndexPtr);
-				return widgetLogicalEvent;
+				return createSelectedButtonEventForId(SELECT_BUTTON, getId(widget));
 			}
 		case SDL_KEYDOWN:
 			switch (event->key.keysym.sym) {
@@ -108,7 +113,7 @@ StateId presenterHandleEventSelectionWindow(void* model, Widget *window, void* l
 	switch (logicalEventPtr->type) {
 		case MARK_NEXT_BUTTON:
 			markButton(window, markButtonPtr, (*markButtonPtr + 1) % buttonsNumber);
-			drawUITree(window);
+			isError = drawUITree(window);
 			result = sameStateId;
 			break;
 		case SELECT_BUTTON:
@@ -121,7 +126,7 @@ StateId presenterHandleEventSelectionWindow(void* model, Widget *window, void* l
 		case MARK_AND_SELECT_BUTTON:
 			clickedBtnId = (int *) logicalEventPtr->eventParams;
 			markButton(window, markButtonPtr, *clickedBtnId);
-			drawUITree(window);
+			isError = drawUITree(window);
 			result = handleButtonSelected(model, window, *clickedBtnId);
 			break;
 		case QUIT_PRESSED:
@@ -135,7 +140,16 @@ StateId presenterHandleEventSelectionWindow(void* model, Widget *window, void* l
 }
 
 void* stopSelectionWindow(GUIState* state, StateId nextStateId) {
-	freeWidget((Widget *) state->viewState);
+	// Free the window and all its widgets (only if created).
+	if (state->viewState != NULL) {
+		freeWidget((Widget *) state->viewState);
+	}
+	
+	// If the model was not created - nothing to do, return NULL pointer.
+	if (state->model == NULL) {
+		return NULL;
+	}
+	
 	SelectionModel *selectionModel = (SelectionModel *) state->model;
 	
 	if (nextStateId == QUIT) {

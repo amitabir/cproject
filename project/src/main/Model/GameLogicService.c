@@ -67,39 +67,50 @@ void initGameFromWorldFile(GameModel *game, WorldFileData *worldFileData) {
 	}
 }
 
-GameModel *createGameFromConfigAndWorldFile(GameConfigurationModel *gameConfig, WorldFileData *worldFileData) {
-	GameModel *result = createGame(gameConfig);
-	initGameFromWorldFile(result, worldFileData);
-	return result;
-}
-
-void resetGameFromWorldFile(GameModel *game) {
+int resetGameFromWorldFile(GameModel *game) {
 	WorldFileData *worldData = NULL;
 	
 	worldData = createEmptyWorldFileData();
+	if (worldData == NULL) {
+		return 1;
+	}
 	readWorldFromFile(game->gameConfig->worldIndex, worldData);
 	initGameFromWorldFile(game, worldData);
 	freeWorldFileData(worldData);
 	
 	game->isGameOver = 0;
 	game->isPaused = 0;
+	return 0;
 }
 
 GameModel *createGameFromConfig(GameConfigurationModel *gameConfig) {
 	WorldFileData *worldData = NULL;
 	GameModel *result = NULL;
 	
+	result = createGame(gameConfig);
+	if (result == NULL) {
+		return NULL;
+	}
+	
 	worldData = createEmptyWorldFileData();
+	if (worldData == NULL) {
+		return NULL;
+	}
+	
 	readWorldFromFile(gameConfig->worldIndex, worldData);
-	result = createGameFromConfigAndWorldFile(gameConfig, worldData);
+	initGameFromWorldFile(result, worldData);
 	freeWorldFileData(worldData);
 	return result;
 }
 
-void updateConfigForGame(GameModel *gameModel, GameConfigurationModel *newConfig) {
+int updateConfigForGame(GameModel *gameModel, GameConfigurationModel *newConfig) {
 	free(gameModel->gameConfig);
 	gameModel->gameConfig = createGameConfig(newConfig->isCatHuman, newConfig->catDifficulty,
 		 		newConfig->isMouseHuman, newConfig->mouseDifficulty, newConfig->worldIndex);
+	if (gameModel->gameConfig == NULL) {
+		return 1;
+	}
+	return 0;
 }
 
 WorldFileData *createWorldDataFromGame(GameModel *game) {
@@ -107,6 +118,9 @@ WorldFileData *createWorldDataFromGame(GameModel *game) {
 	int i, j;
 
 	worldData = createEmptyWorldFileData();
+	if (worldData == NULL) {
+		return NULL;
+	}
 	worldData->isMouseStarts = game->isMouseTurn;
 	worldData->numTurns = game->numTurns;
 	

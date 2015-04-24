@@ -197,7 +197,7 @@ void* viewTranslateEventEditGame(void* viewState, SDL_Event* event) {
 				if (getId(widget) == BUTTON_GRID || getId(getParent(widget)) == BUTTON_GRID) {
 					return getMovePointLogicalEvent(event->button.x, event->button.y);
 				}
-				return getSelectedButtonEventForId(getId(widget));
+				return createSelectedButtonEventForId(SELECT_BUTTON, getId(widget));
 			}
 		case SDL_KEYDOWN:
 			switch (event->key.keysym.sym) {
@@ -205,14 +205,14 @@ void* viewTranslateEventEditGame(void* viewState, SDL_Event* event) {
 				case SDLK_DOWN: return getMoveDirectionLogicalEvent(DOWN);
 				case SDLK_LEFT: return getMoveDirectionLogicalEvent(LEFT);
 				case SDLK_RIGHT: return getMoveDirectionLogicalEvent(RIGHT);
-				case SDLK_s: return getSelectedButtonEventForId(BUTTON_SAVE_WORLD);
-				case SDLK_F1: return getSelectedButtonEventForId(BUTTON_MAIN_MENU);
-	            case SDLK_ESCAPE: return getSelectedButtonEventForId(BUTTON_QUIT);
-                case SDLK_m: return getSelectedButtonEventForId(BUTTON_PLACE_MOUSE);
-	            case SDLK_c: return getSelectedButtonEventForId(BUTTON_PLACE_CAT);
-	            case SDLK_p: return getSelectedButtonEventForId(BUTTON_PLACE_CHEESE);
-	            case SDLK_w: return getSelectedButtonEventForId(BUTTON_PLACE_WALL);
-	            case SDLK_SPACE: return getSelectedButtonEventForId(BUTTON_PLACE_EMPTY);
+				case SDLK_s: return createSelectedButtonEventForId(SELECT_BUTTON, BUTTON_SAVE_WORLD);
+				case SDLK_F1: return createSelectedButtonEventForId(SELECT_BUTTON, BUTTON_MAIN_MENU);
+	            case SDLK_ESCAPE: return createSelectedButtonEventForId(SELECT_BUTTON, BUTTON_QUIT);
+                case SDLK_m: return createSelectedButtonEventForId(SELECT_BUTTON, BUTTON_PLACE_MOUSE);
+	            case SDLK_c: return createSelectedButtonEventForId(SELECT_BUTTON, BUTTON_PLACE_CAT);
+	            case SDLK_p: return createSelectedButtonEventForId(SELECT_BUTTON, BUTTON_PLACE_CHEESE);
+	            case SDLK_w: return createSelectedButtonEventForId(SELECT_BUTTON, BUTTON_PLACE_WALL);
+	            case SDLK_SPACE: return createSelectedButtonEventForId(SELECT_BUTTON, BUTTON_PLACE_EMPTY);
 				default: return createLogicalEvent(IRRELEVANT_EVENT);
 			}
 		default:

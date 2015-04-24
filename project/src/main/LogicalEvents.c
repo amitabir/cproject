@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "LogicalEvents.h"
 
 LogicalEvent *createLogicalEvent(LogicalEventType type) {
@@ -7,10 +8,23 @@ LogicalEvent *createLogicalEvent(LogicalEventType type) {
 
 LogicalEvent *createLogicalEventWithParams(LogicalEventType type, void *eventParams) {
 	LogicalEvent *result;
-	result = (LogicalEvent *) malloc(sizeof(LogicalEvent));
+	if ((result = (LogicalEvent *) malloc(sizeof(LogicalEvent))) == NULL) {
+		perror("ERROR: standard function malloc has failed");
+		return NULL;
+	}
 	result->type = type;
 	result->eventParams = eventParams;
 	return result;
+}
+
+LogicalEvent *createSelectedButtonEventForId(LogicalEventType type, int buttonId) {
+	int *clickedIndexPtr;
+	if ((clickedIndexPtr = (int *)malloc(sizeof(int))) == NULL) {
+		perror("ERROR: Standard function malloc has failed");
+		return NULL;
+	}
+	*clickedIndexPtr = buttonId;
+	return createLogicalEventWithParams(SELECT_BUTTON, clickedIndexPtr);
 }
 
 void freeLogicalEvent(LogicalEvent *logicalEvent) {

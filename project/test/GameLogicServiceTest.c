@@ -19,7 +19,7 @@ int main() {
 	printf("World was read from file! \n");
 	
 	GameConfigurationModel *config = createGameConfig(1, 5, 0, 4, 1);
-	GameModel *game = createGameFromConfigAndWorldFile(config, readWorld);
+	GameModel *game = createGameFromConfig(config);
 	
 	assert(game->isMouseTurn == 1 && "Mouse should be the first player");
 	assert(game->numTurns == 20 && "Should be 20 Turns to the game");

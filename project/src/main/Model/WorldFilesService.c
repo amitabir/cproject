@@ -7,8 +7,15 @@
 
 WorldFileData *createEmptyWorldFileData() {
 	WorldFileData* worldData;
-	worldData = (WorldFileData*) malloc(sizeof(WorldFileData));
+	if ((worldData = (WorldFileData*) malloc(sizeof(WorldFileData))) == NULL) {
+		perror("ERROR: standard function malloc has failed");
+		return NULL;
+	}
 	worldData->board = createBoard();
+	if (worldData->board == NULL) {
+		free(worldData);
+		return NULL;
+	}
 	return worldData;
 }
 
@@ -120,9 +127,6 @@ int parseWorldFile(FILE *fp, int worldIndex, WorldFileData *worldData) {
 	strcmp(startPlayer, CAT_STARTS_STR) == 0 ? (isMouseStarts = 0) : (isMouseStarts = 1);
 	worldData->isMouseStarts = isMouseStarts;
 	
-	// char **row = worldData->board;
-	// char *col = *row;
-	
 	for (i = 0; i < BOARD_ROWS; i++) {
 		for (j = 0; j < BOARD_COLS; j++) {
 			currentBoardChar = fgetc(fp);
@@ -130,18 +134,6 @@ int parseWorldFile(FILE *fp, int worldIndex, WorldFileData *worldData) {
 		}
 		currentBoardChar = fgetc(fp);
 	}
-	
-	//
-	// while (row < BOARD_ROWS && col < BOARD_COLS) {
-	// 	currentBoardChar = fgetc(fp)
-	// 	if (currentBoardChar != '\n') {
-	// 		*col = currentBoardChar;
-	// 		col++;
-	// 	} else {
-	// 		row++;
-	// 		col = *row;
-	// 	}
-	// }
 	
 	return 1;
 }

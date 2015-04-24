@@ -108,11 +108,12 @@ int isCurrentPlayerHuman(GameModel *gameModel) {
 }
 
 GameModel *createGameModel(void *initData) {
-	GameModel *result;
+	GameModel *result = NULL;
 	SelectionModel *selectionModel = (SelectionModel *) initData;
 	if (selectionModel->game != NULL) {
-		updateConfigForGame(selectionModel->game, selectionModel->gameConfig);
-		result = selectionModel->game;
+		if (updateConfigForGame(selectionModel->game, selectionModel->gameConfig) == 0) {
+			result = selectionModel->game;
+		}
 	} else {
 		result = createGameFromConfig(selectionModel->gameConfig);
 	}
@@ -230,7 +231,11 @@ void handleMachineTurn(GameModel *gameModel, Widget *window) {
 }
 
 void startGamePlay(GUIState* gamePlayState, void* initData) {
-	GameModel *gameModel = createGameModel(initData);	
+	GameModel *gameModel = createGameModel(initData);
+	if (gameModel == NULL) {
+		isError = 1;
+		return;
+	}
 	gamePlayState->model = gameModel;
 		
 	Widget *window =  createGamePlayView(gameModel);
@@ -254,7 +259,7 @@ void* viewTranslateEventGamePlay(void* viewState, SDL_Event* event) {
 				if (buttonId == BUTTON_GRID) {
 					return getMovePointLogicalEvent(event->button.x, event->button.y);
 				}
-				return getSelectedButtonEventForId(getId(widget));
+				return createSelectedButtonEventForId(SELECT_BUTTON, getId(widget));
 			}
 		case SDL_KEYDOWN:
 			switch (event->key.keysym.sym) {
@@ -262,12 +267,12 @@ void* viewTranslateEventGamePlay(void* viewState, SDL_Event* event) {
 				case SDLK_DOWN: return getMoveDirectionLogicalEvent(DOWN);
 				case SDLK_LEFT: return getMoveDirectionLogicalEvent(LEFT);
 				case SDLK_RIGHT: return getMoveDirectionLogicalEvent(RIGHT);
-	            case SDLK_SPACE: return getSelectedButtonEventForId(BUTTON_PAUSE);
-                case SDLK_F1: return getSelectedButtonEventForId(BUTTON_RECONFIG_MOUSE);
-	            case SDLK_F2: return getSelectedButtonEventForId(BUTTON_RECONFIG_CAT);
-	            case SDLK_F3: return getSelectedButtonEventForId(BUTTON_RESTART_GAME);
-	            case SDLK_F4: return getSelectedButtonEventForId(BUTTON_MAIN_MENU);
-	            case SDLK_ESCAPE: return getSelectedButtonEventForId(BUTTON_QUIT);
+	            case SDLK_SPACE: return createSelectedButtonEventForId(SELECT_BUTTON, BUTTON_PAUSE);
+                case SDLK_F1: return createSelectedButtonEventForId(SELECT_BUTTON, BUTTON_RECONFIG_MOUSE);
+	            case SDLK_F2: return createSelectedButtonEventForId(SELECT_BUTTON, BUTTON_RECONFIG_CAT);
+	            case SDLK_F3: return createSelectedButtonEventForId(SELECT_BUTTON, BUTTON_RESTART_GAME);
+	            case SDLK_F4: return createSelectedButtonEventForId(SELECT_BUTTON, BUTTON_MAIN_MENU);
+	            case SDLK_ESCAPE: return createSelectedButtonEventForId(SELECT_BUTTON, BUTTON_QUIT);
 				default: return createLogicalEvent(IRRELEVANT_EVENT);
 			}
 		default:
@@ -295,7 +300,10 @@ StateId handleButtonSelectedGamePlay(void* model, Widget *window, int buttonId) 
 				return CAT_CHOOSE_SKILL;
 			}
 		case BUTTON_RESTART_GAME:
-			resetGameFromWorldFile(gameModel);
+			if (resetGameFromWorldFile(gameModel) != 0) {
+				isError = 1;
+				return GAME_PLAY;
+			}
 			updateView(window, gameModel);
 			break;
 		case BUTTON_MAIN_MENU:
@@ -330,6 +338,10 @@ int getMoveDirectionFromCurrentPlayerPoint(GameModel *gameModel, BoardPoint newP
 
 StateId presenterHandleEventGamePlay(void* model, void* viewState, void* logicalEvent) {
 	StateId result = GAME_PLAY;
+	if (logicalEvent == NULL) {
+		isError = 1;
+		return result;
+	}
 	LogicalEvent *logicalEventPtr = (LogicalEvent *) logicalEvent;
 	Widget *window = (Widget *) viewState;
 	GameModel *gameModel = (GameModel *) model;
