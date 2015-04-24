@@ -11,6 +11,8 @@ EXTRA_EXEC_FILES=MiniMaxDemo ListUtilsDemo
 TEST_PATH=test
 MAIN_PATH=src/main
 GUI_PATH=src/main/GUI
+MODEL_PATH=src/main/Model
+UTILS_PATH=src/main/Utils
 SDL_COMPILE_FLAGS=`sdl-config --cflags`
 SDL_EXEC_FLAGS=`sdl-config --libs`
 
@@ -22,7 +24,7 @@ test: WorldFilesServiceTest GameLogicServiceTest EvaluationTest
 clean:
 	-rm $(EXEC_FILES) $(MAIN_O_FILES) $(GUI_O_FILES) $(TEST_EXEC_FILES) $(TESTS_O_FILES) $(EXTRA_O_FILES) $(EXTRA_EXEC_FILES)
 	
-#GUI Files:
+######## GUI Files ########
 
 BitmapFont.o: $(GUI_PATH)/BitmapFont.c $(GUI_PATH)/BitmapFont.h
 	gcc -c $(CFLAGS) $(GUI_PATH)/$*.c $(SDL_COMPILE_FLAGS)
@@ -51,41 +53,42 @@ Panel.o: $(GUI_PATH)/Panel.c $(GUI_PATH)/Panel.h
 UITree.o: $(GUI_PATH)/UITree.c $(GUI_PATH)/UITree.h
 	gcc -c $(CFLAGS) $(GUI_PATH)/$*.c $(SDL_COMPILE_FLAGS)
 
-#Game Files
+######## Model Files ########
 
-WorldFilesService.o: $(MAIN_PATH)/WorldFilesService.c $(MAIN_PATH)/WorldFilesService.h
-	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
+WorldFilesService.o: $(MODEL_PATH)/WorldFilesService.c $(MODEL_PATH)/WorldFilesService.h
+	gcc -c $(CFLAGS) $(MODEL_PATH)/$*.c
 	
-WorldFilesServiceTest.o: $(TEST_PATH)/WorldFilesServiceTest.c $(MAIN_PATH)/WorldFilesService.h
-	gcc -c $(CFLAGS) $(TEST_PATH)/WorldFilesServiceTest.c
+GameModel.o: $(MODEL_PATH)/GameModel.c $(MODEL_PATH)/GameModel.h
+	gcc -c $(CFLAGS) $(MODEL_PATH)/$*.c
 	
-WorldFilesServiceTest: WorldFilesServiceTest.o WorldFilesService.o BoardUtils.o
-	gcc -o $@ $^ $(CFLAGS)
+GameConfigModel.o: $(MODEL_PATH)/GameConfigModel.c $(MODEL_PATH)/GameConfigModel.h
+	gcc -c $(CFLAGS) $(MODEL_PATH)/$*.c
+	
+GameLogicService.o: $(MODEL_PATH)/GameLogicService.c $(MODEL_PATH)/GameLogicService.h
+	gcc -c $(CFLAGS) $(MODEL_PATH)/$*.c	
+	
+BoardPoint.o: $(MODEL_PATH)/BoardPoint.c $(MODEL_PATH)/BoardPoint.h
+	gcc -c $(CFLAGS) $(MODEL_PATH)/$*.c
 
-GameModel.o: $(MAIN_PATH)/GameModel.c $(MAIN_PATH)/GameModel.h
-	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
+BoardUtils.o: $(MODEL_PATH)/BoardUtils.c $(MODEL_PATH)/BoardUtils.h
+	gcc -c $(CFLAGS) $(MODEL_PATH)/$*.c
+	
+Evaluation.o: $(MODEL_PATH)/Evaluation.c $(MODEL_PATH)/Evaluation.h
+	gcc -c $(CFLAGS) $(MODEL_PATH)/$*.c
+	
+MoveLogicService.o: $(MODEL_PATH)/MoveLogicService.c $(MODEL_PATH)/MoveLogicService.h
+	gcc -c $(CFLAGS) $(MODEL_PATH)/$*.c
 
-GameConfigModel.o: $(MAIN_PATH)/GameConfigModel.c $(MAIN_PATH)/GameConfigModel.h
-	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
+######## Utils files ########
 
-GameLogicService.o: $(MAIN_PATH)/GameLogicService.c $(MAIN_PATH)/GameLogicService.h
-	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c	
+ListUtils.o: $(UTILS_PATH)/ListUtils.c $(UTILS_PATH)/ListUtils.h
+	gcc -c $(CFLAGS) $(UTILS_PATH)/$*.c
+	
+MiniMax.o: $(UTILS_PATH)/MiniMax.c $(UTILS_PATH)/MiniMax.h $(UTILS_PATH)/ListUtils.h
+	gcc -c $(CFLAGS) $(UTILS_PATH)/$*.c
+	
+######## Game Windows Files ########
 
-BoardPoint.o: $(MAIN_PATH)/BoardPoint.c $(MAIN_PATH)/BoardPoint.h
-	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
-	
-BoardUtils.o: $(MAIN_PATH)/BoardUtils.c $(MAIN_PATH)/BoardUtils.h
-	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
-	
-Evaluation.o: $(MAIN_PATH)/Evaluation.c $(MAIN_PATH)/Evaluation.h
-	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
-	
-ConsoleMode.o: $(MAIN_PATH)/ConsoleMode.c $(MAIN_PATH)/ConsoleMode.h
-	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
-	
-MoveLogicService.o: $(MAIN_PATH)/MoveLogicService.c $(MAIN_PATH)/MoveLogicService.h
-	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
-	
 LogicalEvents.o: $(MAIN_PATH)/LogicalEvents.c $(MAIN_PATH)/LogicalEvents.h
 	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c	
 
@@ -119,28 +122,32 @@ Error.o: $(MAIN_PATH)/Error.c $(MAIN_PATH)/Error.h
 GUIStatesFactory.o: $(MAIN_PATH)/GUIStatesFactory.c $(MAIN_PATH)/GUIStatesFactory.h
 	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c $(SDL_COMPILE_FLAGS)
 	
-GameLogicServiceTest.o: $(TEST_PATH)/GameLogicServiceTest.c $(MAIN_PATH)/MoveLogicService.h
+######## Test Files ########
+	
+GameLogicServiceTest.o: $(TEST_PATH)/GameLogicServiceTest.c $(MODEL_PATH)/MoveLogicService.h
 	gcc -c $(CFLAGS) $(TEST_PATH)/GameLogicServiceTest.c
 	
 GameLogicServiceTest: GameLogicServiceTest.o MoveLogicService.o BoardPoint.o BoardUtils.o Evaluation.o MiniMax.o ListUtils.o WorldFilesService.o GameLogicService.o GameModel.o GameConfigModel.o
 	gcc -o $@ $^ $(CFLAGS)
 	
-EvaluationTest.o: $(TEST_PATH)/EvaluationTest.c $(MAIN_PATH)/MoveLogicService.h
+EvaluationTest.o: $(TEST_PATH)/EvaluationTest.c $(MODEL_PATH)/MoveLogicService.h
 	gcc -c $(CFLAGS) $(TEST_PATH)/EvaluationTest.c
 	
 EvaluationTest: EvaluationTest.o MoveLogicService.o BoardUtils.o BoardPoint.o Evaluation.o MiniMax.o ListUtils.o WorldFilesService.o GameLogicService.o GameModel.o GameConfigModel.o
 	gcc -o $@ $^ $(CFLAGS)
+
+WorldFilesServiceTest.o: $(TEST_PATH)/WorldFilesServiceTest.c $(MODEL_PATH)/WorldFilesService.h
+	gcc -c $(CFLAGS) $(TEST_PATH)/WorldFilesServiceTest.c
 	
-ListUtils.o: $(MAIN_PATH)/ListUtils.c $(MAIN_PATH)/ListUtils.h
+WorldFilesServiceTest: WorldFilesServiceTest.o WorldFilesService.o BoardUtils.o
+	gcc -o $@ $^ $(CFLAGS)
+
+######## Demo Files ########
+
+ListUtilsDemo.o : $(MAIN_PATH)/ListUtilsDemo.c $(UTILS_PATH)/ListUtils.h
 	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
 	
-ListUtilsDemo.o : $(MAIN_PATH)/ListUtilsDemo.c $(MAIN_PATH)/ListUtils.h
-	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
-	
-MiniMax.o: $(MAIN_PATH)/MiniMax.c $(MAIN_PATH)/MiniMax.h $(MAIN_PATH)/ListUtils.h
-	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
-	
-MiniMaxDemo.o : $(MAIN_PATH)/MiniMaxDemo.c $(MAIN_PATH)/MiniMax.h
+MiniMaxDemo.o : $(MAIN_PATH)/MiniMaxDemo.c $(UTILS_PATH)/MiniMax.h
 	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
 	
 MiniMaxDemo: MiniMaxDemo.o MiniMax.o ListUtils.o
@@ -150,9 +157,14 @@ ListUtilsDemo: ListUtilsDemo.o ListUtils.o
 	gcc -o $@ $^ $(CFLAGS)
 
 #Game Main Program
+ConsoleMode.o: $(MAIN_PATH)/ConsoleMode.c $(MAIN_PATH)/ConsoleMode.h
+	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c
+	
 CatAndMouse.o : $(MAIN_PATH)/CatAndMouse.c $(MAIN_PATH)/CatAndMouse.h
 	gcc -c $(CFLAGS) $(MAIN_PATH)/$*.c $(SDL_COMPILE_FLAGS)
 
 CatAndMouse: $(MAIN_O_FILES) $(GUI_O_FILES)
 	gcc -o $@ $^ $(CFLAGS) $(SDL_EXEC_FLAGS)
+	
+
 

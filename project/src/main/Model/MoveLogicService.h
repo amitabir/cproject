@@ -1,7 +1,7 @@
 #ifndef MOVE_LOGIC_SERVICE_H_
 #define MOVE_LOGIC_SERVICE_H_
 
-#include "ListUtils.h"
+#include "../Utils/ListUtils.h"
 #include "Constants.h"
 #include "BoardPoint.h"
 #include "GameModel.h"

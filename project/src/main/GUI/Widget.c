@@ -2,7 +2,16 @@
 
 Widget *createWidget(int id, Widget *parent, int posX, int posY, int width, int height, const char *caption, WidgetType type, 
 		int (*drawFunc)(Widget*)){
-	Widget *widget =(Widget *) malloc(sizeof(struct widget));
+	Widget *widget;
+	
+	// Create the widget struct
+	if ((widget =(Widget *) malloc(sizeof(struct widget))) == NULL) {
+		// Malloc has failed and the user is notified
+		perror("ERROR: standard function malloc has failed");
+		return NULL;
+	}
+	
+	// Initialize all the widget fields to default values.
 	widget->id = id;
 	widget->parent = parent;
 	widget->posX = posX;
@@ -28,6 +37,8 @@ Widget *createWidget(int id, Widget *parent, int posX, int posY, int width, int 
 	widget->useColorKey = 0;
 	widget->text = NULL;
 	widget->bitmapFont = NULL;
+	
+	// Return the created widget
 	return widget;
 }
 
@@ -78,25 +89,39 @@ int setDisabledImage(Widget *widget, char *filename) {
 int reloadImages(Widget *widget) {
 	if (widget->image != NULL) {
 		SDL_FreeSurface(widget->image);
-		widget->image = loadImage(widget->imageFileName);
-		if (widget->image == NULL) {
-			return 1;
+		if (widget->imageFileName != NULL) {
+			widget->image = loadImage(widget->imageFileName);
+			if (widget->image == NULL) {
+				return 1;
+			} 
+		} else {
+			widget->image = NULL;
 		}
 		widget->preparedForDraw = 0;
 	}
 	
-	if (widget->markedImage !=  NULL) {
-		widget->markedImage = loadImage(widget->markedImageFileName);
-		if (widget->markedImage == NULL) {
-			return 1;
+	if (widget->markedImage != NULL) {
+		SDL_FreeSurface(widget->markedImage);
+		if (widget->markedImageFileName != NULL) {
+			widget->markedImage = loadImage(widget->markedImageFileName);
+			if (widget->markedImage == NULL) {
+				return 1;
+			} 
+		} else {
+			widget->markedImage = NULL;
 		}
 		widget->preparedForDraw = 0;
 	}
 	
-	if (widget->disabledImage !=  NULL) {
-		widget->disabledImage = loadImage(widget->disabledImageFileName);
-		if (widget->disabledImage == NULL) {
-			return 1;
+	if (widget->disabledImage != NULL) {
+		SDL_FreeSurface(widget->disabledImage);
+		if (widget->disabledImageFileName != NULL) {
+			widget->disabledImage = loadImage(widget->disabledImageFileName);
+			if (widget->disabledImage == NULL) {
+				return 1;
+			} 
+		} else {
+			widget->disabledImage = NULL;
 		}
 		widget->preparedForDraw = 0;
 	}
@@ -269,11 +294,13 @@ void setScreen(Widget *widget, SDL_Surface *screen) {
 	widget->screen = screen;
 }
 
-void setText(Widget *widget, char *text, int textPosX, int textPosY) {
+int setText(Widget *widget, char *text, int textPosX, int textPosY) {
 	widget->textPosX = textPosX;
 	widget->textPosY = textPosY;
 	if (widget->text != NULL) {
-		reloadImages(widget);
+		if (reloadImages(widget) != 0) {
+			return 1;
+		}
 		free(widget->text);
 	}
 	
@@ -281,6 +308,7 @@ void setText(Widget *widget, char *text, int textPosX, int textPosY) {
 		widget->text = (char *) malloc(sizeof(char) * (strlen(text) + 1));
 		strcpy(widget->text, text);
 	}
+	return 0;
 }
 
 void addWidget(Widget *parent, Widget *child) {

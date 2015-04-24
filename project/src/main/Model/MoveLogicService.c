@@ -1,5 +1,5 @@
 #include "MoveLogicService.h"
-#include "MiniMax.h"
+#include "../Utils/MiniMax.h"
 #include "Evaluation.h"
 #include "GameModel.h"
 #include <stdio.h>

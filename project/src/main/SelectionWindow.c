@@ -1,7 +1,7 @@
 #include "SelectionWindow.h"
 #include "LogicalEvents.h"
 #include "GUI/UITree.h"
-#include "GameModel.h"
+#include "Model/GameModel.h"
 
 SelectionModel *createSelectionModel(StateId stateId, SelectionModel *previousStateModel, GameConfigurationModel *previousConfig, GameModel *game) {
 	SelectionModel *selectionModel = NULL;

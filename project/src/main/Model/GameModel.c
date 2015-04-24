@@ -16,7 +16,7 @@ GameModel *createEmptyGame() {
 	// Create the game struct
     if ((game = (GameModel*) malloc(sizeof(GameModel))) == NULL) {
 		// Malloc has failed and the user is notified
-		perror("Error: standard function malloc has failed");
+		perror("ERROR: standard function malloc has failed");
 		return NULL;
 	}
 	

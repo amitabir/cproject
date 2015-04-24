@@ -4,8 +4,8 @@
 #include <SDL.h>
 #include "GUIState.h"
 #include "GUI/Widget.h"
-#include "GameConfigModel.h"
-#include "GameModel.h"
+#include "Model/GameConfigModel.h"
+#include "Model/GameModel.h"
 
 typedef struct selection_model {
 	StateId stateId;

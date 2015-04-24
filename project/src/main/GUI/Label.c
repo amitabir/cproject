@@ -6,15 +6,16 @@ int labelDraw(Widget *label) {
 	if (!label->preparedForDraw) {
 		prepareImageWidgetForDrawing(label);
 	}
-	
+		
 	SDL_Surface *labelSurface = getImage(label);
-	if (labelSurface == NULL) {
+	if (labelSurface == NULL) {		
 		labelSurface = SDL_CreateRGBSurface(0, getWidth(label), getWidth(label), 32, 0, 0, 0, 0);
 		SDL_FillRect(labelSurface, NULL, getFormattedColor(getBgColor(label), labelSurface));
 		label->image = labelSurface;
-	}	
+	}		
 	
 	addTextToSurface(getBitmapFont(label), label->textPosX, label->textPosY, label->text, labelSurface);
+	
 	SDL_Rect size;
 	size.x = 0;
 	size.y = 0;

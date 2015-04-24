@@ -1,6 +1,6 @@
 #include "ConsoleMode.h"
-#include "Evaluation.h"
-#include "GameLogicService.h"
+#include "Model/Evaluation.h"
+#include "Model/GameLogicService.h"
 
 //TODO delete from here
 char** createBoardTemp() {

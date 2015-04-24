@@ -7,9 +7,9 @@
 #include "GUI/GUIConstants.h"
 #include "SelectionWindow.h"
 #include "LogicalEvents.h"
-#include "WorldFilesService.h"
-#include "GameLogicService.h"
-#include "Constants.h"
+#include "Model/WorldFilesService.h"
+#include "Model/GameLogicService.h"
+#include "Model/Constants.h"
 #include "WorldSelection.h"
 
 

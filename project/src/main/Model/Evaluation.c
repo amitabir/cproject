@@ -1,5 +1,5 @@
 #include "Evaluation.h"
-#include "MiniMax.h"
+#include "../Utils/MiniMax.h"
 #include "BoardPoint.h"
 
 // TODO remove

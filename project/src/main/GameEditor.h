@@ -3,6 +3,8 @@
 
 #include <SDL.h>
 #include "GUIState.h"
+#include "Model/BoardPoint.h"
+#include "Model/GameModel.h"
 
 typedef struct game_editor_model {
 	StateId stateId;

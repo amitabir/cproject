@@ -7,7 +7,7 @@
 #include "GUI/GUIConstants.h"
 #include "SelectionWindow.h"
 #include "LogicalEvents.h"
-#include "Constants.h"
+#include "Model/Constants.h"
 
 
 #define BUTTONS_NUMBER 3

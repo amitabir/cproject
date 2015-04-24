@@ -7,11 +7,11 @@
 #include "SelectionWindow.h"
 #include "LogicalEvents.h"
 #include "GamePlay.h"
-#include "BoardPoint.h"
-#include "Constants.h"
-#include "WorldFilesService.h"
+#include "Model/BoardPoint.h"
+#include "Model/Constants.h"
+#include "Model/WorldFilesService.h"
 #include "GeneralGameWindow.h"
-#include "GameLogicService.h"
+#include "Model/GameLogicService.h"
 
 #define DELAY_AFTER_MACHINE_CALC_MILLIS 1000
 
@@ -173,7 +173,7 @@ void updateTopPanel(Widget *topPanel, GameModel *gameModel) {
 		setVisible(turnStatusLabel, 1);
 		setVisible(pauseButton, 1);
 		setVisible(gameOverLabel, 0);
-		updateGameStatusLabel(gameModel, gameStatusLabel);
+		updateGameStatusLabel(gameModel, gameStatusLabel);	
 		updateTurnStatusLabel(gameModel, turnStatusLabel);
 		updatePauseButton(gameModel, pauseButton);
 	} else {
@@ -211,6 +211,7 @@ void updateView(Widget *window, GameModel *gameModel) {
 	
 	Widget *sidePanel = getChildAtindex(window, 1);
 	updateSidePanel(sidePanel, gameModel);
+	
 
 	Widget *gridPanel = getChildAtindex(window, 2);
 	Widget *gridButton = getChildAtindex(gridPanel ,0);
@@ -219,7 +220,7 @@ void updateView(Widget *window, GameModel *gameModel) {
 	setGridLabelCoordinates(catLabel, gameModel->catPoint, 1);
 	setGridLabelCoordinates(mouseLabel, gameModel->mousePoint, 1);
 	
-	drawUITree(window);
+	drawUITree(window);	
 }
 
 void handleMachineTurn(GameModel *gameModel, Widget *window) {

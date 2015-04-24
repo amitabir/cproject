@@ -173,11 +173,16 @@ void addTextToSurface(BitmapFont *bitmapFont, int textLocationX, int textLocatio
 }
 
 BitmapFont *createFontFromImage(SDL_Surface *fontImg, Color fontImgBgColor, int numCellRows, int numCellsCols) {
+	BitmapFont *result;
+	
+	if ((result = (BitmapFont*) malloc(sizeof(BitmapFont))) == NULL) {
+		perror("Error: standard function malloc has failed");
+		return NULL;
+	}
+	
     SDL_Surface *fontImageOpt = SDL_DisplayFormat(fontImg);
     SDL_FreeSurface(fontImg);
-    SDL_SetColorKey(fontImageOpt, SDL_SRCCOLORKEY, getFormattedColor(fontImgBgColor, fontImageOpt) );
-	
-	BitmapFont *result = (BitmapFont*) malloc(sizeof(BitmapFont));
+    SDL_SetColorKey(fontImageOpt, SDL_SRCCOLORKEY, getFormattedColor(fontImgBgColor, fontImageOpt));
 	buildFont(result, fontImageOpt, getFormattedColor(fontImgBgColor, fontImageOpt), numCellRows, numCellsCols);
 	return result;
 }

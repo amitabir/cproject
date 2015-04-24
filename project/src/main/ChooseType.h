@@ -3,7 +3,6 @@
 
 #include <SDL.h>
 #include "GUIState.h"
-#include "GameConfigModel.h"
 
 void startChooseType(GUIState* chooseTypeState, void* initData);
 void* viewTranslateEventChooseType(void* viewState, SDL_Event* event);

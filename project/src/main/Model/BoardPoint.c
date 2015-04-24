@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "BoardPoint.h"
-#include "ListUtils.h"
+#include "../Utils/ListUtils.h"
 
 BoardPoint createEmptyPoint() {
         BoardPoint result;

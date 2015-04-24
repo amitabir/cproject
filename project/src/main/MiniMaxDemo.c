@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "MiniMax.h"
+#include "Utils/MiniMax.h"
 
 static const int evaluations[] = {50, 50, 50, 50, -4, 10, 12, -3, 2, 5};
 

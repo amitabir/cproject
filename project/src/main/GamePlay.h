@@ -3,7 +3,6 @@
 
 #include <SDL.h>
 #include "GUIState.h"
-#include "GameModel.h"
 #include "GUI/Widget.h"
 
 void startGamePlay(GUIState* mainMenuState, void* initData);

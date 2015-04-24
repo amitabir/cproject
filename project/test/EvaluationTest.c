@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "../src/main/Constants.h"
-#include "../src/main/BoardPoint.h"
-#include "../src/main/MiniMax.h"
-#include "../src/main/Evaluation.h"
+#include "../src/main/Model/Constants.h"
+#include "../src/main/Model/BoardPoint.h"
+#include "../src/main/Utils/MiniMax.h"
+#include "../src/main/Model/Evaluation.h"
 #include <assert.h>
 
 int main() {

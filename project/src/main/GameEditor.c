@@ -6,13 +6,12 @@
 #include "GUI/GUIConstants.h"
 #include "SelectionWindow.h"
 #include "LogicalEvents.h"
-#include "GamePlay.h"
-#include "BoardPoint.h"
-#include "Constants.h"
-#include "GameModel.h"
-#include "WorldFilesService.h"
+#include "Model/BoardPoint.h"
+#include "Model/Constants.h"
+#include "Model/GameModel.h"
+#include "Model/WorldFilesService.h"
 #include "GameEditor.h"
-#include "GameLogicService.h"
+#include "Model/GameLogicService.h"
 #include "GeneralGameWindow.h"
 
 
@@ -113,7 +112,14 @@ Widget* createEditGameView(GameEditorModel *editModel) {
 
 GameEditorModel *createGameEditorModel(StateId stateId, void *initData) {	
 	GameEditorModel *editModel = NULL;
-	editModel = (GameEditorModel *) malloc(sizeof(GameEditorModel));
+	
+	// Create the model struct for the editor window
+	if ((editModel = (GameEditorModel *) malloc(sizeof(GameEditorModel))) == NULL) {
+		// Malloc has failed and the user is notified
+		perror("ERROR: standard function malloc has failed");
+		return NULL;
+	}
+	
 	editModel->stateId = stateId;
 	if (initData == NULL) {
 		editModel->game = createEmptyGame();
@@ -165,7 +171,11 @@ void updateEditView(Widget *window, GameEditorModel *editModel) {
 }
 
 void startEditGame(GUIState* editGameState, void* initData) {
-	GameEditorModel *editModel = createGameEditorModel(editGameState->stateId, initData);	
+	GameEditorModel *editModel = createGameEditorModel(editGameState->stateId, initData);
+	if (editModel == NULL) {
+		isError = 1;
+		return;
+	}
 	editGameState->model = editModel;
 	
 	Widget *window = createEditGameView(editModel);
