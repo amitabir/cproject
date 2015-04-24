@@ -3,6 +3,8 @@
 
 #include <SDL.h>
 
+extern int isError;
+
 typedef enum {
 	MAIN_MENU,
 	CAT_CHOOSE,

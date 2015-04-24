@@ -45,11 +45,11 @@ typedef struct widget {
 	int preparedForDraw;
 	int useColorKey;
 	    
-	void (*draw)(struct widget*);
+	int (*drawFunc)(struct widget*);
 } Widget;
 
 Widget *createWidget(int id, Widget *parent, int posX, int posY, int width, int height, const char *caption, WidgetType type,
-	 	void (*draw)(Widget*));
+	 	int (*drawFunc)(Widget*));
 
 void prepareImageWidgetForDrawing(Widget *widget);
 
@@ -90,9 +90,9 @@ SDL_Surface *getImage(Widget *widget);
 SDL_Surface *getMarkedImage(Widget *widget);
 SDL_Surface *getDisabledImage(Widget *widget);
 SDL_Surface *getScreen(Widget *widget);
-void setImage(Widget *widget, char *filename);
-void setMarkedImage(Widget *widget, char *filename);
-void setDisabledImage(Widget *widget, char *filename);
+int setImage(Widget *widget, char *filename);
+int setMarkedImage(Widget *widget, char *filename);
+int setDisabledImage(Widget *widget, char *filename);
 void setScreen(Widget *widget, SDL_Surface *screen);
 void addWidget(Widget *parent, Widget *child);
 void removeWidget(Widget *parent, Widget *child);
@@ -104,7 +104,7 @@ BitmapFont *getBitmapFont(Widget *widget);
 Widget *getChildAtindex(Widget *parent, int childIndex);
 int findChildIndex(Widget *parent, Widget *child);
 
-void (*getDrawFunc(Widget *widget))(Widget *widget);
+int (*getDrawFunc(Widget *widget))(Widget *widget);
 void freeWidget(void *widgetPtr);
 
 #endif

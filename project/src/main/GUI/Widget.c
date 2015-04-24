@@ -1,7 +1,7 @@
 #include "Widget.h"
 
 Widget *createWidget(int id, Widget *parent, int posX, int posY, int width, int height, const char *caption, WidgetType type, 
-		void (*draw)(Widget*)){
+		int (*drawFunc)(Widget*)){
 	Widget *widget =(Widget *) malloc(sizeof(struct widget));
 	widget->id = id;
 	widget->parent = parent;
@@ -10,7 +10,7 @@ Widget *createWidget(int id, Widget *parent, int posX, int posY, int width, int 
 	widget->width = width;
 	widget->height = height;
 	widget->type = type;
-	widget->draw = draw;
+	widget->drawFunc = drawFunc;
 	widget->visible = 1;
 	widget->enabled = 1;
 	widget->marked = 0;
@@ -42,40 +42,65 @@ int hasChildren(Widget *widget){
 SDL_Surface* loadImage(char *filename) {
     SDL_Surface* loadedImage = NULL;
 	loadedImage = SDL_LoadBMP(filename);
+	if (loadedImage == NULL) {
+		fprintf(stderr, "ERROR: Failed to load image: %s\n", SDL_GetError());
+	}
 	return loadedImage;
 }
 
-void setImage(Widget *widget, char *filename) {
+int setImage(Widget *widget, char *filename) {
 	widget->imageFileName = filename;
     widget->image = loadImage(widget->imageFileName);
+	if (widget->image == NULL) {
+		return 1;
+	}
+	return 0;
 }
 
-void setMarkedImage(Widget *widget, char *filename) {
+int setMarkedImage(Widget *widget, char *filename) {
 	widget->markedImageFileName = filename;
     widget->markedImage = loadImage(widget->markedImageFileName);
+	if (widget->markedImage == NULL) {
+		return 1;
+	}
+	return 0;
 }
 
-void setDisabledImage(Widget *widget, char *filename) {
+int setDisabledImage(Widget *widget, char *filename) {
 	widget->disabledImageFileName = filename;
     widget->disabledImage = loadImage(widget->disabledImageFileName);
+	if (widget->disabledImage == NULL) {
+		return 1;
+	}
+	return 0;
 }
 
-void reloadImages(Widget *widget) {
+int reloadImages(Widget *widget) {
 	if (widget->image != NULL) {
 		SDL_FreeSurface(widget->image);
 		widget->image = loadImage(widget->imageFileName);
+		if (widget->image == NULL) {
+			return 1;
+		}
 		widget->preparedForDraw = 0;
 	}
 	
 	if (widget->markedImage !=  NULL) {
 		widget->markedImage = loadImage(widget->markedImageFileName);
+		if (widget->markedImage == NULL) {
+			return 1;
+		}
 		widget->preparedForDraw = 0;
 	}
 	
 	if (widget->disabledImage !=  NULL) {
 		widget->disabledImage = loadImage(widget->disabledImageFileName);
+		if (widget->disabledImage == NULL) {
+			return 1;
+		}
 		widget->preparedForDraw = 0;
 	}
+	return 0;
 }
 
 SDL_Surface *getOptimizedImage(Widget *widget, SDL_Surface *image) {
@@ -313,8 +338,8 @@ int findChildIndex(Widget *parent, Widget *child) {
 	return -1;
 }
 
-void (*getDrawFunc(Widget *widget))(Widget *widget){
-	return widget->draw;
+int (*getDrawFunc(Widget *widget))(Widget *widget){
+	return widget->drawFunc;
 }
 
 void setBitmapFont(Widget *widget, BitmapFont *bitmapFont) {
@@ -334,7 +359,6 @@ BitmapFont *getBitmapFont(Widget *widget) {
 
 void freeWidget(void *widgetPtr) {
 	Widget *widget = (Widget *) widgetPtr;
-	
 	if (widget->children != NULL) {
 		destroyList(widget->children, freeWidget);
 	}
@@ -357,8 +381,10 @@ void freeWidget(void *widgetPtr) {
 	
 	// Only the window have it
 	if (widget->parent == NULL) {
-		freeBitmapFont(widget->bitmapFont);
+		if (widget->bitmapFont != NULL) {
+			freeBitmapFont(widget->bitmapFont);
+		}
 		SDL_FreeSurface(widget->screen);
- 	}
+ 	}	
 	free(widget);
 }

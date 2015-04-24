@@ -1,8 +1,8 @@
 #include "Button.h"
 #include "Widget.h"
-#include "BitmapFont.h"
+#include <SDL.h>
 
-void buttonDraw(Widget *button) {
+int buttonDraw(Widget *button) {
 	if (!button->preparedForDraw) {
 		prepareImageWidgetForDrawing(button);
 	}
@@ -31,7 +31,9 @@ void buttonDraw(Widget *button) {
 	position.x = getPosX(button);
 	position.y = getPosY(button);
 	if (SDL_BlitSurface(image, &size, getScreen(button->parent), &position) != 0) {
-		printf("ERROR: failed to blit image: %s\n", SDL_GetError());
-		//TODO
+		fprintf(stderr, "ERROR: failed to blit surface: %s \n", SDL_GetError());
+		return 1;
 	}
+	
+	return 0;
 }

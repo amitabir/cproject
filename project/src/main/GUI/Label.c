@@ -1,7 +1,8 @@
 #include "Label.h"
 #include "BitmapFont.h"
+#include <SDL.h>
 
-void labelDraw(Widget *label) {
+int labelDraw(Widget *label) {
 	if (!label->preparedForDraw) {
 		prepareImageWidgetForDrawing(label);
 	}
@@ -23,7 +24,9 @@ void labelDraw(Widget *label) {
 	position.x = getPosX(label);
 	position.y = getPosY(label);
 	if (SDL_BlitSurface(labelSurface, &size, getScreen(label->parent), &position) != 0) {
-		printf("ERROR: failed to blit image: %s\n", SDL_GetError());
-		//TODO
+		fprintf(stderr, "ERROR: failed to blit surface: %s \n", SDL_GetError());
+		return 1;
 	}
+	
+	return 0;
 }

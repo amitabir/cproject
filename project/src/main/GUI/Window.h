@@ -3,6 +3,6 @@
 #include <SDL.h>
 #include "Widget.h"
 
-void windowDraw(Widget *winodw);
+int windowDraw(Widget *winodw);
 
 #endif

@@ -10,10 +10,16 @@ Widget *createButton(int id, int posX, int posY, int width, int height, Color co
 	setColorKey(button, colorKey);
 	setText(button, text, textPosX, textPosY);
 	if (imageFileName != NULL) {
-		setImage(button, imageFileName);
+		if (setImage(button, imageFileName) != 0) {			
+			freeWidget(button);
+			return NULL;
+		}
 	}
 	if (markedImageFileName != NULL) {
-		setMarkedImage(button, markedImageFileName);
+		if (setMarkedImage(button, markedImageFileName) != 0) {
+			freeWidget(button);
+			return NULL;
+		}
 	}
 	return button;
 }

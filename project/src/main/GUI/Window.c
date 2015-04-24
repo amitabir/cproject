@@ -1,4 +1,4 @@
-	#include "Window.h"
+#include "Window.h"
 
 #define DEFAULT_BPP 0
 
@@ -6,8 +6,8 @@ int initScreen(Widget *window) {
     setScreen(window, SDL_SetVideoMode(getWidth(window), getHeight(window), DEFAULT_BPP, SDL_HWSURFACE|SDL_DOUBLEBUF));
     
 	if (getScreen(window) == NULL) {
-            return 0;
-			printf("Screen is NULL\n");
+		fprintf(stderr, "ERROR: failed to set video mode: %s\n", SDL_GetError());
+		return 1;
     }
 	
     //Set the window caption
@@ -20,12 +20,18 @@ int initScreen(Widget *window) {
 	setBitmapFont(window, bitmapFont);
 	
 	window->preparedForDraw = 1;
-    return 1;
+    return 0;
 }
 
-void windowDraw(Widget *window) {
+int windowDraw(Widget *window) {
 	if (!window->preparedForDraw) {
-		initScreen(window);
+		if (initScreen(window) != 0) {
+			return 1;
+		}
 	}
-	SDL_FillRect(getScreen(window), NULL, getFormattedColor(getBgColor(window), getScreen(window)));
+	if (SDL_FillRect(getScreen(window), NULL, getFormattedColor(getBgColor(window), getScreen(window))) != 0) {
+		fprintf(stderr, "ERROR: Could fill rectangle for window scrren: %s\n", SDL_GetError());		
+		return 1;
+	}
+	return 0;
 }

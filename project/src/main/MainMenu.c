@@ -20,9 +20,24 @@ typedef enum {
 	BUTTON_QUIT
 } ButtonId;
 
+void handleWidgetFailed(Widget *window) {
+	freeWidget(window);
+}
+
+Widget* createSelectionButton(Widget *window, Widget *parent, ButtonId buttonId, int posX, int posY, int width, int height, Color colorKey,
+	 	char *text, int textPosX, int textPosY) {
+	Widget *button = createButton(buttonId, posX, posY, width, height, colorKey, text, textPosX, textPosY, 
+			"images/buttonReg.bmp", "images/buttonMarked.bmp");
+	if (button == NULL) {
+		handleWidgetFailed(window);
+		return NULL;
+	}
+	addWidget(parent, button);
+	return button;
+}
+
 Widget* createMainMenuView() {
-	Widget *window = NULL, *buttonNewGame = NULL, *buttonLoadGame = NULL, *buttonCreateGame = NULL, *buttonEditGame = NULL,
-		 *buttonQuitGame = NULL, *panel = NULL, *buttonsPanel = NULL, *titleLabel = NULL;
+	Widget *window = NULL, *panel = NULL, *buttonsPanel = NULL, *titleLabel = NULL;
 	Color colorKey = createColor(0xFF, 0xFF, 0xFF);
 	
 	window = createWindow(0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_CAPTION);
@@ -37,34 +52,50 @@ Widget* createMainMenuView() {
 	setBgColor(titleLabel, createColor(0xFF, 0xFF, 0xFF));
 	addWidget(panel, titleLabel);
 	
-	buttonsPanel = createPanel(0, 0,100,400, 470);
+	buttonsPanel = createPanel(0, 0,100, 400, 470);
 	setBgColor(buttonsPanel, createColor(0xFF, 0xFF, 0xFF));
 	addWidget(panel, buttonsPanel);
 	
-	buttonNewGame = createButton(BUTTON_NEW_GAME, 95, 0, 200, 70, colorKey, "New Game", 50, 15, "images/buttonReg.bmp", "images/buttonMarked.bmp");
-	addWidget(buttonsPanel, buttonNewGame);
-
-	buttonLoadGame = createButton(BUTTON_LOAD_GAME, 95, 100, 200, 70, colorKey, "Load Game", 50, 15, "images/buttonReg.bmp", "images/buttonMarked.bmp");
-	addWidget(buttonsPanel, buttonLoadGame);
-	
-	buttonCreateGame = createButton(BUTTON_CREATE_GAME, 95, 200, 200, 70, colorKey, "Create Game", 40, 20, "images/buttonReg.bmp", "images/buttonMarked.bmp");
-	addWidget(buttonsPanel, buttonCreateGame);
-	
-	buttonEditGame = createButton(BUTTON_EDIT_GAME, 95, 300, 200, 70, colorKey, "Edit Game", 50, 20, "images/buttonReg.bmp", "images/buttonMarked.bmp");
-	addWidget(buttonsPanel, buttonEditGame);
-	
-	buttonQuitGame = createButton(BUTTON_QUIT, 95, 400, 200, 70, colorKey, "Quit", 80, 20, "images/buttonReg.bmp", "images/buttonMarked.bmp");
-	addWidget(buttonsPanel, buttonQuitGame);	
+	char *buttonNames[] = {"New Game", "Load Game", "Create Game", "Edit Game", "Quit"};
+	int buttonIdx;
+	for (buttonIdx = 0; buttonIdx < BUTTONS_NUMBER; buttonIdx++) {
+		if (createSelectionButton(window, buttonsPanel, buttonIdx, 95, buttonIdx*100, 200, 70, colorKey, buttonNames[buttonIdx], 50, 15) == NULL) {
+			return NULL;
+		}
+	}
+	// if (createSelectionButton(window, buttonsPanel, BUTTON_NEW_GAME, 95, 0, 200, 70, colorKey, "New Game", 50, 15) == NULL) {
+// 		return NULL;
+// 	}
+//
+// 	if (createSelectionButton(window, buttonsPanel, BUTTON_LOAD_GAME, 95, 100, 200, 70, colorKey, "Load Game", 50, 15) == NULL) {
+// 		return NULL;
+// 	}
+//
+// 	if (createSelectionButton(window, buttonsPanel, BUTTON_CREATE_GAME, 95, 200, 200, 70, colorKey, "Create Game", 40, 20) == NULL) {
+// 		return NULL;
+// 	}
+//
+// 	if (createSelectionButton(window, buttonsPanel, BUTTON_EDIT_GAME, 95, 300, 200, 70, colorKey, "Edit Game", 50, 20) == NULL) {
+// 		return NULL;
+// 	}
+//
+// 	if (createSelectionButton(window, buttonsPanel, BUTTON_QUIT, 95, 400, 200, 70, colorKey, "Quit", 80, 20) == NULL) {
+// 		return NULL;
+// 	}
 	return window;
 }
 
 void startMainMenu(GUIState* mainMenuState, void* initData) {
 	mainMenuState->viewState = createMainMenuView();
+	if (mainMenuState->viewState == NULL) {
+		isError = 1;
+		return;
+	}
 	SelectionModel *model = createSelectionModelByState(mainMenuState->stateId, initData);
 	mainMenuState->model = model;
 
 	markButton((Widget *) mainMenuState->viewState, &(model->markedButtonIndex), model->markedButtonIndex);
- 	drawUITree((Widget *) mainMenuState->viewState);
+ 	isError = drawUITree((Widget *) mainMenuState->viewState);
 }
 
 void* viewTranslateEventMainMenu(void* viewState, SDL_Event* event) {
@@ -96,12 +127,16 @@ StateId presenterHandleEventMainMenu(void* model, void* viewState, void* logical
 }
 
 void* stopMainMenu(GUIState* state, StateId nextStateId) {
-	freeWidget((Widget *) state->viewState);
+	if (state->viewState != NULL) {
+		freeWidget((Widget *) state->viewState);
+	}
 	if (nextStateId == GAME_EDITOR) {
 		return NULL;
 	}
 	if (nextStateId == QUIT) {
-		freeSelectionModel((SelectionModel *) state->model, 1, 1);
+		if (state->model != NULL) {
+			freeSelectionModel((SelectionModel *) state->model, 1, 1);
+		}
 		return NULL;
 	}
 	return state->model;

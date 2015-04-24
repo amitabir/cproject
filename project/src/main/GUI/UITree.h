@@ -8,7 +8,7 @@
 #include "Panel.h"
 #include "Label.h"
 
-void drawUITree(Widget *widget);
+int drawUITree(Widget *widget);
 Widget *findWidgetFromTree(Uint16 x, Uint16 y, Widget *widget);
 
 #endif

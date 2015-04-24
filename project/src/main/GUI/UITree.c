@@ -1,21 +1,32 @@
 #include "UITree.h"
 
-void drawUITreeRec(Widget *widget) {
+int drawUITreeRec(Widget *widget) {
 	Widget *currWidget = NULL;
 	if (isVisible(widget)) {
-		getDrawFunc(widget)(widget);
+		if (getDrawFunc(widget)(widget) != 0) {
+			return 1;
+		}
 		ListRef curr = getChildren(widget);
 		while (curr != NULL) {
 			currWidget = (Widget *) headData(curr);
-			drawUITreeRec(currWidget);
+			if (drawUITreeRec(currWidget) != 0) {
+				return 1;
+			}
 			curr = tail(curr);
 		}
 	}
+	return 0;
 }
 
-void drawUITree(Widget *window) {
-	drawUITreeRec(window);
-	SDL_Flip(getScreen(window));
+int drawUITree(Widget *window) {
+	if (drawUITreeRec(window) != 0) {
+		return 1;
+	}
+	if (SDL_Flip(getScreen(window)) != 0) {
+		perror("ERROR: Failed to flip window buffer");
+		return 1;
+	}
+	return 0;
 }
 
 int isCoorsInWidget(Uint16 x, Uint16 y, Widget *widget){
