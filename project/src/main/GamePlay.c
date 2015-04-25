@@ -359,6 +359,7 @@ StateId presenterHandleEventGamePlay(void* model, void* viewState, void* logical
 		case SELECT_BUTTON:
 			clickedBtnId = (int *) logicalEventPtr->eventParams;
 			result = handleButtonSelectedGamePlay(model, window, *clickedBtnId);
+			break;
 		case MOVE_POINT:
 			newPoint = (BoardPoint *) logicalEventPtr->eventParams;
 			makeMove = getMoveDirectionFromCurrentPlayerPoint(gameModel, *newPoint, &moveDirection);			

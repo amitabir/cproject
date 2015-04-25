@@ -36,7 +36,7 @@ int main(int argc, char* args[]) {
 		exit(1);
 	}
 
-	// initialize GUI structs mapping by state ids:
+	// initialize GUI structs mapping by state ids
 	GUIState guiStates[STATES_COUNT];
 
 	int stateId;
@@ -55,7 +55,7 @@ int main(int argc, char* args[]) {
 	while (!isError && nextStateId != QUIT) {
 		SDL_Event event;
 		void* logicalEvent;
-		// translating the SDL event to a logical event using the view:
+		// translating the SDL event to a logical event using the view
 		if (SDL_PollEvent(&event) != 0) {
 			shouldWait = 0;
 			logicalEvent = activeGUI.viewTranslateEvent(activeGUI.viewState, &event);
@@ -64,7 +64,7 @@ int main(int argc, char* args[]) {
 			logicalEvent = createLogicalEvent(NO_EVENT);
 		}
 			
-		// Handling the logical event using the presenter:
+		// Handling the logical event using the presenter
 		nextStateId = activeGUI.presenterHandleEvent(activeGUI.model, activeGUI.viewState, logicalEvent);
 		
 		// if state has changed, stop the active GUI and move to the next one:
@@ -83,7 +83,6 @@ int main(int argc, char* args[]) {
 		SDL_Delay(POLLING_DELAY);
 	}
 
-	//API may be extended with a "provideInitData" flag or something similar:
 	activeGUI.stop(&activeGUI, nextStateId);
 	
 	SDL_Quit();
