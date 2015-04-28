@@ -15,9 +15,21 @@
 
 #define BUTTONS_NUMBER 3
 
+#define WORLD_IMAGE_NAME_LENGTH 26
+#define WORLD_MARKED_IMAGE_NAME_LENGTH 32
+
+#define TITLE_POSX 90
+#define TITLE_POSY 25
+
 static char *LOAD_GAME_LABEL_TITLE = "Load Game";
 static char *EDIT_GAME_LABEL_TITLE = "Edit Game";
 static char *SAVE_GAME_LABEL_TITLE = "Save Game";
+
+const char *WORLD_SELECTION_BUTTONS_IMAGES[] = {NULL, "images/Buttons/Done.bmp", "images/Buttons/Back.bmp"};
+const char *WORLD_SELECTION_MARKED_BUTTONS_IMAGES[] = {NULL, "images/Buttons/DoneMarked.bmp", "images/Buttons/BackMarked.bmp"};
+
+const char *WORLD_IMAGE_NAME = "images/Buttons/World%d.bmp";
+const char *WORLD_MARKED_IMAGE_NAME = "images/Buttons/World%dMarked.bmp";
 
 int saved = 0;
 
@@ -29,90 +41,75 @@ typedef enum {
 	BUTTON_WORLD_DOWN
 } ButtonId;
 
-Widget* createLoadGameView(StateId stateId) {
-	Widget *window = NULL, *buttonWorldIndex = NULL, *buttonDone = NULL, *buttonBack = NULL, *buttonWorldUp = NULL, *buttonWorldDown = NULL,
-		 *panel = NULL, *buttonsPanel = NULL, *titleLabel = NULL;
-	Color colorKey = createColor(0xFF, 0xFF, 0xFF);
-	
-	window = createWindow(0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_CAPTION);
-	setBgColor(window, createColor(0xFF, 0xFF, 0xFF));
-	
-	panel = createPanel(0, 200,100,400,600);
-	setBgColor(panel, createColor(0xFF, 0xFF, 0xFF));
-	addWidget(window, panel);
-	
-	titleLabel = createLabel(0, 20, 0, 300, 70);
-	
-	switch(stateId) {
-		case LOAD_GAME:	setText(titleLabel, LOAD_GAME_LABEL_TITLE, 5, 20); break;
-		case EDIT_GAME:	setText(titleLabel, EDIT_GAME_LABEL_TITLE, 5, 20); break;
-		case SAVE_GAME:	setText(titleLabel, SAVE_GAME_LABEL_TITLE, 5, 20); break;
-		default: break;
-	}
-	
-	setBgColor(titleLabel, createColor(0xFF, 0xFF, 0xFF));
-	addWidget(panel, titleLabel);
-	
-	
-	buttonsPanel = createPanel(0, 0,100,400, 470);
-	setBgColor(buttonsPanel, createColor(0xFF, 0xFF, 0xFF));
-	addWidget(panel, buttonsPanel);
-	
-	buttonWorldIndex = createButton(BUTTON_WORLD_INDEX, 85, 0, 160 ,70, colorKey, NULL, 0, 0, "images/buttonReg.bmp","images/buttonMarked.bmp");
-	addWidget(buttonsPanel, buttonWorldIndex);
-
-	buttonDone = createButton(BUTTON_DONE, 85, 100, 200, 70, colorKey, "Done", 45, 20, "images/buttonReg.bmp", "images/buttonMarked.bmp");
-	addWidget(buttonsPanel, buttonDone);
-	
-	buttonBack = createButton(BUTTON_BACK, 85, 200, 200, 70, colorKey, "Back", 35, 20, "images/buttonReg.bmp", "images/buttonMarked.bmp");
-	addWidget(buttonsPanel, buttonBack);
-	
-	buttonWorldUp = createButton(BUTTON_WORLD_UP, 245, 0, 40, 35, colorKey, NULL, 0, 0, "images/smallUp.bmp", NULL);
-	setMarkable(buttonWorldUp, 0);
-	addWidget(buttonsPanel, buttonWorldUp);
-	
-	buttonWorldDown = createButton(BUTTON_WORLD_DOWN, 245, 35, 40, 35, colorKey, NULL, 0, 0, "images/smallDown.bmp", NULL);
-	setMarkable(buttonWorldDown, 0);
-	addWidget(buttonsPanel, buttonWorldDown);
-	
-	return window;
-}
-
-void updateWorldIndexButton(Widget *window, int worldIndex) {
-	char worldIndexStr[8];
+int updateWorldIndexButton(Widget *window, int worldIndex) {
+	char worldIndexImageFileName[WORLD_IMAGE_NAME_LENGTH], worldIndexMarkedImageFileName[WORLD_MARKED_IMAGE_NAME_LENGTH];
 	Widget *panel = getChildAtindex(window, 0);
-	Widget *buttonsPanel = getChildAtindex(panel, 1);
+	Widget *buttonsPanel = getChildAtindex(panel, getChildrenNum(panel) - 1);
 	Widget *worldIndexButton = getChildAtindex(buttonsPanel, BUTTON_WORLD_INDEX);
-	sprintf(worldIndexStr, "World %d", worldIndex);
-	setText(worldIndexButton, worldIndexStr, 20, 20);
+	sprintf(worldIndexImageFileName, WORLD_IMAGE_NAME, worldIndex);
+	sprintf(worldIndexMarkedImageFileName, WORLD_MARKED_IMAGE_NAME, worldIndex);
+		
+	if (setImage(worldIndexButton, worldIndexImageFileName) != 0 || setMarkedImage(worldIndexButton, worldIndexMarkedImageFileName) != 0) {		
+		return 1;
+	}
+	return 0;
 }
 
 void startLoadGame(GUIState* loadGameState, void* initData) {
-	SelectionModel *model = createSelectionModelByState(loadGameState->stateId, initData);	
-	loadGameState->model = model;
-	loadGameState->viewState = createLoadGameView(loadGameState->stateId);
+	char* title = NULL;
+	Widget *window;
+	switch(loadGameState->stateId) {
+		case LOAD_GAME: title = LOAD_GAME_LABEL_TITLE; break;
+		case EDIT_GAME:	title = EDIT_GAME_LABEL_TITLE; break;
+		case SAVE_GAME:	title = SAVE_GAME_LABEL_TITLE; break;
+		default: break;
+	}
+	window = createSelectionWindowView(title, TITLE_POSX, TITLE_POSY, BUTTONS_NUMBER, WORLD_SELECTION_BUTTONS_IMAGES,
+		 	WORLD_SELECTION_MARKED_BUTTONS_IMAGES);
 	
-	updateWorldIndexButton((Widget *) loadGameState->viewState, model->gameConfig->worldIndex);
+	if (window == NULL || addUpDownArrows(window, BUTTON_WORLD_INDEX, BUTTON_WORLD_UP, BUTTON_WORLD_DOWN) != 0) {
+		isError = 1;
+		return;
+	}
+	
+	loadGameState->viewState = window;
+	SelectionModel *model = createSelectionModelByState(loadGameState->stateId, initData);	
+	if (model == NULL) {
+		isError = 1;
+		return;
+	}
+	loadGameState->model = model;
+	
+	if (updateWorldIndexButton((Widget *) loadGameState->viewState, model->gameConfig->worldIndex) != 0) {
+		isError = 1;
+		return;
+	}
 	markButton((Widget *) loadGameState->viewState, &(model->markedButtonIndex), model->markedButtonIndex);	
-	drawUITree((Widget *) loadGameState->viewState);
+	isError = drawUITree((Widget *) loadGameState->viewState);
 }
 
 void* viewTranslateEventLoadGame(void* viewState, SDL_Event* event) {
 	return viewTranslateEventSelectionWindow(viewState, event);
 }
 
-void handleWorldIndexUp(SelectionModel *selectionModel, Widget *window) {
+int handleWorldIndexUp(SelectionModel *selectionModel, Widget *window) {
 	if (selectionModel->gameConfig->worldIndex < MAX_WORLD_INDEX) {
 		selectionModel->gameConfig->worldIndex++;
-		updateWorldIndexButton(window, selectionModel->gameConfig->worldIndex);
+		if (updateWorldIndexButton(window, selectionModel->gameConfig->worldIndex) != 0) {
+			return 1;
+		}
 	}
+	return 0;
 }
 
-void handleWorldIndexDown(SelectionModel *selectionModel, Widget *window) {
+int handleWorldIndexDown(SelectionModel *selectionModel, Widget *window) {
 	if (selectionModel->gameConfig->worldIndex > MIN_WORLD_INDEX) {
 		selectionModel->gameConfig->worldIndex--;
-		updateWorldIndexButton(window, selectionModel->gameConfig->worldIndex);
+		if (updateWorldIndexButton(window, selectionModel->gameConfig->worldIndex) != 0) {
+			return 1;
+		}
 	}
+	return 0;
 }
 
 void handleSaveGame(SelectionModel *selectionModel) {
@@ -143,14 +140,20 @@ StateId handleButtonSelectedLoadGame(void* model, Widget *window, int buttonId) 
 			break;
 		case BUTTON_WORLD_UP:
 			if (selectionModel->markedButtonIndex == BUTTON_WORLD_INDEX) {
-				handleWorldIndexUp(selectionModel, window);
-				drawUITree(window);
+				if (handleWorldIndexUp(selectionModel, window) != 0) {
+					isError = 1;
+					return selectionModel->stateId;
+				}
+				isError = drawUITree(window);
 			}
 			break;
 		case BUTTON_WORLD_DOWN:
 				if (selectionModel->markedButtonIndex == BUTTON_WORLD_INDEX) {
-				handleWorldIndexDown(selectionModel, window);
-				drawUITree(window);	
+				if (handleWorldIndexDown(selectionModel, window) != 0) {
+					isError = 1;
+					return selectionModel->stateId;
+				}
+				isError = drawUITree(window);	
 			}	
 			break;
 		case BUTTON_BACK:

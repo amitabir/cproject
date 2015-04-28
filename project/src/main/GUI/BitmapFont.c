@@ -28,8 +28,8 @@ int findCharLeftSide(SDL_Surface *bitmap, Uint32 bgColor, int cellRow, int cellC
     for (col = 0; col < cellWidth; col++) {
         for (row = 0; row < cellHeight; row++) {
             pX = cellWidth * cellCol + col;
-            pY = cellHeight * cellRow + row;			
-            if (getPixelFromSurface(pX, pY, bitmap) != bgColor) {
+            pY = cellHeight * cellRow + row;		
+            if (getPixelFromSurface(pX, pY, bitmap) != bgColor) {				
                 return pX;
             }
         }
@@ -114,11 +114,11 @@ void buildFont(BitmapFont *bitmapFont, SDL_Surface *fontImg, Uint32 imgBgColor, 
     for (rows = 0; rows < numCellRows; rows++) {
         //Go through the cell columns
         for (cols = 0; cols < numCellsCols; cols++) {
-            // chars[currentChar].y = cellH * rows;
-            // chars[currentChar].h = cellH;
+            chars[currentChar].y = cellH * rows;
+            chars[currentChar].h = cellH;
 			
-            chars[currentChar].y = findCharTopSide(bitmap, imgBgColor, rows, cols, cellW, cellH);
-            chars[currentChar].h = findCharBottomSide(bitmap, imgBgColor, rows, cols, cellW, cellH) -  chars[currentChar].y + 1;
+            // chars[currentChar].y = findCharTopSide(bitmap, imgBgColor, rows, cols, cellW, cellH);
+//             chars[currentChar].h = findCharBottomSide(bitmap, imgBgColor, rows, cols, cellW, cellH) -  chars[currentChar].y + 1;
 
 			// if (currentChar == 'A') {
 // 				topA = findCharTopSide(bitmap, imgBgColor, rows, cols, cellW, cellH);
@@ -129,7 +129,7 @@ void buildFont(BitmapFont *bitmapFont, SDL_Surface *fontImg, Uint32 imgBgColor, 
 			// Find the right and left sides of the character in the cell, and adjust cell width.
 			chars[currentChar].x = findCharLeftSide(bitmap, imgBgColor, rows, cols, cellW, cellH);
 			chars[currentChar].w = findCharRightSide(bitmap, imgBgColor, rows, cols, cellW, cellH) - chars[currentChar].x + 1;
-						
+									
             //Go to the next character
             currentChar++;
         }

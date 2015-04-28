@@ -51,31 +51,29 @@ Widget* createGamePlayView(GameModel *gameModel) {
 	Widget *gridPanel = NULL;
 	
 	Color colorKey = createColor(0xFF, 0xFF, 0xFF);
-	window = createWindow(0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_CAPTION);
-	setBgColor(window, createColor(0xFF, 0xFF, 0xFF));
+	Color bgColor = createColor(0xFF, 0xFF, 0xFF);
+	window = createWindow(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_CAPTION, bgColor);
 	
-	topPanel = createPanel(0, 0, 0, 800, 150);
-	setBgColor(topPanel, createColor(0xFF, 0xFF, 0xFF));
+	topPanel = createPanel(0, 0, 800, 150, bgColor);
 	addWidget(window, topPanel);
 	
-	gameOverLabel = createLabel(0, 200, 50, 500, 60);
+	gameOverLabel = createLabel(200, 50, 500, 60);
 	setBgColor(gameOverLabel, createColor(0xFF, 0xFF, 0xFF));
 	setVisible(gameOverLabel, 0);
 	addWidget(topPanel, gameOverLabel);
 	
-	gameStatusLabel = createLabel(0, 250, 0, 300, 50);
+	gameStatusLabel = createLabel(250, 0, 300, 50);
 	setBgColor(gameStatusLabel, createColor(0xFF, 0xFF, 0xFF));
 	addWidget(topPanel, gameStatusLabel);
 	
-	turnStatusLabel = createLabel(0, 250, 50, 300, 50);
+	turnStatusLabel = createLabel(250, 50, 300, 50);
 	setBgColor(turnStatusLabel, createColor(0xFF, 0xFF, 0xFF));
 	addWidget(topPanel, turnStatusLabel);
 	
 	pauseButton = createButton(BUTTON_PAUSE, 250, 100, 300, 50, colorKey, NULL, 0, 0, "images/smallButtonReg.bmp","images/smallButtonMarked.bmp");
 	addWidget(topPanel, pauseButton);
 	
-	sidePanel = createPanel(0, 0, 150, 200, 650);
-	setBgColor(sidePanel, createColor(0xFF, 0xFF, 0xFF));
+	sidePanel = createPanel(0, 150, 200, 650, bgColor);
 	addWidget(window, sidePanel);
 	
 	reconfigureMouseButton = createButton(BUTTON_RECONFIG_MOUSE, 20, 50, 160, 60, colorKey, "Reconfigure\nMouse (F1)", 5, 0, "images/smallButtonReg.bmp", "images/smallButtonMarked.bmp");
@@ -238,7 +236,7 @@ void startGamePlay(GUIState* gamePlayState, void* initData) {
 	}
 	gamePlayState->model = gameModel;
 		
-	Widget *window =  createGamePlayView(gameModel);
+	Widget *window = createGamePlayView(gameModel);
 	gamePlayState->viewState = window;
 	checkGameOver(gameModel);
 	updateView(window, gameModel);

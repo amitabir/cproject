@@ -3,6 +3,6 @@
 
 #include "BoardPoint.h"
 
-int getScoreForState(char **board, BoardPoint catPoint, BoardPoint mousePoint, BoardPoint cheesePoint);
+int getScoreForState(char **board, BoardPoint catPoint, BoardPoint mousePoint, BoardPoint cheesePoint, int numTurns, int isMouseTurn);
 
 #endif /* EVAL_H_ */

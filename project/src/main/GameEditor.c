@@ -47,14 +47,15 @@ Widget* createEditGameView(GameEditorModel *editModel) {
 	Widget *gridPanel = NULL, *gridButton = NULL, *markLabel = NULL;
 	
 	Color colorKey = createColor(0xFF, 0xFF, 0xFF);
-	window = createWindow(0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_CAPTION);
+	Color bgColor = createColor(0xFF, 0xFF, 0xFF);
+	
+	window = createWindow(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_CAPTION, bgColor);
 	setBgColor(window, createColor(0xFF, 0xFF, 0xFF));
 	
-	topPanel = createPanel(0, 0, 0, 800, 150);
-	setBgColor(topPanel, createColor(0xFF, 0xFF, 0xFF));
+	topPanel = createPanel(0, 0, 800, 150, bgColor);
 	addWidget(window, topPanel);
 	
-	titleLabel = createLabel(0, 350, 20, 300, 50);
+	titleLabel = createLabel(350, 20, 300, 50);
 	setBgColor(titleLabel, createColor(0xFF, 0xFF, 0xFF));
 	if (editModel->game->gameConfig != NULL) {
 		char worldIndexStr[8];
@@ -74,8 +75,7 @@ Widget* createEditGameView(GameEditorModel *editModel) {
 	quitButton = createButton(BUTTON_QUIT, 550, 80, 160, 50, colorKey, "Quit Program (Esc)", 5, 20, "images/smallButtonReg.bmp","images/smallButtonMarked.bmp");
 	addWidget(topPanel, quitButton);
 	
-	sidePanel = createPanel(0, 0, 150, 200, 650);
-	setBgColor(sidePanel, createColor(0xFF, 0xFF, 0xFF));
+	sidePanel = createPanel(0, 150, 200, 650, bgColor);
 	addWidget(window, sidePanel);
 	
 	placeMouseButton = createButton(BUTTON_PLACE_MOUSE, 20, 50, 160, 60, colorKey, "Place Mouse (M)", 5, 20, "images/smallButtonReg.bmp", "images/smallButtonMarked.bmp");
@@ -93,17 +93,16 @@ Widget* createEditGameView(GameEditorModel *editModel) {
 	placeEmptyButton = createButton(BUTTON_PLACE_EMPTY, 20, 450, 160, 60, colorKey, "Place Empty Space (Space)", 5, 20, "images/smallButtonReg.bmp","images/smallButtonMarked.bmp");
 	addWidget(sidePanel, placeEmptyButton);
 	
-	gridPanel = createPanel(0, GRID_X_POS, GRID_Y_POS, GRID_WIDTH, GRID_HEIGHT);
-	setBgColor(gridPanel, createColor(0xFF, 0xFF, 0xFF));
+	gridPanel = createPanel(GRID_X_POS, GRID_Y_POS, GRID_WIDTH, GRID_HEIGHT, bgColor);
 	addWidget(window, gridPanel);
 	
 	gridButton = createButton(BUTTON_GRID, 0, 0, GRID_WIDTH, GRID_HEIGHT, colorKey, NULL, 0, 0, "images/grid.bmp", NULL);
 	addWidget(gridPanel, gridButton);
 	
-	markLabel = createLabel(0, 0, 0, GRID_CELL_WIDTH + 5, GRID_CELL_HEIGHT+ 5);
-	setGridLabelCoordinates(markLabel, createPoint(0,0), 0);
+	markLabel = createLabel(0, 0, GRID_CELL_WIDTH + 5, GRID_CELL_HEIGHT+ 5);
+	setGridLabelCoordinates(markLabel, createPoint(0,0), 1);
 	setColorKey(markLabel, colorKey);
-	setImage(markLabel, "images/border.bmp");
+	setImage(markLabel, "images/Buttons/frame.bmp");
 	addWidget(gridPanel, markLabel);
 	
 	return window;
@@ -140,21 +139,21 @@ void updateGridButton(Widget *gridButton, GameModel *gameModel) {
 	removeAllChildren(gridButton);
 	
 	if (!isEmptyPoint(gameModel->catPoint)) {
-		Widget *catLabel = createLabel(0, 0, 0, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
+		Widget *catLabel = createLabel(0, 0, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
 		setGridLabelCoordinates(catLabel, gameModel->catPoint, 1);
 		setImage(catLabel, "images/cat.bmp");
 		addWidget(gridButton, catLabel);
 	}
 	
 	if (!isEmptyPoint(gameModel->mousePoint)) {
-		Widget *mouseLabel = createLabel(0, 0, 0, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
+		Widget *mouseLabel = createLabel(0, 0, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
 		setGridLabelCoordinates(mouseLabel, gameModel->mousePoint, 1);
 		setImage(mouseLabel, "images/mouse.bmp");
 		addWidget(gridButton, mouseLabel);
 	}
 	
 	if (!isEmptyPoint(gameModel->cheesePoint)) {
-		Widget *cheeseLabel = createLabel(0, 0, 0, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
+		Widget *cheeseLabel = createLabel(0, 0, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
 		setGridLabelCoordinates(cheeseLabel, gameModel->cheesePoint, 1);
 		setImage(cheeseLabel, "images/cheese.bmp");
 		addWidget(gridButton, cheeseLabel);

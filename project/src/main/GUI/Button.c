@@ -30,6 +30,7 @@ int buttonDraw(Widget *button) {
 	SDL_Rect position;
 	position.x = getPosX(button);
 	position.y = getPosY(button);
+	
 	if (SDL_BlitSurface(image, &size, getScreen(button->parent), &position) != 0) {
 		fprintf(stderr, "ERROR: failed to blit surface: %s \n", SDL_GetError());
 		return 1;

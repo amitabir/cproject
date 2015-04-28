@@ -1,5 +1,16 @@
 #include "UITree.h"
 
+int shouldDraw(Widget *parent, Widget *child) {
+	if (getPosX(child) < getPosX(parent) || getPosX(child) > getPosX(parent) + getWidth(parent)) {
+		printf("%d %d %d \n", getPosX(child) ,getPosX(parent), getPosX(parent) + getWidth(parent));
+		return 0;
+	}
+	if (getPosY(child) < getPosY(parent) || getPosY(child) > getPosY(parent) + getHeight(parent)) {
+		return 0;
+	}
+	return 1;
+}
+
 int drawUITreeRec(Widget *widget) {
 	Widget *currWidget = NULL;
 	if (isVisible(widget)) {
@@ -9,8 +20,10 @@ int drawUITreeRec(Widget *widget) {
 		ListRef curr = getChildren(widget);
 		while (curr != NULL) {
 			currWidget = (Widget *) headData(curr);
-			if (drawUITreeRec(currWidget) != 0) {
-				return 1;
+			if (shouldDraw(widget, currWidget)) {
+				if (drawUITreeRec(currWidget) != 0) {
+					return 1;
+				}
 			}
 			curr = tail(curr);
 		}

@@ -139,7 +139,7 @@ EvaluationTest: EvaluationTest.o MoveLogicService.o BoardUtils.o BoardPoint.o Ev
 WorldFilesServiceTest.o: $(TEST_PATH)/WorldFilesServiceTest.c $(MODEL_PATH)/WorldFilesService.h
 	gcc -c $(CFLAGS) $(TEST_PATH)/WorldFilesServiceTest.c
 	
-WorldFilesServiceTest: WorldFilesServiceTest.o WorldFilesService.o BoardUtils.o
+WorldFilesServiceTest: WorldFilesServiceTest.o WorldFilesService.o BoardUtils.o ListUtils.o BoardPoint.o
 	gcc -o $@ $^ $(CFLAGS)
 
 ######## Demo Files ########

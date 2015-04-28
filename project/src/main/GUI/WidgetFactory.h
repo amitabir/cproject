@@ -7,13 +7,13 @@
 #include "Panel.h"
 #include "Label.h"
 
-Widget *createWindow(int id, int posX, int posY, int width, int height, const char *caption);
+Widget *createWindow(int posX, int posY, int width, int height, const char *caption, Color bgColor);
 
-Widget *createButton(int id, int posX, int posY, int width, int height, Color colorKey, char *text, int textPosX, int textPosY, char *imageFileName,
-		char *markedImageFileName);
+Widget *createButton(int id, int posX, int posY, int width, int height, Color colorKey, char *text, int textPosX, int textPosY, const char *imageFileName,
+		const char *markedImageFileName);
 
-Widget *createPanel(int id, int posX, int posY, int width, int height);
+Widget *createPanel(int posX, int posY, int width, int height, Color bgColor);
 
-Widget *createLabel(int id, int posX, int posY, int width, int height);
+Widget *createLabel(int posX, int posY, int width, int height);
 
 #endif

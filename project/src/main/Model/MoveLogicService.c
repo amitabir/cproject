@@ -10,7 +10,8 @@ MoveDirection moveIndexToMoveDirection(int moveIndex) {
 }
 
 WinnerType hasWinner(char **board, BoardPoint catPoint, BoardPoint mousePoint, BoardPoint cheesePoint, int numTurns) {
-	int score = getScoreForState(board, catPoint, mousePoint, cheesePoint);
+	printf("BEGIN ###################\n");
+	int score = getScoreForState(board, catPoint, mousePoint, cheesePoint, numTurns, 1);
 	if (score == MAX_EVALUATION) {
 		return CAT_WINS;
 	} else if (score == MIN_EVALUATION) {
@@ -18,6 +19,7 @@ WinnerType hasWinner(char **board, BoardPoint catPoint, BoardPoint mousePoint, B
 	} else if (numTurns == 0) {
 		return DRAW;
 	}
+	printf("END ###################\n");
 	return NO_WIN;
 }
 
@@ -45,7 +47,7 @@ int isMoveValid(char **board, BoardPoint cheesePoint, BoardPoint point, MoveDire
 that represents the number of moves and an int isUserTurn that represents if it's the user turn. Creates a new
 Connect4State with the given parameters and an empty moves list and returns a pointer to it. 
 Returns NULL pointer if the allocation has failed. */
-GameState* createState(char **board, int numTurns, BoardPoint catPoint, BoardPoint mousePoint, BoardPoint cheesePoint, int isMouseTurn) {
+GameState* createState(char **board, int numTurns, BoardPoint catPoint, BoardPoint mousePoint, BoardPoint cheesePoint, int isMouseTurn, int isMouseTree) {
 	// Creating the state
 	GameState *state;
 	if ((state = (GameState *) malloc(sizeof(GameState))) == NULL) {
@@ -59,6 +61,7 @@ GameState* createState(char **board, int numTurns, BoardPoint catPoint, BoardPoi
 	state->cheesePoint = cheesePoint;
 	state->numTurns = numTurns;
 	state->isMouseTurn = isMouseTurn;
+	state->isMouseTree = isMouseTree;
 	return state;
 }
 
@@ -80,7 +83,7 @@ GameState* createStateFromParent(GameState *parentState, MoveDirection moveDirec
 	
 	// Create new state from parent
 	if ((childState = createState(parentState->board, parentState->numTurns - 1, catPoint,
-		 		mousePoint, parentState->cheesePoint, !parentState->isMouseTurn)) == NULL) {
+		 		mousePoint, parentState->cheesePoint, !parentState->isMouseTurn, parentState->isMouseTree)) == NULL) {
 		return NULL;
 	}	
 	return childState;
@@ -110,6 +113,7 @@ ListRef getGameStateChildren(void *state) {
  	ListRef childrenList = newList(NULL);
 	
 	// If the game isn't won yet - find the list of the children
+	printf("CHECKING HAS WINNER TURN %d\n", gameState->numTurns);
 	if (hasWinner(gameState->board, gameState->catPoint, gameState->mousePoint, gameState->cheesePoint, gameState->numTurns) == NO_WIN) {
  		int moveIndex;
 		ListRef tempList = childrenList;
@@ -118,6 +122,8 @@ ListRef getGameStateChildren(void *state) {
 		// Going through the possible moves and creating a child for each one that is valid
  		for (moveIndex = 0; moveIndex < NUM_POSSIBLE_MOVES; moveIndex++) {
 			if (isMoveValid(gameState->board, gameState->cheesePoint, playerPoint, moveIndexToMoveDirection(moveIndex))) {
+				printf("CREATING NEW CHILD WITH MOVE DIRECTION %d FOR NUM TURNS %d \n",moveIndex, gameState->numTurns);
+				
 				GameState *childState = createStateFromParent(gameState, moveIndexToMoveDirection(moveIndex));
 				if (childState == NULL) { // standart function failed
 					destroyList(childrenList, freeState);
@@ -135,7 +141,8 @@ by executing the moves in the moves list, using the calScoreForBoard function an
 to restore the initial board. The score is returned */
 int stateEvaluation(void *state) {
 	GameState *gameState = (GameState *) state;
-	int score = getScoreForState(gameState->board, gameState->catPoint, gameState->mousePoint, gameState->cheesePoint);
+	int score = getScoreForState(gameState->board, gameState->catPoint, gameState->mousePoint, gameState->cheesePoint, gameState->numTurns,
+		 		gameState->isMouseTree);
 	return score;
 }
 
@@ -166,9 +173,12 @@ represent the number of steps to look forward and an int isUserTurn that represe
 is an int the represent the index of the best column. */
 int findBestMoveDirection(char **board, int numTurns, BoardPoint catPoint, BoardPoint mousePoint, BoardPoint cheesePoint,
 	 	int isMouseTurn, int numberSteps, MoveDirection *bestMove) {
+	
+	printf(" &&&&&&&&&&& FINDING BEST MOVE FOR MACHINE TURN %d &&&&&&&&&& \n", numTurns);
+			
 	// Creating an initial state
 	int bestMoveIndex;
-	GameState *initialState = createState(board, numTurns, catPoint, mousePoint, cheesePoint, isMouseTurn);
+	GameState *initialState = createState(board, numTurns, catPoint, mousePoint, cheesePoint, isMouseTurn, isMouseTurn);
 	if (initialState == NULL) { // If state creation has failed
 		return 0;
 	}

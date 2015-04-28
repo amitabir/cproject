@@ -32,8 +32,4 @@ int arePointsEqual(BoardPoint point1, BoardPoint point2);
 
 int isAdjacent(BoardPoint point1, BoardPoint point2);
 
-float calcOptDistance(BoardPoint point1, BoardPoint point2);
-
-float calcRealDistance(char **board, BoardPoint origin, BoardPoint destination, int isMouse);
-
 #endif /* BOARD_POINT_H_ */

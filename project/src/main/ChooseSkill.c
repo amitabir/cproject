@@ -12,8 +12,22 @@
 
 #define BUTTONS_NUMBER 3
 
+#define CAT_TITLE_POSX 25
+#define CAT_TITLE_POSY 25
+#define MOUSE_TITLE_POSX 14
+#define MOUSE_TITLE_POSY 25 
+
+#define SKILL_IMAGE_NAME_LENGTH 26
+#define SKILL_MARKED_IMAGE_NAME_LENGTH 32
+
 static char *CAT_LABEL_TITLE = "Choose Cat Skill Level:";
 static char *MOUSE_LABEL_TITLE = "Choose Mouse Skill Level:";
+
+const char *CHOOSE_SKILL_BUTTONS_IMAGES[] = {NULL, "images/Buttons/Done.bmp", "images/Buttons/Back.bmp"};
+const char *CHOOSE_SKILL_MARKED_BUTTONS_IMAGES[] = {NULL, "images/Buttons/DoneMarked.bmp", "images/Buttons/BackMarked.bmp"};
+
+const char *SKILL_IMAGE_NAME = "images/Buttons/Skill%d.bmp";
+const char *SKILL_MARKED_IMAGE_NAME = "images/Buttons/Skill%dMarked.bmp";
 
 typedef enum {
 	BUTTON_SKILL_LEVEL,
@@ -30,76 +44,54 @@ int isCatSkillSelectionWindow(StateId stateId) {
 	return 0;
 }
 
-Widget* createChooseSkillView(int isCatWindow) {
-	Widget *window = NULL, *buttonSkillLevel = NULL, *buttonDone = NULL, *buttonBack = NULL, *buttonSkillUp = NULL, *buttonSkillDown = NULL,
-		 *panel = NULL, *buttonsPanel = NULL, *titleLabel = NULL;
-	Color colorKey = createColor(0xFF, 0xFF, 0xFF);
-	
-	window = createWindow(0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_CAPTION);
-	setBgColor(window, createColor(0xFF, 0xFF, 0xFF));
-	
-	panel = createPanel(0, 200, 100, 400, 600);
-	setBgColor(panel, createColor(0xFF, 0xFF, 0xFF));
-	addWidget(window, panel);
-	
-	if (isCatWindow) {
-		titleLabel = createLabel(0, 20, 0, 300, 70);
-		setText(titleLabel, CAT_LABEL_TITLE, 5, 20);
-	} else {
-		titleLabel = createLabel(0, 20, 0, 300, 70);
-		setText(titleLabel, MOUSE_LABEL_TITLE, 5, 20);
-	}
-	setBgColor(titleLabel, createColor(0xFF, 0xFF, 0xFF));
-	addWidget(panel, titleLabel);
-	
-	buttonsPanel = createPanel(0, 0,100,400, 470);
-	setBgColor(buttonsPanel, createColor(0xFF, 0xFF, 0xFF));
-	addWidget(panel, buttonsPanel);
-	
-	buttonSkillLevel = createButton(BUTTON_SKILL_LEVEL, 85, 0, 200 ,70, colorKey, NULL, 0, 0, "images/buttonReg.bmp","images/buttonMarked.bmp");
-	addWidget(buttonsPanel, buttonSkillLevel);
-
-	buttonDone = createButton(BUTTON_DONE, 85, 100, 200, 70, colorKey, "Done", 45, 20, "images/buttonReg.bmp", "images/buttonMarked.bmp");
-	addWidget(buttonsPanel, buttonDone);
-	
-	buttonBack = createButton(BUTTON_BACK, 85, 200, 200, 70, colorKey, "Back", 35, 20, "images/buttonReg.bmp", "images/buttonMarked.bmp");
-	addWidget(buttonsPanel, buttonBack);
-	
-	buttonSkillUp = createButton(BUTTON_SKILL_UP, 160, 0, 40, 35, colorKey, NULL, 0, 0, "images/smallUp.bmp", NULL);
-	setMarkable(buttonSkillUp, 0);
-	addWidget(buttonSkillLevel, buttonSkillUp);
-	
-	buttonSkillDown = createButton(BUTTON_SKILL_DOWN, 160, 35, 40, 35, colorKey, NULL, 0, 0, "images/smallDown.bmp", NULL);
-	setMarkable(buttonSkillDown, 0);
-	addWidget(buttonSkillLevel, buttonSkillDown);
-	
-	return window;
-}
-
-void updateSkillButton(Widget *window, int skillNumber) {
-	char skillStr[2];
+int updateSkillButton(Widget *window, int skillNumber) {
+	char skillFileName[SKILL_IMAGE_NAME_LENGTH], skillMarkedFileName[SKILL_MARKED_IMAGE_NAME_LENGTH];
 	Widget *panel = getChildAtindex(window, 0);
-	Widget *buttonsPanel = getChildAtindex(panel, 1);
+	Widget *buttonsPanel = getChildAtindex(panel, getChildrenNum(panel) - 1);
 	Widget *skillButton;
 	skillButton = getChildAtindex(buttonsPanel, BUTTON_SKILL_LEVEL);
-	sprintf(skillStr, "%d", skillNumber);
-	setText(skillButton, skillStr, 45, 20);
+	sprintf(skillFileName, SKILL_IMAGE_NAME, skillNumber);
+	sprintf(skillMarkedFileName, SKILL_MARKED_IMAGE_NAME, skillNumber);
+		
+	if (setImage(skillButton, skillFileName) != 0 || setMarkedImage(skillButton, skillMarkedFileName) != 0) {		
+		return 1;
+	}
+	return 0;
 }
 
 void startChooseSkill(GUIState* chooseSkillState, void* initData) {	
-	int isCatWindow = isCatSkillSelectionWindow(chooseSkillState->stateId);
 	int skillLevel;
+	int isCatWindow = isCatSkillSelectionWindow(chooseSkillState->stateId);
+	Widget *window = NULL;
+	
+	if (isCatWindow) {
+		window = createSelectionWindowView(CAT_LABEL_TITLE, CAT_TITLE_POSX, CAT_TITLE_POSY, BUTTONS_NUMBER,
+			 		CHOOSE_SKILL_BUTTONS_IMAGES, CHOOSE_SKILL_MARKED_BUTTONS_IMAGES);
+	} else {
+		window = createSelectionWindowView(MOUSE_LABEL_TITLE, MOUSE_TITLE_POSX, MOUSE_TITLE_POSY, BUTTONS_NUMBER,
+			 		CHOOSE_SKILL_BUTTONS_IMAGES, CHOOSE_SKILL_MARKED_BUTTONS_IMAGES);
+	}
+	
+	if (window == NULL || addUpDownArrows(window, BUTTON_SKILL_LEVEL, BUTTON_SKILL_UP, BUTTON_SKILL_DOWN) != 0) {
+		isError = 1;
+		return;
+	}
+	
+	chooseSkillState->viewState = window;
 	SelectionModel *model = createSelectionModelByState(chooseSkillState->stateId, initData);	
 	chooseSkillState->model = model;
-	Widget *window = createChooseSkillView(isCatWindow);
-	chooseSkillState->viewState = window;
 	
 	if (isCatWindow) {
 		skillLevel = model->gameConfig->catDifficulty;
 	} else {
 		skillLevel = model->gameConfig->mouseDifficulty;
 	}
-	updateSkillButton(window, skillLevel);
+	
+	if (updateSkillButton(window, skillLevel) != 0) {
+		isError = 1;
+		return;
+	}
+	
 	markButton(window, &(model->markedButtonIndex), model->markedButtonIndex);	
 	drawUITree(window);
 }
@@ -108,33 +100,44 @@ void* viewTranslateEventChooseSkill(void* viewState, SDL_Event* event) {
 	return viewTranslateEventSelectionWindow(viewState, event);
 }
 
-void handleSkillUp(SelectionModel *selectionModel, Widget *window, int isCatWindow) {
+int handleSkillUp(SelectionModel *selectionModel, Widget *window, int isCatWindow) {
 	if (isCatWindow) {
 		if (selectionModel->gameConfig->catDifficulty < MAX_DIFFICULTY) {
 			selectionModel->gameConfig->catDifficulty++;
-			updateSkillButton(window, selectionModel->gameConfig->catDifficulty);
+			if (updateSkillButton(window, selectionModel->gameConfig->catDifficulty) != 0) {
+				return 1;
+			}
 		}
 	} else {
 		if (selectionModel->gameConfig->mouseDifficulty < MAX_DIFFICULTY) {
 			selectionModel->gameConfig->mouseDifficulty++;
-			updateSkillButton(window, selectionModel->gameConfig->mouseDifficulty);
+			if (updateSkillButton(window, selectionModel->gameConfig->mouseDifficulty) != 0) {
+				return 1;
+			}
 		}
 	}
+	return 0;
 }
 
-void handleSkillDown(SelectionModel *selectionModel, Widget *window, int isCatWindow) {
+int handleSkillDown(SelectionModel *selectionModel, Widget *window, int isCatWindow) {
 	if (isCatWindow) {
 		if (selectionModel->gameConfig->catDifficulty > MIN_DIFFICULTY) {
 			selectionModel->gameConfig->catDifficulty--;
-			updateSkillButton(window, selectionModel->gameConfig->catDifficulty);
+			if (updateSkillButton(window, selectionModel->gameConfig->catDifficulty) != 0) {
+				return 1;
+			}
 		}
 	} else {
 		if (selectionModel->gameConfig->mouseDifficulty > MIN_DIFFICULTY) {
 			selectionModel->gameConfig->mouseDifficulty--;
-			updateSkillButton(window, selectionModel->gameConfig->mouseDifficulty);
+			if (updateSkillButton(window, selectionModel->gameConfig->mouseDifficulty) != 0) {
+				return 1;
+			}
 		}
 	}
+	return 0;
 }
+
 StateId handleButtonSelectedChooseSkill(void* model, Widget *window, int buttonId) {
 	SelectionModel *selectionModel = (SelectionModel *) model;
 	int isCatWindow = isCatSkillSelectionWindow(selectionModel->stateId);	
@@ -152,14 +155,20 @@ StateId handleButtonSelectedChooseSkill(void* model, Widget *window, int buttonI
 			break;
 		case BUTTON_SKILL_UP:
 			if (selectionModel->markedButtonIndex == BUTTON_SKILL_LEVEL) {
-				handleSkillUp(selectionModel, window, isCatWindow);
-				drawUITree(window);
+				if (handleSkillUp(selectionModel, window, isCatWindow) != 0) {
+					isError = 1;
+					return selectionModel->stateId;
+				}
+				isError = drawUITree(window);
 			}
 			break;
 		case BUTTON_SKILL_DOWN:
-				if (selectionModel->markedButtonIndex == BUTTON_SKILL_LEVEL) {
-				handleSkillDown(selectionModel, window, isCatWindow);
-				drawUITree(window);	
+			if (selectionModel->markedButtonIndex == BUTTON_SKILL_LEVEL) {
+				if (handleSkillDown(selectionModel, window, isCatWindow) != 0) {
+					isError = 1;
+					return selectionModel->stateId;
+				}
+				isError = drawUITree(window);
 			}	
 			break;
 		case BUTTON_BACK:

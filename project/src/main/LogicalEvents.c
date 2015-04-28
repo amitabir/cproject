@@ -24,7 +24,7 @@ LogicalEvent *createSelectedButtonEventForId(LogicalEventType type, int buttonId
 		return NULL;
 	}
 	*clickedIndexPtr = buttonId;
-	return createLogicalEventWithParams(SELECT_BUTTON, clickedIndexPtr);
+	return createLogicalEventWithParams(type, clickedIndexPtr);
 }
 
 void freeLogicalEvent(LogicalEvent *logicalEvent) {

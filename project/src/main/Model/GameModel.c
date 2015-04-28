@@ -89,7 +89,7 @@ void makeMove(GameModel *game, BoardPoint *point, MoveDirection direction) {
 		game->isMouseTurn = !game->isMouseTurn;
 		
 		checkGameOver(game);
-	}
+	} 
 }
 
 void checkGameOver(GameModel *game) {

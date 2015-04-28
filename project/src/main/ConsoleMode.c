@@ -41,7 +41,7 @@ int consoleMode2() {
 	initGameFromWorldFile(gameModel, worldData);
 	freeWorldFileData(worldData);
 		
-	int score = getScoreForState(gameModel->board, gameModel->catPoint, gameModel->mousePoint, gameModel->cheesePoint);
+	int score = getScoreForState(gameModel->board, gameModel->catPoint, gameModel->mousePoint, gameModel->cheesePoint, gameModel->numTurns, gameModel->isMouseTurn);
 	printf("%d \n", score);
 	freeGame(gameModel);
 	
@@ -112,8 +112,8 @@ while(!quit){
                 }
                 tempChar = getchar();
         }
-	
-	score = getScoreForState(board, catPoint, mousePoint, cheesePoint);
+		//TODO
+	score = getScoreForState(board, catPoint, mousePoint, cheesePoint, 0, 0);
 	printf("%d\n", score);
 }
 	return 1;

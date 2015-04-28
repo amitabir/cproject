@@ -3,8 +3,10 @@
 #define DEFAULT_BPP 0
 
 int initScreen(Widget *window) {
-    setScreen(window, SDL_SetVideoMode(getWidth(window), getHeight(window), DEFAULT_BPP, SDL_HWSURFACE|SDL_DOUBLEBUF));
+    //setScreen(window, SDL_SetVideoMode(getWidth(window), getHeight(window), DEFAULT_BPP, SDL_HWSURFACE|SDL_DOUBLEBUF));
+    setScreen(window, SDL_SetVideoMode(800, 800, DEFAULT_BPP, SDL_HWSURFACE|SDL_DOUBLEBUF));
     
+	
 	if (getScreen(window) == NULL) {
 		fprintf(stderr, "ERROR: failed to set video mode: %s\n", SDL_GetError());
 		return 1;
@@ -14,7 +16,7 @@ int initScreen(Widget *window) {
     SDL_WM_SetCaption(window->caption, NULL);
 	
 	// Create Bitmap Font helper for this window and its children widgets
-	SDL_Surface *fontImg = (loadImage("images/4.bmp"));
+	SDL_Surface *fontImg = loadImage("images/FonstNew.bmp");
 	Color fontImgBgColor = createColor(0xFF, 0xFF, 0xFF);
  	BitmapFont *bitmapFont = createFontFromImage(fontImg, fontImgBgColor, 10, 10);
 	setBitmapFont(window, bitmapFont);

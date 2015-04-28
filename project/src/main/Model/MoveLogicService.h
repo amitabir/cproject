@@ -17,6 +17,7 @@ typedef struct game_state {
 	BoardPoint cheesePoint;
 	int numTurns;
 	int isMouseTurn;
+	int isMouseTree;
 } GameState;
 
 BoardPoint getMovedPoint(BoardPoint origPoint, MoveDirection direction);

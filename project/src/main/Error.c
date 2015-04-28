@@ -22,20 +22,20 @@ Widget* createErrorView(char *errorMsg) {
 	Widget *window = NULL, *panel = NULL, *titleLabel = NULL, *errorMsgLabel = NULL, *backButton = NULL;
 
 	Color colorKey = createColor(0xFF, 0xFF, 0xFF);
+	Color bgColor = createColor(0xFF, 0xFF, 0xFF);
 	
-	window = createWindow(0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_CAPTION);
+	window = createWindow(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_CAPTION, bgColor);
 	setBgColor(window, createColor(0xFF, 0xFF, 0xFF));
 	
-	panel = createPanel(0, 200, 200, 400, 600);
-	setBgColor(panel, createColor(0xFF, 0xFF, 0xFF));
+	panel = createPanel(200, 200, 400, 600, bgColor);
 	addWidget(window, panel);
 	
-	titleLabel = createLabel(0, 100, 0, 300, 50);
+	titleLabel = createLabel(100, 0, 300, 50);
 	setText(titleLabel, TITLE_LABLE_TEXT, 10, 5);
 	setBgColor(titleLabel, createColor(0xFF, 0xFF, 0xFF));
 	addWidget(panel, titleLabel);
 	
-	errorMsgLabel = createLabel(0, 100, 60, 300, 50);
+	errorMsgLabel = createLabel(100, 60, 300, 50);
 	setText(errorMsgLabel,errorMsg, 10, 5);
 	setBgColor(errorMsgLabel, createColor(0xFF, 0xFF, 0xFF));
 	addWidget(panel, errorMsgLabel);

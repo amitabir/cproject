@@ -31,9 +31,9 @@ typedef struct widget {
     const char *caption;
     struct widget *parent;
     ListRef children;
-	char *imageFileName;
-	char *markedImageFileName;
-	char *disabledImageFileName;
+	const char *imageFileName;
+	const char *markedImageFileName;
+	const char *disabledImageFileName;
     SDL_Surface *image;
 	SDL_Surface *markedImage;
     SDL_Surface *disabledImage;
@@ -55,7 +55,7 @@ void prepareImageWidgetForDrawing(Widget *widget);
 
 void* handle_event(Widget *button, SDL_Event event);
 
-SDL_Surface* loadImage(char *filename);
+SDL_Surface* loadImage(const char *filename);
 
 int hasChildren(Widget *widget);
 int isVisible(Widget *widget);
@@ -90,9 +90,9 @@ SDL_Surface *getImage(Widget *widget);
 SDL_Surface *getMarkedImage(Widget *widget);
 SDL_Surface *getDisabledImage(Widget *widget);
 SDL_Surface *getScreen(Widget *widget);
-int setImage(Widget *widget, char *filename);
-int setMarkedImage(Widget *widget, char *filename);
-int setDisabledImage(Widget *widget, char *filename);
+int setImage(Widget *widget, const char *filename);
+int setMarkedImage(Widget *widget, const char *filename);
+int setDisabledImage(Widget *widget, const char *filename);
 void setScreen(Widget *widget, SDL_Surface *screen);
 void addWidget(Widget *parent, Widget *child);
 void removeWidget(Widget *parent, Widget *child);
@@ -102,6 +102,7 @@ void setBitmapFont(Widget *widget, BitmapFont *bitmapFont);
 BitmapFont *getBitmapFont(Widget *widget);
 
 Widget *getChildAtindex(Widget *parent, int childIndex);
+int getChildrenNum(Widget *parent);
 int findChildIndex(Widget *parent, Widget *child);
 
 int (*getDrawFunc(Widget *widget))(Widget *widget);

@@ -50,7 +50,7 @@ int hasChildren(Widget *widget){
 	}
 }
 
-SDL_Surface* loadImage(char *filename) {
+SDL_Surface* loadImage(const char *filename) {
     SDL_Surface* loadedImage = NULL;
 	loadedImage = SDL_LoadBMP(filename);
 	if (loadedImage == NULL) {
@@ -59,7 +59,7 @@ SDL_Surface* loadImage(char *filename) {
 	return loadedImage;
 }
 
-int setImage(Widget *widget, char *filename) {
+int setImage(Widget *widget, const char *filename) {
 	widget->imageFileName = filename;
     widget->image = loadImage(widget->imageFileName);
 	if (widget->image == NULL) {
@@ -68,7 +68,7 @@ int setImage(Widget *widget, char *filename) {
 	return 0;
 }
 
-int setMarkedImage(Widget *widget, char *filename) {
+int setMarkedImage(Widget *widget, const char *filename) {
 	widget->markedImageFileName = filename;
     widget->markedImage = loadImage(widget->markedImageFileName);
 	if (widget->markedImage == NULL) {
@@ -77,7 +77,7 @@ int setMarkedImage(Widget *widget, char *filename) {
 	return 0;
 }
 
-int setDisabledImage(Widget *widget, char *filename) {
+int setDisabledImage(Widget *widget, const char *filename) {
 	widget->disabledImageFileName = filename;
     widget->disabledImage = loadImage(widget->disabledImageFileName);
 	if (widget->disabledImage == NULL) {
@@ -320,7 +320,7 @@ void addWidget(Widget *parent, Widget *child) {
 	
 	child->posX += parent->posX;
 	child->posY += parent->posY;
-	
+
 	if (child->posX + child->width >= parent->posX + parent->width) {
 		child->width = parent->posX + parent->width - child->posX;
 	}
@@ -364,6 +364,16 @@ int findChildIndex(Widget *parent, Widget *child) {
 		currIndex++;
 	}
 	return -1;
+}
+
+int getChildrenNum(Widget *parent) {
+	int count = 0;
+	ListRef curr = parent->children;
+	while (curr != NULL) {
+		count++;
+		curr = tail(curr);
+	}
+	return count;
 }
 
 int (*getDrawFunc(Widget *widget))(Widget *widget){
