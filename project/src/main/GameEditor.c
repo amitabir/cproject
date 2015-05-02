@@ -14,13 +14,37 @@
 #include "Model/GameLogicService.h"
 #include "GeneralGameWindow.h"
 
+#define BUTTONS_NUM 8
+#define TOP_BUTTONS_NUM 3
 
-#define GRID_WIDTH 600
-#define GRID_HEIGHT 650
-#define GRID_X_POS 200
-#define GRID_Y_POS 150
-#define GRID_CELL_WIDTH GRID_WIDTH / BOARD_ROWS
-#define GRID_CELL_HEIGHT GRID_HEIGHT / BOARD_COLS
+#define TOP_BUTTON_WIDTH 200
+#define TOP_BUTTON_HEIGHT 50
+#define TOP_BUTTON_POSY 80
+#define TOP_BUTTON_BASE_POXS 10
+#define TOP_BUTTON_SPACING 290
+
+#define EDITOR_TITLE_LABEL_MAX_LENGTH 8
+
+#define EDITOR_TITLE_LABEL_WIDTH 150
+#define EDITOR_TTILE_LABEL_HEIGHT 50
+#define EDITOR_TITLE_LABEL_CREATE_WORLD_POSX 330
+#define EDITOR_TITLE_LABEL_WORLD_INDEX_POSX 355
+#define EDITOR_TITLE_LABEL_POSY 20
+
+#define EDITOR_TITLE_TEXT_POSX 5
+#define EDITOR_TITLE_TEXT_POSY 20
+
+const char *EDITOR_TITLE_CREATE_WORLD = "Create World";
+const char *EDITOR_TITLE_WORLD_INDEX = "World %d";
+
+const char *GAME_EDITOR_BUTTONS_IMAGES[] = {"images/Buttons/SaveWorldEditor.bmp", "images/Buttons/GoToMainMenuEditor.bmp",
+	 			"images/Buttons/QuitProgramEditor.bmp", "images/Buttons/PlaceMouse.bmp",  "images/Buttons/PlaceCat.bmp", "images/Buttons/PlaceCheese.bmp",
+				"images/Buttons/PlaceWall.bmp", "images/Buttons/PlaceEmptySpace.bmp"};
+const char *GAME_EDITOR_MARKED_BUTTONS_IMAGES[] = {"images/Buttons/SaveWorldEditorMarked.bmp", "images/Buttons/GoToMainMenuEditorMarked.bmp", 
+				"images/Buttons/QuitProgramEditorMarked.bmp", "images/Buttons/PlaceMouseMarked.bmp", "images/Buttons/PlaceCatMarked.bmp",
+				"images/Buttons/PlaceCheeseMarked.bmp", "images/Buttons/PlaceWallMarked.bmp", "images/Buttons/PlaceEmptySpaceMarked.bmp"};
+
+const char *FRAME_IMAGE = "images/Buttons/frame.bmp";
 
 typedef enum {
 	BUTTON_SAVE_WORLD,
@@ -33,77 +57,89 @@ typedef enum {
 	BUTTON_PLACE_EMPTY,
 } ButtonId;
 
+Widget* createEditorButton(Widget *parent, int buttonId, int posX, int posY, int width, int height,
+	 	const char* buttonImage, const char* buttonMarkedImage) {
+	Color colorKey = createColor(0xFF, 0xFF, 0xFF);
+	Widget *button = createButton(buttonId, posX, posY, width, height, colorKey, NULL, 0, 0, buttonImage, buttonMarkedImage);
+	if (button == NULL) {
+		return NULL;
+	}
+	
+	addWidget(parent, button);
+	return button;
+}
+
+Widget *createTitleLabel(GameConfigurationModel *gameConfig) {
+	char worldIndexStr[EDITOR_TITLE_LABEL_MAX_LENGTH];
+	
+	Widget *titleLabel = createLabel(0, EDITOR_TITLE_LABEL_POSY, EDITOR_TITLE_LABEL_WIDTH, EDITOR_TTILE_LABEL_HEIGHT);
+	setBgColor(titleLabel, createColor(0xFF, 0xFF, 0xFF));
+	if (gameConfig != NULL) {
+		sprintf(worldIndexStr, EDITOR_TITLE_WORLD_INDEX, gameConfig->worldIndex);
+		setText(titleLabel, worldIndexStr, EDITOR_TITLE_TEXT_POSX, EDITOR_TITLE_TEXT_POSY);
+		setPosX(titleLabel, EDITOR_TITLE_LABEL_WORLD_INDEX_POSX);
+	} else {
+		setText(titleLabel, EDITOR_TITLE_CREATE_WORLD, EDITOR_TITLE_TEXT_POSX, EDITOR_TITLE_TEXT_POSY);
+		setPosX(titleLabel, EDITOR_TITLE_LABEL_CREATE_WORLD_POSX);
+	}
+	
+	return titleLabel;
+}
+
 Widget* createEditGameView(GameEditorModel *editModel) {
-	Widget *window = NULL;
-	
-	// Top panel widgets
-	Widget *topPanel = NULL, *titleLabel = NULL, *saveWorldButton = NULL, *mainMenuButton = NULL, *quitButton = NULL;
-	
-	// Sidebar widgets
-	Widget *sidePanel = NULL, *placeMouseButton = NULL, *placeCatButton = NULL, *placeCheeseButton = NULL,
-		 	*placeWallButton = NULL, *placeEmptyButton = NULL;
-	
-	// Grid area
-	Widget *gridPanel = NULL, *gridButton = NULL, *markLabel = NULL;
-	
+	Widget *window = NULL, *topPanel = NULL, *titleLabel = NULL, *sidePanel = NULL, *gridPanel = NULL, *markLabel = NULL;
+	int buttonIdx;
 	Color colorKey = createColor(0xFF, 0xFF, 0xFF);
 	Color bgColor = createColor(0xFF, 0xFF, 0xFF);
 	
 	window = createWindow(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_CAPTION, bgColor);
 	setBgColor(window, createColor(0xFF, 0xFF, 0xFF));
 	
-	topPanel = createPanel(0, 0, 800, 150, bgColor);
+	topPanel = createPanel(TOP_PANEL_POSX, TOP_PANEL_POSY, TOP_PANEL_WIDTH, TOP_PANEL_HEIGHT, bgColor);
 	addWidget(window, topPanel);
 	
-	titleLabel = createLabel(350, 20, 300, 50);
-	setBgColor(titleLabel, createColor(0xFF, 0xFF, 0xFF));
-	if (editModel->game->gameConfig != NULL) {
-		char worldIndexStr[8];
-		sprintf(worldIndexStr, "World %d", editModel->game->gameConfig->worldIndex);
-		setText(titleLabel, worldIndexStr, 5, 10);
-	} else {
-		setText(titleLabel, "Create World", 5, 10);
-	}
+	titleLabel = createTitleLabel(editModel->game->gameConfig);
 	addWidget(topPanel, titleLabel);
 	
-	saveWorldButton = createButton(BUTTON_SAVE_WORLD, 70, 80, 160, 50, colorKey, "Save World (S)", 5, 20, "images/smallButtonReg.bmp","images/smallButtonMarked.bmp");
-	addWidget(topPanel, saveWorldButton);
+	// Add buttons to the top panel
+	for (buttonIdx = BUTTON_SAVE_WORLD; buttonIdx < TOP_BUTTONS_NUM; buttonIdx++) {
+		if (createEditorButton(topPanel, buttonIdx, TOP_BUTTON_BASE_POXS + buttonIdx * TOP_BUTTON_SPACING, TOP_BUTTON_POSY, TOP_BUTTON_WIDTH,
+			 		TOP_BUTTON_HEIGHT, GAME_EDITOR_BUTTONS_IMAGES[buttonIdx], GAME_EDITOR_MARKED_BUTTONS_IMAGES[buttonIdx]) == NULL) {
+			freeWidget(window);
+			return NULL;
+		}
+	}
+
+	// Create the side panel
+	sidePanel = createPanel(SIDE_PANEL_POSX, SIDE_PANEL_POSY, SIDE_PANEL_WIDTH, SIDE_PANEL_HEIGHT, bgColor);
+	addWidget(window, sidePanel);	
 	
-	mainMenuButton = createButton(BUTTON_MAIN_MENU, 300, 80, 160, 50, colorKey, "Go to Main Menu (F1)", 5, 20, "images/smallButtonReg.bmp","images/smallButtonMarked.bmp");
-	addWidget(topPanel, mainMenuButton);
+	// Add buttons to the side panel
+	for (buttonIdx = BUTTON_PLACE_MOUSE; buttonIdx < BUTTONS_NUM; buttonIdx++) {	
+		if (createEditorButton(sidePanel, buttonIdx, SIDE_BUTTON_POSX, SIDE_BASE_BUTTON_POSY + SIDE_BASE_SPACING * (buttonIdx - TOP_BUTTONS_NUM),
+		 	SIDE_BUTTON_WIDTH,	SIDE_BUTTON_HEIGHT, GAME_EDITOR_BUTTONS_IMAGES[buttonIdx], GAME_EDITOR_MARKED_BUTTONS_IMAGES[buttonIdx]) == NULL) {
+			freeWidget(window);
+			return NULL;
+		}
+	}
 	
-	quitButton = createButton(BUTTON_QUIT, 550, 80, 160, 50, colorKey, "Quit Program (Esc)", 5, 20, "images/smallButtonReg.bmp","images/smallButtonMarked.bmp");
-	addWidget(topPanel, quitButton);
+	// Create the grid panel and button
+	gridPanel = createGridPanel(window, editModel->game);
+	if (gridPanel == NULL) {
+		freeWidget(window);
+		return NULL;
+	}
 	
-	sidePanel = createPanel(0, 150, 200, 650, bgColor);
-	addWidget(window, sidePanel);
-	
-	placeMouseButton = createButton(BUTTON_PLACE_MOUSE, 20, 50, 160, 60, colorKey, "Place Mouse (M)", 5, 20, "images/smallButtonReg.bmp", "images/smallButtonMarked.bmp");
-	addWidget(sidePanel, placeMouseButton);
-	
-	placeCatButton = createButton(BUTTON_PLACE_CAT, 20, 150, 160, 60, colorKey, "Place Cat (C)", 5, 20, "images/smallButtonReg.bmp","images/smallButtonMarked.bmp");
-	addWidget(sidePanel, placeCatButton);
-	
-	placeCheeseButton = createButton(BUTTON_PLACE_CHEESE, 20, 250, 160, 60, colorKey, "Place Cheese (P)", 5, 20, "images/smallButtonReg.bmp","images/smallButtonMarked.bmp");
-	addWidget(sidePanel, placeCheeseButton);
-	
-	placeWallButton = createButton(BUTTON_PLACE_WALL, 20, 350, 160, 60, colorKey, "Place Wall (W)", 5, 20, "images/smallButtonReg.bmp","images/smallButtonMarked.bmp");
-	addWidget(sidePanel, placeWallButton);
-	
-	placeEmptyButton = createButton(BUTTON_PLACE_EMPTY, 20, 450, 160, 60, colorKey, "Place Empty Space (Space)", 5, 20, "images/smallButtonReg.bmp","images/smallButtonMarked.bmp");
-	addWidget(sidePanel, placeEmptyButton);
-	
-	gridPanel = createPanel(GRID_X_POS, GRID_Y_POS, GRID_WIDTH, GRID_HEIGHT, bgColor);
-	addWidget(window, gridPanel);
-	
-	gridButton = createButton(BUTTON_GRID, 0, 0, GRID_WIDTH, GRID_HEIGHT, colorKey, NULL, 0, 0, "images/grid.bmp", NULL);
-	addWidget(gridPanel, gridButton);
-	
+	// Add the marking label to the grid panel
 	markLabel = createLabel(0, 0, GRID_CELL_WIDTH + 5, GRID_CELL_HEIGHT+ 5);
-	setGridLabelCoordinates(markLabel, createPoint(0,0), 1);
+	setGridLabelCoordinates(markLabel, createPoint(0,0), 0);
 	setColorKey(markLabel, colorKey);
-	setImage(markLabel, "images/Buttons/frame.bmp");
+	if (setImage(markLabel, FRAME_IMAGE) != 0) {
+		freeWidget(window);
+		return NULL;
+	}
 	addWidget(gridPanel, markLabel);
+	
 	
 	return window;
 	
@@ -135,38 +171,49 @@ GameEditorModel *createGameEditorModel(StateId stateId, void *initData) {
 	return editModel;
 }
 
-void updateGridButton(Widget *gridButton, GameModel *gameModel) {
+int updateGridButton(Widget *gridButton, GameModel *gameModel) {
 	removeAllChildren(gridButton);
 	
 	if (!isEmptyPoint(gameModel->catPoint)) {
 		Widget *catLabel = createLabel(0, 0, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
 		setGridLabelCoordinates(catLabel, gameModel->catPoint, 1);
-		setImage(catLabel, "images/cat.bmp");
+		if (setImage(catLabel, CAT_IMAGE) != 0) {
+			freeWidget(catLabel);
+			return 1;
+		}
 		addWidget(gridButton, catLabel);
 	}
 	
 	if (!isEmptyPoint(gameModel->mousePoint)) {
 		Widget *mouseLabel = createLabel(0, 0, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
 		setGridLabelCoordinates(mouseLabel, gameModel->mousePoint, 1);
-		setImage(mouseLabel, "images/mouse.bmp");
+		if (setImage(mouseLabel, MOUSE_IMAGE) != 0) {
+			freeWidget(mouseLabel);
+			return 1;
+		}
 		addWidget(gridButton, mouseLabel);
 	}
 	
 	if (!isEmptyPoint(gameModel->cheesePoint)) {
 		Widget *cheeseLabel = createLabel(0, 0, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
 		setGridLabelCoordinates(cheeseLabel, gameModel->cheesePoint, 1);
-		setImage(cheeseLabel, "images/cheese.bmp");
+		if (setImage(cheeseLabel, CHEESE_IMAGE) != 0) {
+			freeWidget(cheeseLabel);
+			return 1;
+		}
 		addWidget(gridButton, cheeseLabel);
 	}
 	
-	placeWalls(gridButton, gameModel);
+	return placeWalls(gridButton, gameModel);
 }
 
-void updateEditView(Widget *window, GameEditorModel *editModel) {
+int updateEditView(Widget *window, GameEditorModel *editModel) {
 	Widget *gridPanel = getChildAtindex(window, 2);
 	Widget *gridButton = getChildAtindex(gridPanel, 0);
-	updateGridButton(gridButton, editModel->game);
-	drawUITree(window);
+	if (updateGridButton(gridButton, editModel->game) != 0) {
+		return 1;
+	}
+	return drawUITree(window);
 }
 
 void startEditGame(GUIState* editGameState, void* initData) {
@@ -175,11 +222,15 @@ void startEditGame(GUIState* editGameState, void* initData) {
 		isError = 1;
 		return;
 	}
-	editGameState->model = editModel;
+	editGameState->model = editModel;	
 	
 	Widget *window = createEditGameView(editModel);
+	if (window == NULL) {
+		isError = 1;
+		return;
+	}
 	editGameState->viewState = window;
-	updateEditView(window, editModel);
+	isError = updateEditView(window, editModel);
 }
 
 void* viewTranslateEventEditGame(void* viewState, SDL_Event* event) {
@@ -250,27 +301,42 @@ StateId handleButtonSelectedEditGame(void* model, Widget *window, int buttonId) 
 			resetPoint(game, editModel->markedPoint); 
 			editModel->game->mousePoint = editModel->markedPoint;
 			editModel->game->isMouseTurn = 1;
-			updateEditView(window, editModel);
+			if (updateEditView(window, editModel) != 0) {
+				isError = 1;
+				return editModel->stateId;
+			}
 			break;
 		case BUTTON_PLACE_CAT:
 			resetPoint(game, editModel->markedPoint); 
 			editModel->game->catPoint = editModel->markedPoint;
 			editModel->game->isMouseTurn = 0;
-			updateEditView(window, editModel);
+			if (updateEditView(window, editModel) != 0) {
+				isError = 1;
+				return editModel->stateId;
+			}
 			break;
 		case BUTTON_PLACE_CHEESE:
 			resetPoint(game, editModel->markedPoint); 
 			editModel->game->cheesePoint = editModel->markedPoint;
-			updateEditView(window, editModel);
+			if (updateEditView(window, editModel) != 0) {
+				isError = 1;
+				return editModel->stateId;
+			}
 			break;
 		case BUTTON_PLACE_WALL:
 			resetPoint(game, editModel->markedPoint); 
 			editModel->game->board[editModel->markedPoint.row][editModel->markedPoint.col] = WALL_TILE;
-			updateEditView(window, editModel);
+			if (updateEditView(window, editModel) != 0) {
+				isError = 1;
+				return editModel->stateId;
+			}
 			break;
 		case BUTTON_PLACE_EMPTY:
 			resetPoint(game, editModel->markedPoint);
-			updateEditView(window, editModel);
+			if (updateEditView(window, editModel) != 0) {
+				isError = 1;
+				return editModel->stateId;
+			}
 			break;
 		case BUTTON_MAIN_MENU:
 			return MAIN_MENU;
@@ -282,14 +348,15 @@ StateId handleButtonSelectedEditGame(void* model, Widget *window, int buttonId) 
 	return editModel->stateId;
 }
 
-void moveMarkedPoint(GameEditorModel *editModel, Widget* window, BoardPoint newPoint) {
+int moveMarkedPoint(GameEditorModel *editModel, Widget* window, BoardPoint newPoint) {
 	if (newPoint.row >= 0 && newPoint.row < BOARD_ROWS && newPoint.col >=0 && newPoint.col < BOARD_COLS) {
 		editModel->markedPoint = newPoint;
 		Widget *gridPanel = getChildAtindex(window, 2);
 		Widget *markLabel = getChildAtindex(gridPanel, 1);
 		setGridLabelCoordinates(markLabel, editModel->markedPoint, 0);
-		drawUITree(window);
+		return drawUITree(window);
 	}
+	return 0;
 }
 
 StateId presenterHandleEventEditGame(void* model, void* viewState, void* logicalEvent) {
@@ -308,12 +375,16 @@ StateId presenterHandleEventEditGame(void* model, void* viewState, void* logical
 			break;
 		case MOVE_POINT:
 				newPoint = *((BoardPoint *) logicalEventPtr->eventParams);
-				moveMarkedPoint(editModel, window, newPoint);
+				if (moveMarkedPoint(editModel, window, newPoint) != 0) {
+					isError = 1;
+				}
 				break;
 		case MOVE_DIRECTION:
 				moveDirection = *((MoveDirection *) logicalEventPtr->eventParams);
 				newPoint = getMovedPoint(editModel->markedPoint, moveDirection);
-				moveMarkedPoint(editModel, window, newPoint);
+				if (moveMarkedPoint(editModel, window, newPoint) != 0) {
+					isError = 1;
+				}
 				break;
 		case QUIT_PRESSED:
 			result = QUIT;
@@ -329,6 +400,7 @@ void* prepareInitDataForSaveWindow(GameModel *gameModel) {
 	SelectionModel *selectionModelGame;
 	selectionModelGame = createSelectionModel(GAME_EDITOR, NULL, gameModel->gameConfig, gameModel);
 	if (gameModel->gameConfig == NULL) {
+		freeConfig(selectionModelGame->gameConfig);
 		selectionModelGame->gameConfig = NULL;
 	}
 	return selectionModelGame;

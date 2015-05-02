@@ -2,13 +2,15 @@
 #include "GUI/Widget.h"
 #include "GUI/WidgetFactory.h"
 
-#define GRID_WIDTH 600
-#define GRID_HEIGHT 650
-#define GRID_X_POS 200
-#define GRID_Y_POS 150
-#define GRID_CELL_WIDTH GRID_WIDTH / BOARD_ROWS
-#define GRID_CELL_HEIGHT GRID_HEIGHT / BOARD_COLS
+#define DEFAULT_POSX 0
+#define DEFAULT_POSY 0
 
+const char *WALL_IMAGE = "images/wall.bmp";
+const char *CAT_IMAGE = "images/Cat2.bmp";
+const char *MOUSE_IMAGE = "images/mouse.bmp";
+const char *CHEESE_IMAGE = "images/cheese.bmp";
+const char *GRID_IMAGE = "images/grid.bmp";
+	
 LogicalEvent *getMovePointLogicalEvent(Uint16 xPos, Uint16 yPos) {
 	BoardPoint *point;
 	if ((point = (BoardPoint *) malloc(sizeof(BoardPoint))) == NULL) {
@@ -31,7 +33,7 @@ LogicalEvent *getMoveDirectionLogicalEvent(MoveDirection moveDirection) {
 	return createLogicalEventWithParams(MOVE_DIRECTION, moveDirectionPtr);
 }
 
-void placeWalls(Widget *gridButton, GameModel *gameModel) {
+int placeWalls(Widget *gridButton, GameModel *gameModel) {
 	int i,j;
 	Widget *wallLabel;
 	for (i = 0; i < BOARD_ROWS; i++) {
@@ -42,46 +44,67 @@ void placeWalls(Widget *gridButton, GameModel *gameModel) {
 				wallPoint.row = i;
 				wallPoint.col = j;
 				setGridLabelCoordinates(wallLabel, wallPoint, 1);
-				setImage(wallLabel, "images/wall.bmp");
+				if (setImage(wallLabel, WALL_IMAGE) != 0) {
+					freeWidget(wallLabel);
+					return 1;
+				}
 				addWidget(gridButton, wallLabel);
 			} 
 		}
 	}
+	return 0;
 }
 
 void setGridLabelCoordinates(Widget *label, BoardPoint point, int pad) {
-	int padding = 0;
+	int paddingx = 0;
+	int paddingy = 0;
+	
 	if (pad) {
-		padding = 5;
+		paddingx = 3;
+		paddingy = 4;
 	}
-	setPosX(label, point.col * GRID_CELL_WIDTH + padding);
-	setPosY(label, point.row * GRID_CELL_HEIGHT + padding);
+	setPosX(label, point.col * GRID_CELL_WIDTH + paddingx);
+	setPosY(label, point.row * GRID_CELL_HEIGHT + paddingy);
 }
 
-
-Widget* createGridPanel(GameModel *gameModel) {
+Widget* createGridPanel(Widget *parent, GameModel *gameModel) {
 	Widget *gridButton = NULL, *catLabel = NULL, *mouseLabel = NULL, *cheeseLabel = NULL;
 	Widget *gridPanel = createPanel(GRID_X_POS, GRID_Y_POS, GRID_WIDTH, GRID_HEIGHT, createColor(0xFF, 0xFF, 0xFF));
+	addWidget(parent, gridPanel);
 	
 	Color colorKey = createColor(0xFF, 0xFF, 0xFF);
-	gridButton = createButton(BUTTON_GRID, 0, 0, GRID_WIDTH, GRID_HEIGHT, colorKey, NULL, 0, 0, "images/grid.bmp", NULL);
+	gridButton = createButton(BUTTON_GRID, 0, 0, GRID_WIDTH, GRID_HEIGHT, colorKey, NULL, 0, 0, GRID_IMAGE, NULL);
 	addWidget(gridPanel, gridButton);
 	
-	catLabel = createLabel(0, 0, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
-	setGridLabelCoordinates(catLabel, gameModel->catPoint, 1);
-	setImage(catLabel, "images/Cat2.bmp");
-	addWidget(gridButton, catLabel);
+	if (gameModel != NULL) {
+		catLabel = createLabel(DEFAULT_POSX, DEFAULT_POSY, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
+		setGridLabelCoordinates(catLabel, gameModel->catPoint, 1);
+		if (setImage(catLabel, CAT_IMAGE) != 0) {
+			freeWidget(gridPanel);
+			return NULL;
+		}
+		addWidget(gridButton, catLabel);
 	
-	mouseLabel = createLabel(0, 0, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
-	setGridLabelCoordinates(mouseLabel, gameModel->mousePoint, 1);
-	setImage(mouseLabel, "images/mouse.bmp");
-	addWidget(gridButton, mouseLabel);
+		mouseLabel = createLabel(DEFAULT_POSX, DEFAULT_POSY, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
+		setGridLabelCoordinates(mouseLabel, gameModel->mousePoint, 1);
+		if (setImage(mouseLabel, MOUSE_IMAGE) != 0) {
+			freeWidget(gridPanel);
+			return NULL;
+		}
+		addWidget(gridButton, mouseLabel);
 	
-	cheeseLabel = createLabel(0, 0, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
-	setGridLabelCoordinates(cheeseLabel, gameModel->cheesePoint, 1);
-	setImage(cheeseLabel, "images/cheese.bmp");
-	addWidget(gridButton, cheeseLabel);
+		cheeseLabel = createLabel(DEFAULT_POSX, DEFAULT_POSY, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
+		setGridLabelCoordinates(cheeseLabel, gameModel->cheesePoint, 1);
+		if (setImage(cheeseLabel, "images/cheese.bmp") != 0) {
+			freeWidget(gridPanel);
+			return NULL;
+		}
+		addWidget(gridButton, cheeseLabel);
 	
-	placeWalls(gridButton, gameModel);
+		if (placeWalls(gridButton, gameModel) != 0) {
+			freeWidget(gridPanel);
+			return NULL;
+		}
+	}
 	return gridPanel;
 }

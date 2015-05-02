@@ -6,7 +6,7 @@
 #define CANNOT_REACH_RESULT -1
 
 char** createBoard();
-int calcRealDistance(char **board, BoardPoint origin, BoardPoint destination, BoardPoint catPoint, int isMouse);
+int calcRealDistance(char **board, BoardPoint origin, BoardPoint destination, BoardPoint catPoint, BoardPoint cheesePoint, int isMouse);
 float calcOptDistance(BoardPoint point1, BoardPoint point2);
 void freeBoard(char **board);
 
