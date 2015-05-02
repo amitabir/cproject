@@ -107,16 +107,16 @@ int parseWorldFile(FILE *fp, int worldIndex, WorldFileData *worldData) {
 	char currentBoardChar;
 	int isMouseStarts;
 	int i,j;
-	
-	if (fscanf(fp, "%s\n", numTurnsStr) < 1) {
+		
+	if (fscanf(fp, "%s", numTurnsStr) < 1) {
 		handleFileError(fp, READ_ERROR, worldIndex);
 		return 0;
 	}
-	
+		
 	if (numTurnsStr[0] == 'q') {
 		return 0;
 	} else {		
-		sscanf(numTurnsStr, "%d\n", &(worldData->numTurns));
+		sscanf(numTurnsStr, "%d", &(worldData->numTurns));
 	}
 	
 	if (fscanf(fp, "%s\n", startPlayer) < 1) {

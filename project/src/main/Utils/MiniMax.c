@@ -12,7 +12,7 @@ struct MiniMaxResult getBestChild(
 	int isMaxPlayer,
 	int alpha,
 	int beta) {
-		printf("ALPHA IS %d, BETA IS %d \n", alpha, beta);
+//		printf("ALPHA IS %d, BETA IS %d \n", alpha, beta);
 		
 		struct MiniMaxResult childResult; // result for recursive calls on children
 		int currChildIndex = 0; // holds the current child index
@@ -53,15 +53,15 @@ struct MiniMaxResult getBestChild(
 				
 				// Check if the child is the best
 				if (isMaxPlayer) {
-					printf("MAX: ");
+//					printf("MAX: ");
 				} else {
-					printf("MIN: ");
+//					printf("MIN: ");
 				}
-				printf("CURRENT CHILD VALUE IS %d \n", childResult.value);
+//				printf("CURRENT CHILD VALUE IS %d \n", childResult.value);
 				if ((isMaxPlayer && childResult.value > bestChildValue) 
 						|| (!isMaxPlayer && childResult.value < bestChildValue)) {
 					bestChildValue = childResult.value;
-					printf("UPDATE BEST CHILD VALUE TO %d \n", bestChildValue);
+//					printf("UPDATE BEST CHILD VALUE TO %d \n", bestChildValue);
 					bestChildIndex = currChildIndex;
 				}
 				
@@ -71,7 +71,7 @@ struct MiniMaxResult getBestChild(
 						alpha = bestChildValue;
 					}
 					if (beta <= alpha) {
-						printf("PRUNING max player!!!! \n");
+//						printf("PRUNING max player!!!! \n");
 						break;
 					}
 				} else {
@@ -79,7 +79,7 @@ struct MiniMaxResult getBestChild(
 						beta = bestChildValue;
 					}
 					if (beta <= alpha) {
-						printf("PRUNING min player!!!! \n");
+//						printf("PRUNING min player!!!! \n");
 						break;
 					}
 				}
@@ -95,11 +95,11 @@ struct MiniMaxResult getBestChild(
 		// Construct the result
 		struct MiniMaxResult totalResult = {bestChildIndex, bestChildValue};
 		if (isMaxPlayer) {
-			printf("MAX: ");
+//			printf("MAX: ");
 		} else {
-			printf("MIN: ");
+//			printf("MIN: ");
 		}
-		printf("total result is: %d \n", bestChildValue);
+//		printf("total result is: %d \n", bestChildValue);
 		return totalResult;
 	}
 	

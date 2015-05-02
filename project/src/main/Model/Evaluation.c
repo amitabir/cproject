@@ -25,9 +25,9 @@
 
 int innerEvaluate(char **board, BoardPoint catPoint, BoardPoint mousePoint, BoardPoint cheesePoint, int numTurns, int isMouseTree) {
 	if (isMouseTree) {
-		printf("Evaluating for Mouse \n");
+//		printf("Evaluating for Mouse \n");
 	} else {
-		printf("Evaluating for Cat \n");
+//		printf("Evaluating for Cat \n");
 	}
 	
 	int result;
@@ -39,10 +39,10 @@ int innerEvaluate(char **board, BoardPoint catPoint, BoardPoint mousePoint, Boar
 	int catToCheese = calcRealDistance(board, catPoint, cheesePoint, catPoint, 0);
 	
 	
-	printf("Mouse to Cheese = %d\n", mouseToCheese);
-	printf("Mouse to Cheese no Cat = %d\n", mouseToCheeseNoCat);
-	printf("Cat to mouse = %d\n", catToMouse);
-	printf("Cat to Cheese = %d\n", catToCheese);
+//	printf("Mouse to Cheese = %d\n", mouseToCheese);
+//	printf("Mouse to Cheese no Cat = %d\n", mouseToCheeseNoCat);
+//	printf("Cat to mouse = %d\n", catToMouse);
+//	printf("Cat to Cheese = %d\n", catToCheese);
 	
 	if (mouseToCheese == CANNOT_REACH_RESULT && mouseToCheeseNoCat != CANNOT_REACH_RESULT) {
 		// The cat is blocking the way completely
@@ -59,11 +59,11 @@ int innerEvaluate(char **board, BoardPoint catPoint, BoardPoint mousePoint, Boar
 	} else {
 	
 		if (numTurnsLeftForMouse <= mouseToCheese) {
-			printf("Mouse Can NOT Reach Cheese! \n");
+//			printf("Mouse Can NOT Reach Cheese! \n");
 			result = -CANT_REACH_CHEESE_FACTOR * catToMouse;
 		} else {
 			int diffDistance = mouseToCheese - mouseToCheeseNoCat;
-			printf("Mouse Can Reach Cheese! \n");
+//			printf("Mouse Can Reach Cheese! \n");
 			if (isMouseTree) {
 				if (numTurnsLeftForMouse < 5) {
 					result = -MOUSE_ALPHA_BELOW_TURNS * mouseToCheese - MOUSE_BETA_BELOW_TURNS * diffDistance + MOUSE_GAMMA_BELOW_TURNS * catToMouse;
@@ -82,7 +82,7 @@ int innerEvaluate(char **board, BoardPoint catPoint, BoardPoint mousePoint, Boar
 	if (isMouseTree) {
 		result *= -1;
 	}
-	printf ("Result is %d\n", result);
+//	printf ("Result is %d\n", result);
 	return result;
 }
 

@@ -30,7 +30,7 @@ char** createBoardTemp() {
         return board;
 }
 
-int consoleMode2() {
+int consoleMode2(int isMouseTurn) {
 	WorldFileData *worldData = createEmptyWorldFileData();
 	int result = parseWorldFile(stdin, 0, worldData);
 	if (!result) {
@@ -41,17 +41,20 @@ int consoleMode2() {
 	initGameFromWorldFile(gameModel, worldData);
 	freeWorldFileData(worldData);
 		
-	int score = getScoreForState(gameModel->board, gameModel->catPoint, gameModel->mousePoint, gameModel->cheesePoint, gameModel->numTurns, gameModel->isMouseTurn);
+	int score = getScoreForState(gameModel->board, gameModel->catPoint, gameModel->mousePoint, gameModel->cheesePoint, gameModel->numTurns, isMouseTurn);
+	if(!isMouseTurn){
+		score *= -1;
+	}
 	printf("%d \n", score);
 	freeGame(gameModel);
 	
 	return 0;
 }
 
-int consoleMode3() {
+int consoleMode3(int isMouseTurn) {
 	int quit = 0;
 	while(!quit) {
-		quit = consoleMode2();
+		quit = consoleMode2(isMouseTurn);
 	}
 	return 1;
 }

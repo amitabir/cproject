@@ -305,6 +305,7 @@ StateId presenterHandleEventEditGame(void* model, void* viewState, void* logical
 		case SELECT_BUTTON:
 			clickedBtnId = (int *) logicalEventPtr->eventParams;
 			result = handleButtonSelectedEditGame(model, window, *clickedBtnId);
+			break;
 		case MOVE_POINT:
 				newPoint = *((BoardPoint *) logicalEventPtr->eventParams);
 				moveMarkedPoint(editModel, window, newPoint);

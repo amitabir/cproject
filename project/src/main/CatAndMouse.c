@@ -21,11 +21,15 @@ int init() {
 }
 
 int main(int argc, char* args[]) {
-	if(argc > 2){
+	if(argc > 3){
 		//handle error
 		return 0;
-	} else if(argc == 2){
-		if(!consoleMode3()){
+	} else if(argc == 3){
+		int isMouseTurn = 0;
+		if(!strcmp(args[2], "mouse")){
+			isMouseTurn = 1;
+		}
+		if(!consoleMode3(isMouseTurn)){
 			//handle error
 			return 0;
 		}

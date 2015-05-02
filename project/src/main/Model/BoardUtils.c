@@ -75,7 +75,7 @@ BoardPoint *makeValidMove(char **board, BoardPoint *point, MoveDirection directi
 			free(newPoint);
 			return NULL;
         }
-		
+
         return newPoint;
 }
 
@@ -116,7 +116,7 @@ void surroundCatWithWalls(char **board, BoardPoint catPoint) {
 	int i,j;
 	for (i = catPoint.row - 1; i <= catPoint.row + 1; i++) {
 		for (j = catPoint.col - 1; j <= catPoint.col + 1; j++) {
-			if (i >= 0 && i < BOARD_ROWS && j >=0 && j <= BOARD_COLS) {
+			if (i >= 0 && i < BOARD_ROWS && j >=0 && j < BOARD_COLS) {
 				board[i][j] = WALL_TILE;
 			}
 		}
@@ -138,7 +138,7 @@ int calcRealDistance(char **board, BoardPoint origin, BoardPoint destination, Bo
 	originCopy->dist = 0;
 	int found = 0;
 	ListRef queue = newList(originCopy);
-	//ListRef queue2 = queue;
+	ListRef queueHead = queue;
 	while(queue != NULL && !isEmpty(queue) && !found){
 		point = (BoardPoint *) headData(queue);
 		boardCopy[point->row][point->col] = WALL_TILE;
@@ -150,6 +150,7 @@ int calcRealDistance(char **board, BoardPoint origin, BoardPoint destination, Bo
 				if (isAdjacent(*movedPoint, destination)) {
 					result = movedPoint->dist;
 					found = 1;
+					free(movedPoint);
 					break;
 				}
 				boardCopy[movedPoint->row][movedPoint->col] = WALL_TILE;
@@ -161,7 +162,7 @@ int calcRealDistance(char **board, BoardPoint origin, BoardPoint destination, Bo
 		queue = tail(queue);
 	}
 	freeBoard(boardCopy);
-	//destroyList
+	destroyList(queueHead, free);
 	return result;
 }
 

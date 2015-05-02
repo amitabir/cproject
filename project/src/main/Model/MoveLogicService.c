@@ -10,7 +10,7 @@ MoveDirection moveIndexToMoveDirection(int moveIndex) {
 }
 
 WinnerType hasWinner(char **board, BoardPoint catPoint, BoardPoint mousePoint, BoardPoint cheesePoint, int numTurns) {
-	printf("BEGIN ###################\n");
+//	printf("BEGIN ###################\n");
 	int score = getScoreForState(board, catPoint, mousePoint, cheesePoint, numTurns, 1);
 	if (score == MAX_EVALUATION) {
 		return CAT_WINS;
@@ -19,7 +19,7 @@ WinnerType hasWinner(char **board, BoardPoint catPoint, BoardPoint mousePoint, B
 	} else if (numTurns == 0) {
 		return DRAW;
 	}
-	printf("END ###################\n");
+//	printf("END ###################\n");
 	return NO_WIN;
 }
 
@@ -113,7 +113,7 @@ ListRef getGameStateChildren(void *state) {
  	ListRef childrenList = newList(NULL);
 	
 	// If the game isn't won yet - find the list of the children
-	printf("CHECKING HAS WINNER TURN %d\n", gameState->numTurns);
+//	printf("CHECKING HAS WINNER TURN %d\n", gameState->numTurns);
 	if (hasWinner(gameState->board, gameState->catPoint, gameState->mousePoint, gameState->cheesePoint, gameState->numTurns) == NO_WIN) {
  		int moveIndex;
 		ListRef tempList = childrenList;
@@ -122,7 +122,7 @@ ListRef getGameStateChildren(void *state) {
 		// Going through the possible moves and creating a child for each one that is valid
  		for (moveIndex = 0; moveIndex < NUM_POSSIBLE_MOVES; moveIndex++) {
 			if (isMoveValid(gameState->board, gameState->cheesePoint, playerPoint, moveIndexToMoveDirection(moveIndex))) {
-				printf("CREATING NEW CHILD WITH MOVE DIRECTION %d FOR NUM TURNS %d \n",moveIndex, gameState->numTurns);
+//				printf("CREATING NEW CHILD WITH MOVE DIRECTION %d FOR NUM TURNS %d \n",moveIndex, gameState->numTurns);
 				
 				GameState *childState = createStateFromParent(gameState, moveIndexToMoveDirection(moveIndex));
 				if (childState == NULL) { // standart function failed
@@ -174,7 +174,7 @@ is an int the represent the index of the best column. */
 int findBestMoveDirection(char **board, int numTurns, BoardPoint catPoint, BoardPoint mousePoint, BoardPoint cheesePoint,
 	 	int isMouseTurn, int numberSteps, MoveDirection *bestMove) {
 	
-	printf(" &&&&&&&&&&& FINDING BEST MOVE FOR MACHINE TURN %d &&&&&&&&&& \n", numTurns);
+//	printf(" &&&&&&&&&&& FINDING BEST MOVE FOR MACHINE TURN %d &&&&&&&&&& \n", numTurns);
 			
 	// Creating an initial state
 	int bestMoveIndex;

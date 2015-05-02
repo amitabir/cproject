@@ -9,6 +9,6 @@
 #include "Model/Evaluation.h"
 
 int consoleMode();
-int consoleMode3();
+int consoleMode3(int isMouseTurn);
 
 #endif
