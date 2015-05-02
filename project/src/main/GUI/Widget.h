@@ -72,7 +72,7 @@ void setCaption(Widget *widget, const char *caption);
 Color getBgColor(Widget *widget);
 void setBgColor(Widget *widget, Color color);
 Color setColorKey(Widget *widget, Color color);
-int setText(Widget *widget, char *text, int textPosX, int textPosY);
+int setText(Widget *widget, const char *text, int textPosX, int textPosY);
 
 int getId(Widget *widget);
 void setCoords(Widget *widget, int x, int y);

@@ -294,7 +294,7 @@ void setScreen(Widget *widget, SDL_Surface *screen) {
 	widget->screen = screen;
 }
 
-int setText(Widget *widget, char *text, int textPosX, int textPosY) {
+int setText(Widget *widget, const char *text, int textPosX, int textPosY) {
 	widget->textPosX = textPosX;
 	widget->textPosY = textPosY;
 	if (widget->text != NULL) {

@@ -14,19 +14,50 @@
 #include "Model/GameLogicService.h"
 
 #define DELAY_AFTER_MACHINE_CALC_MILLIS 1000
+#define SIDE_BUTTONS_NUM 5
 
-static char *PAUSE_BUTTON_MACHINE_TURN_TEXT = "Pause Before Next Move (Space)";
-static char *PAUSE_BUTTON_HUMAN_TURN_TEXT = "Pause (Space)";
-static char *PAUSE_BUTTON_RESUME_TEXT = "Resume Game (Space)";
+#define GAME_STATUS_TEXT_MAX_LENGTH 18
+	
+#define TOP_PANEL_WIDTH 800
+#define TOP_PANEL_HEIGHT 150
+#define TOP_PANEL_POSX 0
+#define TOP_PANEL_POSY 0
 
-static char *GAME_OVER_MESSAGE_CAT = "Game Over - Cat Wins!!!";
-static char *GAME_OVER_MESSAGE_MOUSE = "Game Over - Mouse Wins!!!";
-static char *GAME_OVER_MESSAGE_TIMEOUT = "Game Over - Timeout!!!";
+#define SIDE_PANEL_WIDTH 200
+#define SIDE_PANEL_HEIGHT 650
+#define SIDE_PANEL_POSX 0
+#define SIDE_PANEL_POSY 150
 
-static char *TURN_STATUS_TEXT_HUMAN_WAITING = "Human - waiting for next move...";
-static char *TURN_STATUS_TEXT_MACHINE_COMPUTING =  "Machine - computing...";
-static char *TURN_STATUS_TEXT_HUMAN_PAUSED = "Human - paused";
-static char *TURN_STATUS_TEXT_MACHINE_PAUSED = "Machine - paused";
+#define SIDE_BUTTON_WIDTH 150
+#define SIDE_BUTTON_HEIGHT 60
+#define SIDE_BUTTON_POSX 25
+#define SIDE_BASE_BUTTON_POSY 50
+#define SIDE_BASE_SPACING 120
+
+const char *PAUSE_BUTTON_RESUME_IMAGE = "images/Buttons/ResumeGame.bmp";
+const char *PAUSE_BUTTON_RESUME_MARKED_IMAGE = "images/Buttons/ResumeGameMarked.bmp";
+	
+const char *PAUSE_BUTTON_HUMAN_TURN_IMAGE = "images/Buttons/Pause.bmp";
+const char *PAUSE_BUTTON_HUMAN_TURN_MARKED_IMAGE = "images/Buttons/PauseMarked.bmp";
+	
+const char *PAUSE_BUTTON_MACHINE_TURN_IMAGE = "images/Buttons/PauseBeforeNextMove.bmp";
+const char *PAUSE_BUTTON_MACHINE_TURN_MARKED_IMAGE = "images/Buttons/PauseBeforeNextMoveMarked.bmp";
+
+const char *GAME_OVER_MESSAGE_CAT = "Game Over - Cat Wins!!!";
+const char *GAME_OVER_MESSAGE_MOUSE = "Game Over - Mouse Wins!!!";
+const char *GAME_OVER_MESSAGE_TIMEOUT = "Game Over - Timeout!!!";
+
+const char *TURN_STATUS_TEXT_HUMAN_WAITING = "Human - waiting for next move...";
+const char *TURN_STATUS_TEXT_MACHINE_COMPUTING =  "Machine - computing...";
+const char *TURN_STATUS_TEXT_HUMAN_PAUSED = "Human - paused";
+const char *TURN_STATUS_TEXT_MACHINE_PAUSED = "Machine - paused";
+
+const char *GAME_PLAY_BUTTONS_IMAGES[] = {NULL, "images/Buttons/ReconfigureMouse.bmp", "images/Buttons/ReconfigureCat.bmp",
+	 			"images/Buttons/RestartGame.bmp", "images/Buttons/GoToMainMenu.bmp",  "images/Buttons/QuitProgram.bmp"};
+const char *GAME_PLAY_MARKED_BUTTONS_IMAGES[] = {NULL, "images/Buttons/ReconfigureMouseMarked.bmp", "images/Buttons/ReconfigureCatMarked.bmp", 
+				"images/Buttons/RestartGameMarked.bmp", "images/Buttons/GoToMainMenuMarked.bmp", "images/Buttons/QuitProgramMarked.bmp"};
+const char *GAME_PLAY_DISABLED_BUTTONS_IMAGES[] = {NULL, "images/Buttons/ReconfigureMouseDisabled.bmp", "images/Buttons/ReconfigureCatDisabled.bmp",
+	 			"images/Buttons/RestartGameDisabled.bmp", "images/Buttons/GoToMainMenuDisabled.bmp", "images/Buttons/QuitProgramDisabled.bmp"};
 
 typedef enum {
 	BUTTON_PAUSE,
@@ -37,6 +68,23 @@ typedef enum {
 	BUTTON_QUIT,
 } ButtonId;
 
+Widget* createSideButton(Widget *parent, int buttonId, int posX, int posY, int width, int height,
+	 	const char* buttonImage, const char* buttonMarkedImage, const char* buttonDisabledImage) {
+	Color colorKey = createColor(0xFF, 0xFF, 0xFF);
+	Widget *button = createButton(buttonId, posX, posY, width, height, colorKey, NULL, 0, 0, buttonImage, buttonMarkedImage);
+	if (button == NULL) {
+		return NULL;
+	}
+	
+	if (setDisabledImage(button, buttonDisabledImage) != 0) {
+		freeWidget(button);
+		return NULL;
+	}
+	
+	addWidget(parent, button);
+	return button;
+}
+
 Widget* createGamePlayView(GameModel *gameModel) {
 	Widget *window = NULL;
 	
@@ -44,8 +92,7 @@ Widget* createGamePlayView(GameModel *gameModel) {
 	Widget *topPanel = NULL, *gameOverLabel = NULL, *gameStatusLabel = NULL, *turnStatusLabel = NULL, *pauseButton = NULL;
 	
 	// Sidebar widgets
-	Widget *sidePanel = NULL, *reconfigureMouseButton = NULL, *reconfigureCatButton = NULL, *restartGameButton = NULL,
-		 	*mainMenuButton = NULL, *quitButton = NULL;
+	Widget *sidePanel = NULL;
 	
 	// Grid area
 	Widget *gridPanel = NULL;
@@ -54,7 +101,7 @@ Widget* createGamePlayView(GameModel *gameModel) {
 	Color bgColor = createColor(0xFF, 0xFF, 0xFF);
 	window = createWindow(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_CAPTION, bgColor);
 	
-	topPanel = createPanel(0, 0, 800, 150, bgColor);
+	topPanel = createPanel(TOP_PANEL_POSX, TOP_PANEL_POSY, TOP_PANEL_WIDTH, TOP_PANEL_HEIGHT, bgColor);
 	addWidget(window, topPanel);
 	
 	gameOverLabel = createLabel(200, 50, 500, 60);
@@ -70,31 +117,21 @@ Widget* createGamePlayView(GameModel *gameModel) {
 	setBgColor(turnStatusLabel, createColor(0xFF, 0xFF, 0xFF));
 	addWidget(topPanel, turnStatusLabel);
 	
-	pauseButton = createButton(BUTTON_PAUSE, 250, 100, 300, 50, colorKey, NULL, 0, 0, "images/smallButtonReg.bmp","images/smallButtonMarked.bmp");
+	pauseButton = createButton(BUTTON_PAUSE, 250, 100, 300, 50, colorKey, NULL, 0, 0, NULL, NULL);
 	addWidget(topPanel, pauseButton);
 	
-	sidePanel = createPanel(0, 150, 200, 650, bgColor);
+	sidePanel = createPanel(SIDE_PANEL_POSX, SIDE_PANEL_POSY, SIDE_PANEL_WIDTH, SIDE_PANEL_HEIGHT, bgColor);
 	addWidget(window, sidePanel);
 	
-	reconfigureMouseButton = createButton(BUTTON_RECONFIG_MOUSE, 20, 50, 160, 60, colorKey, "Reconfigure\nMouse (F1)", 5, 0, "images/smallButtonReg.bmp", "images/smallButtonMarked.bmp");
-	setDisabledImage(reconfigureMouseButton, "images/smallButtonDisabled.bmp");
-	addWidget(sidePanel, reconfigureMouseButton);
-	
-	reconfigureCatButton = createButton(BUTTON_RECONFIG_CAT, 20, 150, 160, 60, colorKey, "Reconfigure\nCat (F2)", 5, 0, "images/smallButtonReg.bmp","images/smallButtonMarked.bmp");
-	setDisabledImage(reconfigureCatButton, "images/smallButtonDisabled.bmp");
-	addWidget(sidePanel, reconfigureCatButton);
-	
-	restartGameButton = createButton(BUTTON_RESTART_GAME, 20, 250, 160, 60, colorKey, "Restart Game (F3)", 5, 20, "images/smallButtonReg.bmp","images/smallButtonMarked.bmp");
-	setDisabledImage(restartGameButton, "images/smallButtonDisabled.bmp");
-	addWidget(sidePanel, restartGameButton);
-	
-	mainMenuButton = createButton(BUTTON_MAIN_MENU, 20, 350, 160, 60, colorKey, "Go to Main Menu (F4)", 5, 20, "images/smallButtonReg.bmp","images/smallButtonMarked.bmp");
-	setDisabledImage(mainMenuButton, "images/smallButtonDisabled.bmp");
-	addWidget(sidePanel, mainMenuButton);
-	
-	quitButton = createButton(BUTTON_QUIT, 20, 450, 160, 60, colorKey, "Quit Program (F5)", 5, 20, "images/smallButtonReg.bmp","images/smallButtonMarked.bmp");
-	setDisabledImage(quitButton, "images/smallButtonDisabled.bmp");
-	addWidget(sidePanel, quitButton);
+	int buttonIdx;
+	for (buttonIdx = BUTTON_RECONFIG_MOUSE; buttonIdx <= SIDE_BUTTONS_NUM; buttonIdx++) {
+		if (createSideButton(sidePanel, buttonIdx, SIDE_BUTTON_POSX, SIDE_BASE_BUTTON_POSY + SIDE_BASE_SPACING * (buttonIdx - 1), SIDE_BUTTON_WIDTH,
+			 		SIDE_BUTTON_HEIGHT, GAME_PLAY_BUTTONS_IMAGES[buttonIdx], GAME_PLAY_MARKED_BUTTONS_IMAGES[buttonIdx],
+					GAME_PLAY_DISABLED_BUTTONS_IMAGES[buttonIdx]) == NULL) {
+			freeWidget(window);
+			return NULL;
+		}
+	}
 	
 	gridPanel = createGridPanel(gameModel);
 	addWidget(window, gridPanel);
@@ -120,7 +157,7 @@ GameModel *createGameModel(void *initData) {
 }
 
 void updateGameStatusLabel(GameModel *gameModel, Widget *gameStatusLabel) {
-	char gameStatusText[18];
+	char gameStatusText[GAME_STATUS_TEXT_MAX_LENGTH];
 	if (gameModel->isMouseTurn) {
 		sprintf(gameStatusText, "Mouse's move (%d)", gameModel->numTurns);
 	} else {
@@ -130,7 +167,7 @@ void updateGameStatusLabel(GameModel *gameModel, Widget *gameStatusLabel) {
 }
 
 void updateTurnStatusLabel(GameModel *gameModel, Widget *turnStatusLabel) {
-	char *turnStatusText;
+	const char *turnStatusText;
 	if (!gameModel->isPaused) {
 		if (isCurrentPlayerHuman(gameModel)) {
 			turnStatusText = TURN_STATUS_TEXT_HUMAN_WAITING;
@@ -147,21 +184,36 @@ void updateTurnStatusLabel(GameModel *gameModel, Widget *turnStatusLabel) {
 	setText(turnStatusLabel, turnStatusText, 5, 20);
 }
 
-void updatePauseButton(GameModel *gameModel, Widget* pauseButton) {
-	char *pauseButtonText;
-	if (gameModel->isPaused) {
-		pauseButtonText = PAUSE_BUTTON_RESUME_TEXT;
-	} else {
-		if (isCurrentPlayerHuman(gameModel)) {
-			pauseButtonText = PAUSE_BUTTON_HUMAN_TURN_TEXT;
-		} else {
-			pauseButtonText = PAUSE_BUTTON_MACHINE_TURN_TEXT;
-		}
+int setPauseButtonImages(Widget *pauseButton, const char* imageName, const char *markedImageName) {
+	if (setImage(pauseButton, imageName) != 0) {
+		return 1;
 	}
-	setText(pauseButton, pauseButtonText, 45, 20);
+	if (setMarkedImage(pauseButton, markedImageName) != 0) {
+		return 1;
+	}
+	return 0;
 }
 
-void updateTopPanel(Widget *topPanel, GameModel *gameModel) {
+int updatePauseButton(GameModel *gameModel, Widget* pauseButton) {
+	if (gameModel->isPaused) {
+		if (setPauseButtonImages(pauseButton, PAUSE_BUTTON_RESUME_IMAGE, PAUSE_BUTTON_RESUME_MARKED_IMAGE) != 0) {
+			return 1;
+		}
+	} else {
+		if (isCurrentPlayerHuman(gameModel)) {
+			if (setPauseButtonImages(pauseButton, PAUSE_BUTTON_HUMAN_TURN_IMAGE, PAUSE_BUTTON_HUMAN_TURN_MARKED_IMAGE) != 0) {
+				return 1;
+			}
+		} else {
+			if (setPauseButtonImages(pauseButton, PAUSE_BUTTON_MACHINE_TURN_IMAGE, PAUSE_BUTTON_MACHINE_TURN_MARKED_IMAGE) != 0) {
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+
+int updateTopPanel(Widget *topPanel, GameModel *gameModel) {
 	Widget *gameOverLabel = getChildAtindex(topPanel, 0);
 	Widget *gameStatusLabel = getChildAtindex(topPanel, 1);
 	Widget *turnStatusLabel = getChildAtindex(topPanel, 2);
@@ -174,7 +226,9 @@ void updateTopPanel(Widget *topPanel, GameModel *gameModel) {
 		setVisible(gameOverLabel, 0);
 		updateGameStatusLabel(gameModel, gameStatusLabel);	
 		updateTurnStatusLabel(gameModel, turnStatusLabel);
-		updatePauseButton(gameModel, pauseButton);
+		if (updatePauseButton(gameModel, pauseButton) != 0) {
+			return 1;
+		}
 	} else {
 		setVisible(gameStatusLabel, 0);
 		setVisible(turnStatusLabel, 0);
@@ -193,6 +247,7 @@ void updateTopPanel(Widget *topPanel, GameModel *gameModel) {
 			default: break;
 		}
 	}
+	return 0;
 }
 
 void updateSidePanel(Widget *sidePanel, GameModel *gameModel) {
@@ -204,14 +259,15 @@ void updateSidePanel(Widget *sidePanel, GameModel *gameModel) {
 	}
 }
 
-void updateView(Widget *window, GameModel *gameModel) {
+int updateView(Widget *window, GameModel *gameModel) {
 	Widget *topPanel = getChildAtindex(window, 0);
-	updateTopPanel(topPanel, gameModel);
+	if (updateTopPanel(topPanel, gameModel) != 0) {
+		return 1;
+	}
 	
 	Widget *sidePanel = getChildAtindex(window, 1);
 	updateSidePanel(sidePanel, gameModel);
 	
-
 	Widget *gridPanel = getChildAtindex(window, 2);
 	Widget *gridButton = getChildAtindex(gridPanel ,0);
 	Widget *catLabel = getChildAtindex(gridButton, 0);
@@ -219,7 +275,7 @@ void updateView(Widget *window, GameModel *gameModel) {
 	setGridLabelCoordinates(catLabel, gameModel->catPoint, 1);
 	setGridLabelCoordinates(mouseLabel, gameModel->mousePoint, 1);
 	
-	drawUITree(window);	
+	return drawUITree(window);	
 }
 
 void handleMachineTurn(GameModel *gameModel, Widget *window) {
@@ -237,6 +293,10 @@ void startGamePlay(GUIState* gamePlayState, void* initData) {
 	gamePlayState->model = gameModel;
 		
 	Widget *window = createGamePlayView(gameModel);
+	if (window == NULL) {
+		isError = 1;
+		return;
+	}
 	gamePlayState->viewState = window;
 	checkGameOver(gameModel);
 	updateView(window, gameModel);
