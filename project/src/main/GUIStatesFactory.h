@@ -1,7 +1,7 @@
 #ifndef GUI_STATE_FACTORY_H_
 #define GUI_STATE_FACTORY_H_
 
-#include "GUIState.h"
+#include "../presenters/GUIState.h"
 
 GUIState createGUIForState(StateId stateId);
 

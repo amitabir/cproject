@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "../src/main/Model/WorldFilesService.h"
+#include "../src/services/WorldFilesService.h"
 
 int main() {
 	WorldFileData *world = NULL;

@@ -1,66 +1,73 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "../src/main/Model/Constants.h"
-#include "../src/main/Model/BoardPoint.h"
-#include "../src/main/Model/BoardUtils.h"
-#include "../src/main/Utils/MiniMax.h"
-#include "../src/main/Model/Evaluation.h"
+#include "../src/model/Constants.h"
+#include "../src/services/BoardPoint.h"
+#include "../src/services/BoardUtils.h"
+#include "../src/main/MiniMax.h"
+#include "../src/services/Evaluation.h"
 #include <assert.h>
 
 int main() {
-// 	GameConfigurationModel *config = createGameConfig(1, 5, 0, 4);
-// 	GameModel *game = createGame(config);
-//
-// 	for (i = 0; i < BOARD_ROWS; i++) {
-// 		for (j = 0; j < BOARD_COLS; j++) {
-// 			setBoardTile(game, EMPTY_TILE, i, j);
-// 		}
-// 	}
-//
-// 	setCatPoint(game, 0, 0);
-// 	setMousePoint(game, 0, 6);
-// 	setCheesePoint(game, 6, 3);
-	
-	BoardPoint catPoint, mousePoint, cheesePoint;
-	catPoint.row = 0;
-	catPoint.col = 0;
-	mousePoint.row = 0;
-	mousePoint.col = 6;
-	cheesePoint.row = 6;
-	cheesePoint.col = 3;
+	int isMouseTurn = 1;
+	int mousePlayer = 1;
+	BoardPoint catPoint = {6,6};
+	BoardPoint mousePoint = {6,0};
+	BoardPoint cheesePoint = {0,3};
 	
 	char **board = createBoard();
-	board[5][4] = WALL_TILE;
-	board[5][3] = WALL_TILE;
-	board[6][4] = WALL_TILE;
+	// board[2][2] = WALL_TILE;
+	// board[2][3] = WALL_TILE;
+	// board[2][4] = WALL_TILE;
+	// board[3][4] = WALL_TILE;
+	// board[4][4] = WALL_TILE;
+	board[2][3] = WALL_TILE;
+	board[3][2] = WALL_TILE;
+	board[3][3] = WALL_TILE;
+	board[3][4] = WALL_TILE;
+	board[3][4] = WALL_TILE;
 	
-	catPoint.row = 1;
-	catPoint.col = 0;
-	int score = getScoreForState(board, catPoint, mousePoint, cheesePoint, 19, 0);
-	printf("Evalution result for moving right is: %d \n", score);
 	
+	mousePoint.row = 6;
+	mousePoint.col = 1;
+	int score = getScoreForState(board, catPoint, mousePoint, cheesePoint, 18, !isMouseTurn, mousePlayer);
+	printf("Evalution result for mouse moving RIGHT is: %d \n", score);
+	
+	mousePoint.row = 5;
+	mousePoint.col = 0;
+	score = getScoreForState(board, catPoint, mousePoint, cheesePoint, 18, !isMouseTurn, mousePlayer);
+	printf("Evalution result for mouse moving UP is: %d \n", score);
+	
+	// Cat moving forward twice
+	catPoint.row = 6;
+	catPoint.col = 4;
+	
+	mousePoint.row = 5;
+	mousePoint.col = 1;
+	score = getScoreForState(board, catPoint, mousePoint, cheesePoint, 16, !isMouseTurn, mousePlayer);
+	printf("Evalution result for mouse moving RIGHT is: %d \n", score);
+	
+	mousePoint.row = 4;
+	mousePoint.col = 0;
+	score = getScoreForState(board, catPoint, mousePoint, cheesePoint, 16, !isMouseTurn, mousePlayer);
+	printf("Evalution result for mouse moving UP is: %d \n", score);
+	
+	mousePoint.row = 6;
+	mousePoint.col = 0;
+	score = getScoreForState(board, catPoint, mousePoint, cheesePoint, 16, !isMouseTurn, mousePlayer);
+	printf("Evalution result for mouse moving DOWN is: %d \n", score);
+	
+	printf("##################\n");
 	catPoint.row = 0;
-	catPoint.col = 1;
-	score = getScoreForState(board, catPoint, mousePoint, cheesePoint, 19, 0);
-	printf("Evalution result for moving down is: %d \n", score);
+	catPoint.col = 6;
 	
-	// catPoint.row = 0;
-	// catPoint.col = 5;
-	// score = getScoreForState((char**) board, catPoint, mousePoint, cheesePoint);
-	// assert(score == MAX_EVALUATION && "Cat should be the winner");
-	//
-	//
-	// catPoint.row = 0;
-	// catPoint.col = 0;
-	// mousePoint.row = 6;
-	// mousePoint.col = 2;
-	// score = getScoreForState((char**) board, catPoint, mousePoint, cheesePoint);
-	// assert(score == MIN_EVALUATION && "Mouse should be the winner");
-	//
-	// catPoint.row = 6;
-	// catPoint.col = 1;
-	// mousePoint.row = 6;
-	// mousePoint.col = 2;
-	// score = getScoreForState((char**) board, catPoint, mousePoint, cheesePoint);
-	// assert(score == MAX_EVALUATION && "Cat should be the winner");
+	mousePoint.row = 0;
+	mousePoint.col = 1;
+	score = getScoreForState(board, catPoint, mousePoint, cheesePoint, 4, !isMouseTurn, mousePlayer);
+	printf("Evalution result for mouse moving RIGHT is: %d \n", score);
+	
+	mousePoint.row = 1;
+	mousePoint.col = 0;
+	score = getScoreForState(board, catPoint, mousePoint, cheesePoint, 4, !isMouseTurn, mousePlayer);
+	printf("Evalution result for mouse moving DOWN is: %d \n", score);
+	
 }

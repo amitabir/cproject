@@ -2,8 +2,8 @@
 #include <SDL_video.h>
 
 #include "CatAndMouse.h"
-#include "GUIState.h"
-#include "LogicalEvents.h"
+#include "../presenters/GUIState.h"
+#include "../presenters/LogicalEvents.h"
 #include "GUIStatesFactory.h"
 #include "ConsoleMode.h"
 
@@ -32,7 +32,7 @@ int main(int argc, char* args[]) {
 		if(!strcmp(args[2], "mouse")){
 			isMouseTurn = 1;
 		}
-		if(!consoleMode3(isMouseTurn)){
+		if(!consoleMode(isMouseTurn)){
 			//handle error
 			return 0;
 		}

@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "../src/main/Model/WorldFilesService.h"
-#include "../src/main/Model/MoveLogicService.h"
-#include "../src/main/Model/GameLogicService.h"
-#include "../src/main/Model/GameConfigModel.h"
-#include "../src/main/Model/GameModel.h"
+#include "../src/services/WorldFilesService.h"
+#include "../src/services/MoveLogicService.h"
+#include "../src/services/GameLogicService.h"
+#include "../src/model/GameConfigModel.h"
+#include "../src/model/GameModel.h"
 #include <assert.h>
 
 int main() {
