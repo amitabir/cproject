@@ -23,6 +23,8 @@
 #define MOUSE_BETA_ABOVE_TURNS 4
 #define MOUSE_GAMMA_ABOVE_TURNS 1
 
+/* This function is called by the getScoreForState function to calculate the algorithm on the game state. The function receives
+the same parameters as the getScoreForState function and returns the algorithm result when finished. */
 int innerEvaluate(char **board, BoardPoint catPoint, BoardPoint mousePoint, BoardPoint cheesePoint, int numTurns, int isMouseTree) {
 	if (isMouseTree) {
 //		printf("Evaluating for Mouse \n");
