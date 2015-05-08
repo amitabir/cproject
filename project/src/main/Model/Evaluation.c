@@ -35,10 +35,10 @@ int innerEvaluate(char **board, BoardPoint catPoint, BoardPoint mousePoint, Boar
 	int result;
 	int numTurnsLeftForMouse = (numTurns + 1) / 2;
 	
-	int mouseToCheese =  calcRealDistance(board, mousePoint, cheesePoint, catPoint, 1);
-	int catToMouse = calcRealDistance(board, catPoint, mousePoint, catPoint, 0);
-	int mouseToCheeseNoCat = calcRealDistance(board, mousePoint, cheesePoint, catPoint, 0);
-	int catToCheese = calcRealDistance(board, catPoint, cheesePoint, catPoint, 0);
+	int mouseToCheese =  calcRealDistance(board, mousePoint, cheesePoint, catPoint, cheesePoint, 1);
+	int catToMouse = calcRealDistance(board, catPoint, mousePoint, catPoint, cheesePoint, 0);
+	int mouseToCheeseNoCat = calcRealDistance(board, mousePoint, cheesePoint, catPoint, cheesePoint, 0);
+	int catToCheese = calcRealDistance(board, catPoint, cheesePoint, catPoint, cheesePoint, 0);
 	
 	
 //	printf("Mouse to Cheese = %d\n", mouseToCheese);
@@ -95,9 +95,7 @@ int getScoreForState(char **board, BoardPoint catPoint, BoardPoint mousePoint, B
 	} else if(isAdjacent(mousePoint, cheesePoint)){
 		return MIN_EVALUATION;
 	}
-	
-	board[cheesePoint.row][cheesePoint.col] = CHEESE_TILE;
-	
+		
 	return innerEvaluate(board, catPoint, mousePoint, cheesePoint, numTurns, isMouseTree);
 }
 

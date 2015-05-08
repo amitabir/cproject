@@ -17,22 +17,48 @@
 #define SIDE_BUTTONS_NUM 5
 
 #define GAME_STATUS_TEXT_MAX_LENGTH 18
-	
-#define TOP_PANEL_WIDTH 800
-#define TOP_PANEL_HEIGHT 150
-#define TOP_PANEL_POSX 0
-#define TOP_PANEL_POSY 0
 
-#define SIDE_PANEL_WIDTH 200
-#define SIDE_PANEL_HEIGHT 650
-#define SIDE_PANEL_POSX 0
-#define SIDE_PANEL_POSY 150
+// Game over label configuration
+#define GAME_OVER_LABEL_WIDTH 500
+#define GAME_OVER_LABEL_HEIGHT 40
+#define GAME_OVER_LABEL_POSY (TOP_PANEL_HEIGHT - GAME_OVER_LABEL_HEIGHT) / 2
 
-#define SIDE_BUTTON_WIDTH 150
-#define SIDE_BUTTON_HEIGHT 60
-#define SIDE_BUTTON_POSX 25
-#define SIDE_BASE_BUTTON_POSY 50
-#define SIDE_BASE_SPACING 120
+#define GAME_OVER_MOUSE_LABEL_POSX 260
+#define GAME_OVER_CAT_LABEL_POSX 274
+#define GAME_OVER_TIMEOUT_LABEL_POSX 277
+
+#define GAME_OVER_TEXT_POSX 0
+#define GAME_OVER_TEXT_POSY 20
+
+// Game status label configuration
+#define GAME_STATUS_LABEL_WIDTH 200
+#define GAME_STATUS_LABEL_HEIGHT 40
+#define GAME_STATUS_LABEL_POSY 10
+
+#define GAME_STATUS_MOUSE_LABEL_POSX 305
+#define GAME_STATUS_CAT_LABEL_POSX 315
+
+#define GAME_STATUS_TEXT_POSX 0
+#define GAME_STATUS_TEXT_POSY 20
+
+// Turn status label configuration
+#define TURN_STATUS_LABEL_WIDTH 400
+#define TURN_STATUS_LABEL_HEIGHT 40
+#define TURN_STATUS_LABEL_POSY 50
+
+#define TURN_STATUS_HUMAN_POSX 222
+#define TURN_STATUS_MACHINE_POSX 285
+#define TURN_STATUS_HUMAN_PAUSED_PAUSED_POSX 320
+#define TURN_STATUS_MACHINE_PAUSED_POSX 307
+
+#define TURN_STATUS_TEXT_POSX 0
+#define TURN_STATUS_TEXT_POSY 20
+
+// Pause Button configuration
+#define PAUSE_BUTTON_WIDTH 250
+#define PAUSE_BUTTON_HEIGHT 50
+#define PAUSE_BUTTON_POSX (TOP_PANEL_WIDTH - PAUSE_BUTTON_WIDTH) / 2
+#define PAUSE_BUTTON_POSY 90
 
 const char *PAUSE_BUTTON_RESUME_IMAGE = "images/Buttons/ResumeGame.bmp";
 const char *PAUSE_BUTTON_RESUME_MARKED_IMAGE = "images/Buttons/ResumeGameMarked.bmp";
@@ -42,6 +68,9 @@ const char *PAUSE_BUTTON_HUMAN_TURN_MARKED_IMAGE = "images/Buttons/PauseMarked.b
 	
 const char *PAUSE_BUTTON_MACHINE_TURN_IMAGE = "images/Buttons/PauseBeforeNextMove.bmp";
 const char *PAUSE_BUTTON_MACHINE_TURN_MARKED_IMAGE = "images/Buttons/PauseBeforeNextMoveMarked.bmp";
+
+const char *GAME_STATUS_MOUSE_MOVE =  "Mouse's move (%d)";
+const char *GAME_STATUS_CAT_MOVE =  "Cat's move (%d)";
 
 const char *GAME_OVER_MESSAGE_CAT = "Game Over - Cat Wins!!!";
 const char *GAME_OVER_MESSAGE_MOUSE = "Game Over - Mouse Wins!!!";
@@ -85,6 +114,23 @@ Widget* createSideButton(Widget *parent, int buttonId, int posX, int posY, int w
 	return button;
 }
 
+Widget *createSidePanel(Widget *parent) {
+	Color bgColor = createColor(0xFF, 0xFF, 0xFF);
+	Widget *sidePanel = createPanel(SIDE_PANEL_POSX, SIDE_PANEL_POSY, SIDE_PANEL_WIDTH, SIDE_PANEL_HEIGHT, bgColor);
+	addWidget(parent, sidePanel);
+	
+	int buttonIdx;
+	for (buttonIdx = BUTTON_RECONFIG_MOUSE; buttonIdx <= SIDE_BUTTONS_NUM; buttonIdx++) {
+		if (createSideButton(sidePanel, buttonIdx, SIDE_BUTTON_POSX, SIDE_BASE_BUTTON_POSY + SIDE_BASE_SPACING * (buttonIdx - 1), SIDE_BUTTON_WIDTH,
+			 		SIDE_BUTTON_HEIGHT, GAME_PLAY_BUTTONS_IMAGES[buttonIdx], GAME_PLAY_MARKED_BUTTONS_IMAGES[buttonIdx],
+					GAME_PLAY_DISABLED_BUTTONS_IMAGES[buttonIdx]) == NULL) {
+			freeWidget(sidePanel);
+			return NULL;
+		}
+	}
+	return sidePanel;
+}
+
 Widget* createGamePlayView(GameModel *gameModel) {
 	Widget *window = NULL;
 	
@@ -104,37 +150,34 @@ Widget* createGamePlayView(GameModel *gameModel) {
 	topPanel = createPanel(TOP_PANEL_POSX, TOP_PANEL_POSY, TOP_PANEL_WIDTH, TOP_PANEL_HEIGHT, bgColor);
 	addWidget(window, topPanel);
 	
-	gameOverLabel = createLabel(200, 50, 500, 60);
-	setBgColor(gameOverLabel, createColor(0xFF, 0xFF, 0xFF));
+	gameOverLabel = createLabel(0, GAME_OVER_LABEL_POSY, GAME_OVER_LABEL_WIDTH, GAME_OVER_LABEL_HEIGHT);
+	setBgColor(gameOverLabel, bgColor);
 	setVisible(gameOverLabel, 0);
 	addWidget(topPanel, gameOverLabel);
 	
-	gameStatusLabel = createLabel(250, 0, 300, 50);
-	setBgColor(gameStatusLabel, createColor(0xFF, 0xFF, 0xFF));
+	gameStatusLabel = createLabel(0, GAME_STATUS_LABEL_POSY, GAME_STATUS_LABEL_WIDTH, GAME_STATUS_LABEL_HEIGHT);
+	setBgColor(gameStatusLabel, bgColor);
 	addWidget(topPanel, gameStatusLabel);
 	
-	turnStatusLabel = createLabel(250, 50, 300, 50);
-	setBgColor(turnStatusLabel, createColor(0xFF, 0xFF, 0xFF));
+	turnStatusLabel = createLabel(0, TURN_STATUS_LABEL_POSY, TURN_STATUS_LABEL_WIDTH, TURN_STATUS_LABEL_HEIGHT);
+	setBgColor(turnStatusLabel, bgColor);
 	addWidget(topPanel, turnStatusLabel);
 	
-	pauseButton = createButton(BUTTON_PAUSE, 250, 100, 300, 50, colorKey, NULL, 0, 0, NULL, NULL);
+	pauseButton = createButton(BUTTON_PAUSE, PAUSE_BUTTON_POSX, PAUSE_BUTTON_POSY, PAUSE_BUTTON_WIDTH, PAUSE_BUTTON_HEIGHT, colorKey,
+		 	NULL, 0, 0, NULL, NULL);
 	addWidget(topPanel, pauseButton);
 	
-	sidePanel = createPanel(SIDE_PANEL_POSX, SIDE_PANEL_POSY, SIDE_PANEL_WIDTH, SIDE_PANEL_HEIGHT, bgColor);
-	addWidget(window, sidePanel);
-	
-	int buttonIdx;
-	for (buttonIdx = BUTTON_RECONFIG_MOUSE; buttonIdx <= SIDE_BUTTONS_NUM; buttonIdx++) {
-		if (createSideButton(sidePanel, buttonIdx, SIDE_BUTTON_POSX, SIDE_BASE_BUTTON_POSY + SIDE_BASE_SPACING * (buttonIdx - 1), SIDE_BUTTON_WIDTH,
-			 		SIDE_BUTTON_HEIGHT, GAME_PLAY_BUTTONS_IMAGES[buttonIdx], GAME_PLAY_MARKED_BUTTONS_IMAGES[buttonIdx],
-					GAME_PLAY_DISABLED_BUTTONS_IMAGES[buttonIdx]) == NULL) {
-			freeWidget(window);
-			return NULL;
-		}
+	sidePanel = createSidePanel(window);
+	if (sidePanel == NULL) {
+		freeWidget(window);
+		return NULL;
 	}
 	
-	gridPanel = createGridPanel(gameModel);
-	addWidget(window, gridPanel);
+	gridPanel = createGridPanel(window, gameModel);
+	if (gridPanel == NULL) {
+		freeWidget(window);
+		return NULL;
+	}
 	return window;
 }
 
@@ -159,11 +202,13 @@ GameModel *createGameModel(void *initData) {
 void updateGameStatusLabel(GameModel *gameModel, Widget *gameStatusLabel) {
 	char gameStatusText[GAME_STATUS_TEXT_MAX_LENGTH];
 	if (gameModel->isMouseTurn) {
-		sprintf(gameStatusText, "Mouse's move (%d)", gameModel->numTurns);
+		sprintf(gameStatusText, GAME_STATUS_MOUSE_MOVE, gameModel->numTurns);
+		setPosX(gameStatusLabel, GAME_STATUS_MOUSE_LABEL_POSX);
 	} else {
-		sprintf(gameStatusText, "Cat's move (%d)", gameModel->numTurns);
+		sprintf(gameStatusText, GAME_STATUS_CAT_MOVE, gameModel->numTurns);
+		setPosX(gameStatusLabel, GAME_STATUS_CAT_LABEL_POSX);
 	}
-	setText(gameStatusLabel, gameStatusText, 5, 20);
+	setText(gameStatusLabel, gameStatusText, GAME_STATUS_TEXT_POSX, GAME_STATUS_TEXT_POSY);
 }
 
 void updateTurnStatusLabel(GameModel *gameModel, Widget *turnStatusLabel) {
@@ -171,17 +216,45 @@ void updateTurnStatusLabel(GameModel *gameModel, Widget *turnStatusLabel) {
 	if (!gameModel->isPaused) {
 		if (isCurrentPlayerHuman(gameModel)) {
 			turnStatusText = TURN_STATUS_TEXT_HUMAN_WAITING;
+			setPosX(turnStatusLabel, TURN_STATUS_HUMAN_POSX);
 		} else {
 			turnStatusText = TURN_STATUS_TEXT_MACHINE_COMPUTING;
+			setPosX(turnStatusLabel, TURN_STATUS_MACHINE_POSX);
 		}
 	} else {
 		if (isCurrentPlayerHuman(gameModel)) {
 			turnStatusText = TURN_STATUS_TEXT_HUMAN_PAUSED;
+			setPosX(turnStatusLabel, TURN_STATUS_HUMAN_PAUSED_PAUSED_POSX);
 		} else {
 			turnStatusText = TURN_STATUS_TEXT_MACHINE_PAUSED;
+			setPosX(turnStatusLabel, TURN_STATUS_MACHINE_PAUSED_POSX);
 		}
 	}
-	setText(turnStatusLabel, turnStatusText, 5, 20);
+	setText(turnStatusLabel, turnStatusText, TURN_STATUS_TEXT_POSX, TURN_STATUS_TEXT_POSY);
+}
+
+void updateGameOverLabel(GameModel *gameModel, Widget *gameOverLabel) {
+	const char *gameOverText;
+	
+	switch (gameModel->winType) {
+		case CAT_WINS:
+			gameOverText = GAME_OVER_MESSAGE_CAT;
+			setPosX(gameOverLabel, GAME_OVER_CAT_LABEL_POSX);
+			break;
+		case MOUSE_WINS:
+			gameOverText = GAME_OVER_MESSAGE_MOUSE;
+			setPosX(gameOverLabel, GAME_OVER_MOUSE_LABEL_POSX);
+			break;
+		case DRAW:
+			gameOverText = GAME_OVER_MESSAGE_TIMEOUT;
+			setPosX(gameOverLabel, GAME_OVER_TIMEOUT_LABEL_POSX);
+			break;
+		default: 
+			gameOverText = NULL;
+			break;
+	}
+	
+	setText(gameOverLabel, gameOverText, GAME_OVER_TEXT_POSX, GAME_OVER_TEXT_POSY);
 }
 
 int setPauseButtonImages(Widget *pauseButton, const char* imageName, const char *markedImageName) {
@@ -234,18 +307,7 @@ int updateTopPanel(Widget *topPanel, GameModel *gameModel) {
 		setVisible(turnStatusLabel, 0);
 		setVisible(pauseButton, 0);
 		setVisible(gameOverLabel, 1);
-		switch (gameModel->winType) {
-			case CAT_WINS:
-				setText(gameOverLabel, GAME_OVER_MESSAGE_CAT, 45, 20);
-				break;
-			case MOUSE_WINS:
-				setText(gameOverLabel, GAME_OVER_MESSAGE_MOUSE, 45, 20);
-				break;
-			case DRAW:
-				setText(gameOverLabel, GAME_OVER_MESSAGE_TIMEOUT, 45, 20);
-				break;
-			default: break;
-		}
+		updateGameOverLabel(gameModel, gameOverLabel);
 	}
 	return 0;
 }
@@ -275,7 +337,7 @@ int updateView(Widget *window, GameModel *gameModel) {
 	setGridLabelCoordinates(catLabel, gameModel->catPoint, 1);
 	setGridLabelCoordinates(mouseLabel, gameModel->mousePoint, 1);
 	
-	return drawUITree(window);	
+	return drawUITree(window);
 }
 
 void handleMachineTurn(GameModel *gameModel, Widget *window) {
@@ -299,7 +361,7 @@ void startGamePlay(GUIState* gamePlayState, void* initData) {
 	}
 	gamePlayState->viewState = window;
 	checkGameOver(gameModel);
-	updateView(window, gameModel);
+	isError = updateView(window, gameModel);
 }
 
 void* viewTranslateEventGamePlay(void* viewState, SDL_Event* event) {
@@ -340,10 +402,16 @@ void* viewTranslateEventGamePlay(void* viewState, SDL_Event* event) {
 
 StateId handleButtonSelectedGamePlay(void* model, Widget *window, int buttonId) {
 	GameModel *gameModel = (GameModel *) model;	
+	if (!gameModel->isGameOver && !gameModel->isPaused && buttonId != BUTTON_PAUSE) {
+		return GAME_PLAY; // Ignore side buttons when not paused
+	}
 	switch (buttonId) {
 		case BUTTON_PAUSE:
 			gameModel->isPaused = !gameModel->isPaused;			
-			updateView(window, gameModel);
+			if (updateView(window, gameModel) != 0) {
+				isError = 1;
+				return GAME_PLAY;
+			}
 			break;
 		case BUTTON_RECONFIG_MOUSE:
 			if (gameModel->gameConfig->isMouseHuman) {
@@ -362,7 +430,10 @@ StateId handleButtonSelectedGamePlay(void* model, Widget *window, int buttonId) 
 				isError = 1;
 				return GAME_PLAY;
 			}
-			updateView(window, gameModel);
+			if (updateView(window, gameModel) != 0) {
+				isError = 1;
+				return GAME_PLAY;
+			}
 			break;
 		case BUTTON_MAIN_MENU:
 			return MAIN_MENU;
@@ -374,14 +445,19 @@ StateId handleButtonSelectedGamePlay(void* model, Widget *window, int buttonId) 
 	return GAME_PLAY;
 }
 
-void handleMove(GameModel *gameModel, Widget *window, MoveDirection moveDirection) {
+int handleMove(GameModel *gameModel, Widget *window, MoveDirection moveDirection) {
 	if (gameModel->isMouseTurn) {
 		makeMouseMove(gameModel, moveDirection);
-		updateView(window, gameModel);
+		if (updateView(window, gameModel) != 0) {
+			return 1;
+		}
 	} else {
 		makeCatMove(gameModel, moveDirection);
-		updateView(window, gameModel);
+		if (updateView(window, gameModel) != 0) {
+			return 1;
+		}
 	}
+	return 0;
 }
 
 int getMoveDirectionFromCurrentPlayerPoint(GameModel *gameModel, BoardPoint newPoint, MoveDirection *moveDirection) {
@@ -433,7 +509,9 @@ StateId presenterHandleEventGamePlay(void* model, void* viewState, void* logical
 	}
 	
 	if (makeMove && !gameModel->isPaused && !gameModel->isGameOver) {
-		handleMove(gameModel, window, moveDirection);
+		if (handleMove(gameModel, window, moveDirection) != 0) {
+			isError = 1;
+		}
 	}
 	
 	freeLogicalEvent(logicalEvent);

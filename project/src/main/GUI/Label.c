@@ -6,7 +6,7 @@ int labelDraw(Widget *label) {
 	if (!label->preparedForDraw) {
 		prepareImageWidgetForDrawing(label);
 	}
-		
+			
 	SDL_Surface *labelSurface = getImage(label);
 	if (labelSurface == NULL) {		
 		labelSurface = SDL_CreateRGBSurface(0, getWidth(label), getWidth(label), 32, 0, 0, 0, 0);

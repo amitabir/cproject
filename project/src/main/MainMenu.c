@@ -71,6 +71,7 @@ void* stopMainMenu(GUIState* state, StateId nextStateId) {
 		freeWidget((Widget *) state->viewState);
 	}
 	if (nextStateId == GAME_EDITOR) {
+		freeSelectionModel((SelectionModel *) state->model, 1, 1);
 		return NULL;
 	}
 	if (nextStateId == QUIT) {

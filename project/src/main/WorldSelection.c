@@ -173,13 +173,13 @@ StateId presenterHandleEventLoadGame(void* model, void* viewState, void* logical
 
 void* stopLoadGame(GUIState* state, StateId nextStateId) {
 	freeWidget((Widget *) state->viewState);
-	SelectionModel *selectionModel = (SelectionModel *) state->model;
+	SelectionModel *selectionModel = (SelectionModel *) state->model;	
 	
 	if (nextStateId == QUIT) {
 		freeSelectionModel((SelectionModel *) state->model, 1, 1);
 	}
 	
-	if (nextStateId == selectionModel->previousStateModel->stateId && !saved) {		
+	if (nextStateId == selectionModel->previousStateModel->stateId && !saved) {
 		freeSelectionModel((SelectionModel *) state->model, 0, 0);
 		return selectionModel->previousStateModel;
 	} else {

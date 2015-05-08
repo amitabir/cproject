@@ -60,6 +60,9 @@ SDL_Surface* loadImage(const char *filename) {
 }
 
 int setImage(Widget *widget, const char *filename) {
+	if (widget->image != NULL) {
+		SDL_FreeSurface(widget->image);
+	}
 	widget->imageFileName = filename;
     widget->image = loadImage(widget->imageFileName);
 	if (widget->image == NULL) {
@@ -69,6 +72,9 @@ int setImage(Widget *widget, const char *filename) {
 }
 
 int setMarkedImage(Widget *widget, const char *filename) {
+	if (widget->markedImage != NULL) {
+		SDL_FreeSurface(widget->markedImage);
+	}
 	widget->markedImageFileName = filename;
     widget->markedImage = loadImage(widget->markedImageFileName);
 	if (widget->markedImage == NULL) {
@@ -78,6 +84,9 @@ int setMarkedImage(Widget *widget, const char *filename) {
 }
 
 int setDisabledImage(Widget *widget, const char *filename) {
+	if (widget->disabledImage != NULL) {
+		SDL_FreeSurface(widget->disabledImage);
+	}
 	widget->disabledImageFileName = filename;
     widget->disabledImage = loadImage(widget->disabledImageFileName);
 	if (widget->disabledImage == NULL) {

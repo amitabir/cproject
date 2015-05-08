@@ -5,6 +5,7 @@ coordinates of the child fall inside the territory of the parent and 0 otherwise
 int shouldDraw(Widget *parent, Widget *child) {
 	if (getPosX(child) < getPosX(parent) || getPosX(child) > getPosX(parent) + getWidth(parent)) {
 		printf("%d %d %d \n", getPosX(child) ,getPosX(parent), getPosX(parent) + getWidth(parent));
+		printf("%s \n", child->imageFileName);
 		return 0;
 	}
 	if (getPosY(child) < getPosY(parent) || getPosY(child) > getPosY(parent) + getHeight(parent)) {

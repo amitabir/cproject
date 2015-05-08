@@ -131,9 +131,11 @@ void surroundCatWithWalls(char **board, BoardPoint catPoint) {
 	}
 }
 
-int calcRealDistance(char **board, BoardPoint origin, BoardPoint destination, BoardPoint catPoint, int isMouse) { 
+int calcRealDistance(char **board, BoardPoint origin, BoardPoint destination, BoardPoint catPoint, BoardPoint cheesePoint, int isMouse) { 
 	int result = CANNOT_REACH_RESULT;
 	char **boardCopy = copyBoard(board);
+	
+	boardCopy[cheesePoint.row][cheesePoint.col] = CHEESE_TILE;
 	
 	if (isMouse) {
 		surroundCatWithWalls(boardCopy, catPoint);
