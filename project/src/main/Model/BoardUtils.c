@@ -33,6 +33,8 @@ char** createBoard() {
         return board;
 }
 
+/* This function receives two BoardPoint pointers, an origin point and a destination point and a MoveDirection and puts
+inside the destination point the moved origin point by the MoveDirection. */
 void getMovedPoint2(BoardPoint *origPoint, BoardPoint *destPoint, MoveDirection direction) {
 	destPoint->row = origPoint->row;
 	destPoint->col = origPoint->col;
@@ -55,6 +57,7 @@ void getMovedPoint2(BoardPoint *origPoint, BoardPoint *destPoint, MoveDirection 
       	}
 }
 
+// TODO remove
 int isCatAround(char **board, BoardPoint point){
 	int i = point.row, j = point.col;
 	if(board[i+1][j] == CAT_TILE || board[i-1][j] == CAT_TILE || board[i][j+1] == CAT_TILE || board[i][j-1] == CAT_TILE){
@@ -63,6 +66,8 @@ int isCatAround(char **board, BoardPoint point){
 	return 0;
 }
 
+/* This function receives the gaming board, a BoardPoint pointer and a moveDirection and returns a BoardPoint pointer to the moved original
+point moved by MoveDirection. */
 BoardPoint *makeValidMove(char **board, BoardPoint *point, MoveDirection direction) {
         BoardPoint *newPoint = (BoardPoint *) malloc(sizeof(BoardPoint));
         getMovedPoint2(point, newPoint, direction);
@@ -94,6 +99,7 @@ void printBoard(char **board) {
 	}
 }
 
+/* This function receives a two dimensional char array and creates a new copy of it and returns it. */
 char** copyBoard(char **board) {
 	char **boardCopy = createBoard();
 	if(boardCopy == NULL){
@@ -112,6 +118,8 @@ char** copyBoard(char **board) {
 	return boardCopy;
 }
 
+/* This function receives the gaming board and a BoardPoint which represents the cat position. Every point around the cat is set
+ to be wall if possible, i.e. is in the board. */
 void surroundCatWithWalls(char **board, BoardPoint catPoint) {
 	int i,j;
 	for (i = catPoint.row - 1; i <= catPoint.row + 1; i++) {

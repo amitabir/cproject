@@ -2,6 +2,7 @@
 
 #define DEFAULT_BPP 0
 
+/* This function receives a Widget pointer to a window and initiates it. */
 int initScreen(Widget *window) {
     //setScreen(window, SDL_SetVideoMode(getWidth(window), getHeight(window), DEFAULT_BPP, SDL_HWSURFACE|SDL_DOUBLEBUF));
     setScreen(window, SDL_SetVideoMode(800, 800, DEFAULT_BPP, SDL_HWSURFACE|SDL_DOUBLEBUF));

@@ -7,11 +7,13 @@
 #include "GUIStatesFactory.h"
 #include "ConsoleMode.h"
 
+// A boolean int for error.
 int isError = 0;
 
 // TODO remove
 int counter = 0;
 
+/* This function initiates the SDL. */
 int init() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
             fprintf(stderr, "ERROR: unable to init SDL: %s\n", SDL_GetError());
@@ -20,6 +22,7 @@ int init() {
 	return 1;
 }
 
+/* The main function. Runs the game while the user didn't exit and there are no errors */
 int main(int argc, char* args[]) {
 	if(argc > 3){
 		//handle error

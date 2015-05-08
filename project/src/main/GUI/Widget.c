@@ -86,6 +86,7 @@ int setDisabledImage(Widget *widget, const char *filename) {
 	return 0;
 }
 
+// TODO
 int reloadImages(Widget *widget) {
 	if (widget->image != NULL) {
 		SDL_FreeSurface(widget->image);
@@ -128,6 +129,9 @@ int reloadImages(Widget *widget) {
 	return 0;
 }
 
+/* This function receives a Widget pointer and a SDL_Surface pointer of an image and returns an optimized version of the
+image using SDL_DisplayFormat function. In addition if the widget is defined with a color key then the optimized image is
+set with the according color key. */
 SDL_Surface *getOptimizedImage(Widget *widget, SDL_Surface *image) {
 	SDL_Surface* optimizedImage = NULL;
 	

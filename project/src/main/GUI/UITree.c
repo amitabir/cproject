@@ -1,5 +1,7 @@
 #include "UITree.h"
 
+/* This function receives two Widget pointers which represents a parent and a child and returns 1 if the x and y
+coordinates of the child fall inside the territory of the parent and 0 otherwise. */
 int shouldDraw(Widget *parent, Widget *child) {
 	if (getPosX(child) < getPosX(parent) || getPosX(child) > getPosX(parent) + getWidth(parent)) {
 		printf("%d %d %d \n", getPosX(child) ,getPosX(parent), getPosX(parent) + getWidth(parent));
@@ -11,6 +13,7 @@ int shouldDraw(Widget *parent, Widget *child) {
 	return 1;
 }
 
+/* This function receives a Widget pointer and draws him and his descendants in the UITree recursively. */
 int drawUITreeRec(Widget *widget) {
 	Widget *currWidget = NULL;
 	if (isVisible(widget)) {
@@ -42,6 +45,8 @@ int drawUITree(Widget *window) {
 	return 0;
 }
 
+/* This function receives atwo Uint16 x and y and a Widget pointer and returns 1 if the x and y coordinates fall in 
+ the widget's territory and 0 otherwise. */
 int isCoorsInWidget(Uint16 x, Uint16 y, Widget *widget){
 	int widget_x = getPosX(widget);
 	int widget_y = getPosY(widget);

@@ -5,6 +5,7 @@
 #include "string.h"
 #include "Color.h"
 
+/* The BitmapFont struct*/
 typedef struct bitmap_font {
 	SDL_Surface *bitmap;
 	SDL_Rect chars[256];
