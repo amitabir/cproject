@@ -3,8 +3,10 @@
 
 #include <SDL.h>
 
+// General flag for marking an error in one of the GUI states.
 extern int isError;
 
+// All the state IDs.
 typedef enum {
 	MAIN_MENU,
 	CAT_CHOOSE,

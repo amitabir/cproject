@@ -6,31 +6,31 @@
 #include "../presenters/GamePlay.h"
 #include "../presenters/GameEditor.h"
 #include "../presenters/Error.h"
-#include "../presenters/GUIState.h"
 #include "../presenters/SelectionWindow.h"
 
+// Creates the GUIState struct for each stateId.
 GUIState createGUIForState(StateId stateId) {
 	GUIState guiState;
 	guiState.stateId = stateId;
 	switch(stateId) {
 		case MAIN_MENU:
 			guiState.start = startMainMenu;
-			guiState.viewTranslateEvent = viewTranslateEventMainMenu;
+			guiState.viewTranslateEvent = viewTranslateEventSelectionWindow;
 			guiState.presenterHandleEvent = presenterHandleEventMainMenu;
 			guiState.stop = stopMainMenu;
 			break;
 		case LOAD_GAME:
 		case EDIT_GAME:
 		case SAVE_GAME:
-			guiState.start = startLoadGame;
-			guiState.viewTranslateEvent = viewTranslateEventLoadGame;
-			guiState.presenterHandleEvent = presenterHandleEventLoadGame;
-			guiState.stop = stopLoadGame;
+			guiState.start = startWorldSelection;
+			guiState.viewTranslateEvent = viewTranslateEventSelectionWindow;
+			guiState.presenterHandleEvent = presenterHandleEventWorldSelection;
+			guiState.stop = stopWorldSelection;
 			break;
 		case CAT_CHOOSE:
 		case MOUSE_CHOOSE:
 			guiState.start = startChooseType;
-			guiState.viewTranslateEvent = viewTranslateEventChooseType;
+			guiState.viewTranslateEvent = viewTranslateEventSelectionWindow;
 			guiState.presenterHandleEvent = presenterHandleEventChooseType;
 			guiState.stop = stopSelectionWindow;
 			break;
@@ -55,7 +55,7 @@ GUIState createGUIForState(StateId stateId) {
 			break;
 		case ERROR:
 			guiState.start = startError;
-			guiState.viewTranslateEvent = viewTranslateEventError;
+			guiState.viewTranslateEvent = viewTranslateEventSelectionWindow;
 			guiState.presenterHandleEvent = presenterHandleEventError;
 			guiState.stop = stopError;
 			break;

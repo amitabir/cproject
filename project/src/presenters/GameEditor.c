@@ -1,28 +1,28 @@
-#include "../gui/Widget.h"
-#include "../gui/Window.h"
 #include "../gui/UITree.h"
 #include "../gui/WidgetFactory.h"
-#include "../gui/Color.h"
-#include "../gui/GUIConstants.h"
 #include "SelectionWindow.h"
-#include "LogicalEvents.h"
-#include "../services/BoardPoint.h"
 #include "../model/Constants.h"
-#include "../model/GameModel.h"
 #include "../services/WorldFilesService.h"
-#include "GameEditor.h"
 #include "../services/GameLogicService.h"
+#include "../gui/GUIConstants.h"
 #include "GeneralGameWindow.h"
+#include "GameEditor.h"
+
 
 #define BUTTONS_NUM 8
 #define TOP_BUTTONS_NUM 3
+#define GRID_PANEL_INDEX_IN_WINDOW 2
+#define GRID_BUTTON_INDEX_IN_PANEL 0
+#define MARK_LABEL_INDEX_IN_GRID_PANEL 1
 
+// Top buttons properties
 #define TOP_BUTTON_WIDTH 200
 #define TOP_BUTTON_HEIGHT 50
 #define TOP_BUTTON_POSY 80
 #define TOP_BUTTON_BASE_POXS 10
 #define TOP_BUTTON_SPACING 290
 
+// Title label properties
 #define EDITOR_TITLE_LABEL_MAX_LENGTH 8
 
 #define EDITOR_TITLE_LABEL_WIDTH 150
@@ -33,6 +33,11 @@
 
 #define EDITOR_TITLE_TEXT_POSX 5
 #define EDITOR_TITLE_TEXT_POSY 10
+
+// Market properties
+#define MARKER_EXTRA_WIDTH 5
+#define MARKER_EXTRA_HEIGHT 5
+
 
 const char *EDITOR_TITLE_CREATE_WORLD = "Create World";
 const char *EDITOR_TITLE_WORLD_INDEX = "World %d";
@@ -57,6 +62,7 @@ typedef enum {
 	BUTTON_PLACE_EMPTY,
 } ButtonId;
 
+// Create a button for the editor. Returns NULL on error.
 Widget* createEditorButton(Widget *parent, int buttonId, int posX, int posY, int width, int height,
 	 	const char* buttonImage, const char* buttonMarkedImage) {
 	Color colorKey = createColor(0xFF, 0xFF, 0xFF);
@@ -69,6 +75,7 @@ Widget* createEditorButton(Widget *parent, int buttonId, int posX, int posY, int
 	return button;
 }
 
+// Creates and reutrns the title label. Returns NULL on error.
 Widget *createTitleLabel(GameConfigurationModel *gameConfig) {
 	char worldIndexStr[EDITOR_TITLE_LABEL_MAX_LENGTH];
 	
@@ -86,6 +93,7 @@ Widget *createTitleLabel(GameConfigurationModel *gameConfig) {
 	return titleLabel;
 }
 
+// Creates the game editor view (window), or NULL on error.
 Widget* createEditGameView(GameEditorModel *editModel) {
 	Widget *window = NULL, *topPanel = NULL, *titleLabel = NULL, *sidePanel = NULL, *gridPanel = NULL, *markLabel = NULL;
 	int buttonIdx;
@@ -131,7 +139,7 @@ Widget* createEditGameView(GameEditorModel *editModel) {
 	}
 	
 	// Add the marking label to the grid panel
-	markLabel = createLabel(0, 0, GRID_CELL_WIDTH + 5, GRID_CELL_HEIGHT+ 5);
+	markLabel = createLabel(0, 0, GRID_CELL_WIDTH + MARKER_EXTRA_WIDTH, GRID_CELL_HEIGHT + MARKER_EXTRA_HEIGHT);
 	setGridLabelCoordinates(markLabel, createPoint(0,0), 0);
 	setColorKey(markLabel, colorKey);
 	if (setImage(markLabel, FRAME_IMAGE) != 0) {
@@ -145,6 +153,7 @@ Widget* createEditGameView(GameEditorModel *editModel) {
 	
 }
 
+// Creates the game editor model or NULL on error.
 GameEditorModel *createGameEditorModel(StateId stateId, void *initData) {	
 	GameEditorModel *editModel = NULL;
 	
@@ -171,9 +180,12 @@ GameEditorModel *createGameEditorModel(StateId stateId, void *initData) {
 	return editModel;
 }
 
+// Updates the grid button according to the current structure of the game's board and players. Returns 0 on sucess, 1 otherwise.
 int updateGridButton(Widget *gridButton, GameModel *gameModel) {
+	// First - remove all the children, clearing the grid.
 	removeAllChildren(gridButton);
 	
+	// Update cat point
 	if (!isEmptyPoint(gameModel->catPoint)) {
 		Widget *catLabel = createLabel(0, 0, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
 		setGridLabelCoordinates(catLabel, gameModel->catPoint, 1);
@@ -184,6 +196,7 @@ int updateGridButton(Widget *gridButton, GameModel *gameModel) {
 		addWidget(gridButton, catLabel);
 	}
 	
+	// Update mouse point
 	if (!isEmptyPoint(gameModel->mousePoint)) {
 		Widget *mouseLabel = createLabel(0, 0, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
 		setGridLabelCoordinates(mouseLabel, gameModel->mousePoint, 1);
@@ -194,6 +207,7 @@ int updateGridButton(Widget *gridButton, GameModel *gameModel) {
 		addWidget(gridButton, mouseLabel);
 	}
 	
+	// Update cheese point
 	if (!isEmptyPoint(gameModel->cheesePoint)) {
 		Widget *cheeseLabel = createLabel(0, 0, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
 		setGridLabelCoordinates(cheeseLabel, gameModel->cheesePoint, 1);
@@ -204,12 +218,14 @@ int updateGridButton(Widget *gridButton, GameModel *gameModel) {
 		addWidget(gridButton, cheeseLabel);
 	}
 	
+	// Update Walls
 	return placeWalls(gridButton, gameModel);
 }
 
+// Update the editor view according to the game's grid structure. Returns 0 on sucess, 1 otherwise.
 int updateEditView(Widget *window, GameEditorModel *editModel) {
-	Widget *gridPanel = getChildAtindex(window, 2);
-	Widget *gridButton = getChildAtindex(gridPanel, 0);
+	Widget *gridPanel = getChildAtindex(window, GRID_PANEL_INDEX_IN_WINDOW);
+	Widget *gridButton = getChildAtindex(gridPanel, GRID_BUTTON_INDEX_IN_PANEL);
 	if (updateGridButton(gridButton, editModel->game) != 0) {
 		return 1;
 	}
@@ -348,17 +364,19 @@ StateId handleButtonSelectedEditGame(void* model, Widget *window, int buttonId) 
 	return editModel->stateId;
 }
 
+// Move the markd point on the board to another location
 int moveMarkedPoint(GameEditorModel *editModel, Widget* window, BoardPoint newPoint) {
 	if (newPoint.row >= 0 && newPoint.row < BOARD_ROWS && newPoint.col >=0 && newPoint.col < BOARD_COLS) {
 		editModel->markedPoint = newPoint;
-		Widget *gridPanel = getChildAtindex(window, 2);
-		Widget *markLabel = getChildAtindex(gridPanel, 1);
+		Widget *gridPanel = getChildAtindex(window, GRID_PANEL_INDEX_IN_WINDOW);
+		Widget *markLabel = getChildAtindex(gridPanel, MARK_LABEL_INDEX_IN_GRID_PANEL);
 		setGridLabelCoordinates(markLabel, editModel->markedPoint, 0);
 		return drawUITree(window);
 	}
 	return 0;
 }
 
+// Handles logical events - see header for doc.
 StateId presenterHandleEventEditGame(void* model, void* viewState, void* logicalEvent) {
 	LogicalEvent *logicalEventPtr = (LogicalEvent *) logicalEvent;
 	Widget *window = (Widget *) viewState;
@@ -396,6 +414,7 @@ StateId presenterHandleEventEditGame(void* model, void* viewState, void* logical
 	return result;
 }
 
+// When moving to a selection window we want the BACK buttons to work correctly, so we simulate the previous states as if they were a selection window states.
 void* prepareInitDataForSaveWindow(GameModel *gameModel) {
 	SelectionModel *selectionModelGame;
 	selectionModelGame = createSelectionModel(GAME_EDITOR, NULL, gameModel->gameConfig, gameModel);
@@ -406,6 +425,7 @@ void* prepareInitDataForSaveWindow(GameModel *gameModel) {
 	return selectionModelGame;
 }
 
+// Stops the editor and freeing the resources. Returns next state initialization data.
 void* stopEditGame(GUIState* state, StateId nextStateId) {
 	void *nextStateInitData = NULL;
 	GameEditorModel *editModel = (GameEditorModel *) state->model;

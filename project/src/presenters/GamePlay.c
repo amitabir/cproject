@@ -1,8 +1,5 @@
-#include "../gui/Widget.h"
-#include "../gui/Window.h"
 #include "../gui/UITree.h"
 #include "../gui/WidgetFactory.h"
-#include "../gui/Color.h"
 #include "../gui/GUIConstants.h"
 #include "SelectionWindow.h"
 #include "LogicalEvents.h"
@@ -97,6 +94,7 @@ typedef enum {
 	BUTTON_QUIT,
 } ButtonId;
 
+// Create and reuturn a side button in the side panel, or NULL if an error occured.
 Widget* createSideButton(Widget *parent, int buttonId, int posX, int posY, int width, int height,
 	 	const char* buttonImage, const char* buttonMarkedImage, const char* buttonDisabledImage) {
 	Color colorKey = createColor(0xFF, 0xFF, 0xFF);
@@ -114,6 +112,7 @@ Widget* createSideButton(Widget *parent, int buttonId, int posX, int posY, int w
 	return button;
 }
 
+// Create and returns the side panel, or NULL if an error occured.
 Widget *createSidePanel(Widget *parent) {
 	Color bgColor = createColor(0xFF, 0xFF, 0xFF);
 	Widget *sidePanel = createPanel(SIDE_PANEL_POSX, SIDE_PANEL_POSY, SIDE_PANEL_WIDTH, SIDE_PANEL_HEIGHT, bgColor);
@@ -131,6 +130,7 @@ Widget *createSidePanel(Widget *parent) {
 	return sidePanel;
 }
 
+// Create and return the game window widget with all its children according to the givenl gameModel.
 Widget* createGamePlayView(GameModel *gameModel) {
 	Widget *window = NULL;
 	
@@ -167,12 +167,14 @@ Widget* createGamePlayView(GameModel *gameModel) {
 		 	NULL, 0, 0, NULL, NULL);
 	addWidget(topPanel, pauseButton);
 	
+	// Create the side panel
 	sidePanel = createSidePanel(window);
 	if (sidePanel == NULL) {
 		freeWidget(window);
 		return NULL;
 	}
 	
+	// Create the grid panel
 	gridPanel = createGridPanel(window, gameModel);
 	if (gridPanel == NULL) {
 		freeWidget(window);
@@ -181,10 +183,13 @@ Widget* createGamePlayView(GameModel *gameModel) {
 	return window;
 }
 
+// Return 1 if the current player is human, 0 if it is a machine.
 int isCurrentPlayerHuman(GameModel *gameModel) {
 	return (gameModel->isMouseTurn && gameModel->gameConfig->isMouseHuman) || (!gameModel->isMouseTurn && gameModel->gameConfig->isCatHuman);
 }
 
+/* Creates the game model which is simply the game. If a game is not null and a configuration was given, update the game's configuration.
+// Returns the game model, or NULL if some error occured. */
 GameModel *createGameModel(void *initData) {
 	GameModel *result = NULL;
 	SelectionModel *selectionModel = (SelectionModel *) initData;
@@ -199,6 +204,7 @@ GameModel *createGameModel(void *initData) {
 	return result;
 }
 
+// Update the game status label according to the game model
 void updateGameStatusLabel(GameModel *gameModel, Widget *gameStatusLabel) {
 	char gameStatusText[GAME_STATUS_TEXT_MAX_LENGTH];
 	if (gameModel->isMouseTurn) {
@@ -211,6 +217,7 @@ void updateGameStatusLabel(GameModel *gameModel, Widget *gameStatusLabel) {
 	setText(gameStatusLabel, gameStatusText, GAME_STATUS_TEXT_POSX, GAME_STATUS_TEXT_POSY);
 }
 
+// Update the turn status label according to the game model
 void updateTurnStatusLabel(GameModel *gameModel, Widget *turnStatusLabel) {
 	const char *turnStatusText;
 	if (!gameModel->isPaused) {
@@ -233,6 +240,7 @@ void updateTurnStatusLabel(GameModel *gameModel, Widget *turnStatusLabel) {
 	setText(turnStatusLabel, turnStatusText, TURN_STATUS_TEXT_POSX, TURN_STATUS_TEXT_POSY);
 }
 
+// Update the game over label according to the game model
 void updateGameOverLabel(GameModel *gameModel, Widget *gameOverLabel) {
 	const char *gameOverText;
 	
@@ -257,6 +265,7 @@ void updateGameOverLabel(GameModel *gameModel, Widget *gameOverLabel) {
 	setText(gameOverLabel, gameOverText, GAME_OVER_TEXT_POSX, GAME_OVER_TEXT_POSY);
 }
 
+// Set the new images for the pause button. Returns 0 on success, 1 otherwise. 
 int setPauseButtonImages(Widget *pauseButton, const char* imageName, const char *markedImageName) {
 	if (setImage(pauseButton, imageName) != 0) {
 		return 1;
@@ -267,6 +276,7 @@ int setPauseButtonImages(Widget *pauseButton, const char* imageName, const char 
 	return 0;
 }
 
+// Updates the pause button images according to the game model. Returns 0 on success, 1 otherwise. 
 int updatePauseButton(GameModel *gameModel, Widget* pauseButton) {
 	if (gameModel->isPaused) {
 		if (setPauseButtonImages(pauseButton, PAUSE_BUTTON_RESUME_IMAGE, PAUSE_BUTTON_RESUME_MARKED_IMAGE) != 0) {
@@ -286,6 +296,7 @@ int updatePauseButton(GameModel *gameModel, Widget* pauseButton) {
 	return 0;
 }
 
+// Updates the top panel according to the game model. Returns 0 on success, 1 otherwise. 
 int updateTopPanel(Widget *topPanel, GameModel *gameModel) {
 	Widget *gameOverLabel = getChildAtindex(topPanel, 0);
 	Widget *gameStatusLabel = getChildAtindex(topPanel, 1);
@@ -312,15 +323,17 @@ int updateTopPanel(Widget *topPanel, GameModel *gameModel) {
 	return 0;
 }
 
+// Update side panel buttons according to the game model.
 void updateSidePanel(Widget *sidePanel, GameModel *gameModel) {
 	Widget *sideButton;
 	int i;
-	for (i = 0; i < 5; i++) {
+	for (i = 0; i < SIDE_BUTTONS_NUM; i++) {
 		sideButton = getChildAtindex(sidePanel, i);
 		setEnabled(sideButton, gameModel->isPaused || gameModel->isGameOver);
 	}
 }
 
+// Update the view after a change in the game status. Returns 0 on success, 1 otherwise. 
 int updateView(Widget *window, GameModel *gameModel) {
 	Widget *topPanel = getChildAtindex(window, 0);
 	if (updateTopPanel(topPanel, gameModel) != 0) {
@@ -340,12 +353,14 @@ int updateView(Widget *window, GameModel *gameModel) {
 	return drawUITree(window);
 }
 
+// Handles a machine turn if the current player is a machine. Uses the GameLogicService.
 void handleMachineTurn(GameModel *gameModel, Widget *window) {
 	handleMachineMove(gameModel);
 	SDL_Delay(DELAY_AFTER_MACHINE_CALC_MILLIS);
 	updateView(window, gameModel);
 }
 
+// Starts the game play - creating the model and view - see header for doc.
 void startGamePlay(GUIState* gamePlayState, void* initData) {
 	GameModel *gameModel = createGameModel(initData);
 	if (gameModel == NULL) {
@@ -364,6 +379,7 @@ void startGamePlay(GUIState* gamePlayState, void* initData) {
 	isError = updateView(window, gameModel);
 }
 
+// Translating SDL events to logical events - see header for doc.
 void* viewTranslateEventGamePlay(void* viewState, SDL_Event* event) {
 	Widget *widget;
 	
@@ -400,6 +416,7 @@ void* viewTranslateEventGamePlay(void* viewState, SDL_Event* event) {
 	}
 }
 
+// Handle button selected events for the game play window according to the given buttonId. Returns the next state ID.
 StateId handleButtonSelectedGamePlay(void* model, Widget *window, int buttonId) {
 	GameModel *gameModel = (GameModel *) model;	
 	if (!gameModel->isGameOver && !gameModel->isPaused && buttonId != BUTTON_PAUSE) {
@@ -445,6 +462,7 @@ StateId handleButtonSelectedGamePlay(void* model, Widget *window, int buttonId) 
 	return GAME_PLAY;
 }
 
+// Handle a move of a player and updates the view. Returns 0 on success, 1 otherwise.
 int handleMove(GameModel *gameModel, Widget *window, MoveDirection moveDirection) {
 	if (gameModel->isMouseTurn) {
 		makeMouseMove(gameModel, moveDirection);
@@ -460,6 +478,7 @@ int handleMove(GameModel *gameModel, Widget *window, MoveDirection moveDirection
 	return 0;
 }
 
+// Returns the move direction to which the point has moved in the moveDirection given. Returns 1 if a move should be made (if the points are adjacent, 0 otherwise).
 int getMoveDirectionFromCurrentPlayerPoint(GameModel *gameModel, BoardPoint newPoint, MoveDirection *moveDirection) {
 	BoardPoint oldPoint;
 	if (gameModel->isMouseTurn) {
@@ -470,6 +489,7 @@ int getMoveDirectionFromCurrentPlayerPoint(GameModel *gameModel, BoardPoint newP
 	return getMoveDirectionFromPoint(oldPoint, newPoint, moveDirection);
 }
 
+// Handles logical events - see header for doc.
 StateId presenterHandleEventGamePlay(void* model, void* viewState, void* logicalEvent) {
 	StateId result = GAME_PLAY;
 	if (logicalEvent == NULL) {
@@ -518,6 +538,7 @@ StateId presenterHandleEventGamePlay(void* model, void* viewState, void* logical
 	return result;
 }
 
+// When moving to a selection window we want the BACK buttons to work correctly, so we simulate the previous states as if they were a selection window states.
 void* prepareInitDataForConfigureWindows(GameModel *gameModel, StateId stateOnBack) {
 	SelectionModel *selectionModelGame;
 	SelectionModel *SelectionModelBack;
@@ -529,6 +550,7 @@ void* prepareInitDataForConfigureWindows(GameModel *gameModel, StateId stateOnBa
 	return selectionModelGame;
 }
 
+// Stops the game play - freeing the resources -  see header for doc.
 void* stopGamePlay(GUIState* state, StateId nextStateId) {
 	freeWidget((Widget *) state->viewState);
 	GameModel *gameModel = (GameModel *) state->model;

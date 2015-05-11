@@ -17,6 +17,8 @@ WorldFileData *createEmptyWorldFileData() {
 		free(worldData);
 		return NULL;
 	}
+	worldData->numTurns = 0;
+	worldData->isMouseStarts = 0;
 	return worldData;
 }
 
@@ -122,7 +124,7 @@ int parseWorldFile(FILE *fp, int worldIndex, WorldFileData *worldData) {
 	
 	// Can be 'q' in case it is used for console mode - if so, return.
 	if (numTurnsStr[0] == 'q') {
-		return 1;
+		return 0;
 	} else {		
 		sscanf(numTurnsStr, "%d", &(worldData->numTurns));
 	}

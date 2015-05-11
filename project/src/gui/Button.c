@@ -1,6 +1,6 @@
+#include <SDL.h>
 #include "Button.h"
 #include "Widget.h"
-#include <SDL.h>
 
 int buttonDraw(Widget *button) {
 	if (!button->preparedForDraw) {

@@ -1,5 +1,6 @@
 #include "Widget.h"
 
+// Creates a new widget according to the given parameters - see header for doc.
 Widget *createWidget(int id, Widget *parent, int posX, int posY, int width, int height, const char *caption, WidgetType type, 
 		int (*drawFunc)(Widget*)){
 	Widget *widget;
@@ -95,7 +96,6 @@ int setDisabledImage(Widget *widget, const char *filename) {
 	return 0;
 }
 
-// TODO
 int reloadImages(Widget *widget) {
 	if (widget->image != NULL) {
 		SDL_FreeSurface(widget->image);
@@ -408,6 +408,7 @@ BitmapFont *getBitmapFont(Widget *widget) {
 	return NULL;
 }
 
+// Freeing the widget and all of its resources - see header for doc.
 void freeWidget(void *widgetPtr) {
 	Widget *widget = (Widget *) widgetPtr;
 	if (widget->children != NULL) {

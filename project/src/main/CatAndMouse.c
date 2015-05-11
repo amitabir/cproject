@@ -7,11 +7,8 @@
 #include "GUIStatesFactory.h"
 #include "ConsoleMode.h"
 
-// A boolean int for error.
+// A boolean int for error, externalized in GUIState.h and used to mark if an error occured in one of the windows mode.
 int isError = 0;
-
-// TODO remove
-int counter = 0;
 
 /* This function initiates the SDL. */
 int init() {
@@ -22,23 +19,25 @@ int init() {
 	return 1;
 }
 
+// Handles console mode. Returns 0 on success, 1 otherwise.
+int handleConsoleMode(char *currentPlayer) {
+	int isMousePlayer = 0;
+	if (!strcmp(currentPlayer, "mouse")) {
+		isMousePlayer = 1;
+	}
+	return runConsoleMode(isMousePlayer);
+}
+
 /* The main function. Runs the game while the user didn't exit and there are no errors */
 int main(int argc, char* args[]) {
-	if(argc > 3){
-		//handle error
-		return 0;
-	} else if(argc == 3){
-		int isMouseTurn = 0;
-		if(!strcmp(args[2], "mouse")){
-			isMouseTurn = 1;
-		}
-		if(!consoleMode(isMouseTurn)){
-			//handle error
-			return 0;
-		}
-		return 1;
+	if (argc > 3) {
+		printf("Error: more than 2 parmeters have been passed to the program! Exiting.");
+		exit(1);
+	} else if (argc == 3 && strcmp(args[1], "console")) {
+		return handleConsoleMode(args[2]);
 	}
-
+	
+	// Init SDL
 	if (!init()) {
 		exit(1);
 	}
@@ -59,6 +58,7 @@ int main(int argc, char* args[]) {
 	
 	int shouldWait;
 
+	// Main handling events loop
 	while (!isError && nextStateId != QUIT) {
 		SDL_Event event;
 		void* logicalEvent;
@@ -67,6 +67,7 @@ int main(int argc, char* args[]) {
 			shouldWait = 0;
 			logicalEvent = activeGUI.viewTranslateEvent(activeGUI.viewState, &event);
 		} else {
+			// If no event occured - pass NO_EVENT as the logical event.
 			shouldWait = 1;
 			logicalEvent = createLogicalEvent(NO_EVENT);
 		}

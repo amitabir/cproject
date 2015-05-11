@@ -1,8 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "GameModel.h"
-#include "GameConfigModel.h"
-#include "../services/WorldFilesService.h"
 #include "../services/MoveLogicService.h"
 #include "../services/BoardUtils.h"
 

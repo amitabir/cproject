@@ -1,5 +1,4 @@
 #include "Color.h"
-#include "SDL.h"
 
 Color createColor(Uint8 r,	Uint8 g, Uint8 b) {
 	Color result;

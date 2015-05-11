@@ -3,10 +3,6 @@
 
 #include <SDL.h>
 #include "Widget.h"
-#include "Window.h"
-#include "Button.h"
-#include "Panel.h"
-#include "Label.h"
 
 /* This function receives a Widget pointer and draws the widget and all of his descendants in The UITree. */
 int drawUITree(Widget *widget);

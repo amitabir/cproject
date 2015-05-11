@@ -59,9 +59,6 @@ Widget *createWidget(int id, Widget *parent, int posX, int posY, int width, int 
  and marking the widget as ready for drawing */
 void prepareImageWidgetForDrawing(Widget *widget);
 
-/* This function receives a Widget pointer and a SDL event and */ // TODO
-void* handle_event(Widget *button, SDL_Event event);
-
 /* This function receives a file name and loads the image by that name and returns a pointer to that SDL_Surface. */
 SDL_Surface* loadImage(const char *filename);
 
@@ -111,7 +108,7 @@ void setBgColor(Widget *widget, Color color);
 /* This function receives a Widget pointer and a Color struct and sets the widget's color key field to it. */
 Color setColorKey(Widget *widget, Color color);
 
-// TODO
+/* Sets the text for the widget. This text will be transformed into picture on drawing using the BitmapFont. */
 int setText(Widget *widget, const char *text, int textPosX, int textPosY);
 
 /* This function receives a Widget pointer and returns an int which represents the id of the widget. */

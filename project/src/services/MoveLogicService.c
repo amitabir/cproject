@@ -2,16 +2,18 @@
 #include <stdlib.h>
 #include "MoveLogicService.h"
 #include "../main/MiniMax.h"
-#include "../model/GameModel.h"
 #include "Evaluation.h"
+#include "../main/ListUtils.h"
+#include "../model/Constants.h"
 
 
+// Accessing the array defined in the header file, this method returns the move direction according to the move index.
 MoveDirection moveIndexToMoveDirection(int moveIndex) {
 	return possibleMoves[moveIndex];
 }
 
+// Runs the evaluation function with the mouse as maxPlayer, returns the win type.
 WinnerType hasWinner(char **board, BoardPoint catPoint, BoardPoint mousePoint, BoardPoint cheesePoint, int numTurns) {
-//	printf("BEGIN ###################\n");
 	int score = getScoreForState(board, catPoint, mousePoint, cheesePoint, numTurns, 1, 1);
 	if (score == MAX_EVALUATION) {
 		return MOUSE_WINS;
@@ -20,10 +22,10 @@ WinnerType hasWinner(char **board, BoardPoint catPoint, BoardPoint mousePoint, B
 	} else if (numTurns == 0) {
 		return DRAW;
 	}
-//	printf("END ###################\n");
 	return NO_WIN;
 }
 
+// Returns 1 if the move in the given direction is valid, 0 otherwise.
 int isMoveValid(char **board, BoardPoint cheesePoint, BoardPoint point, MoveDirection direction) {
 	BoardPoint newPoint;
 	newPoint = getMovedPoint(point, direction);
@@ -43,10 +45,9 @@ int isMoveValid(char **board, BoardPoint cheesePoint, BoardPoint point, MoveDire
 	return 1;
 }
 
-// TODO edit
-/* This function receives a pointer to a two dimensional int array which represents the game board, an int numMoves
-that represents the number of moves and an int isUserTurn that represents if it's the user turn. Creates a new
-Connect4State with the given parameters and an empty moves list and returns a pointer to it. 
+/* This function receives a pointer to a two dimensional int array which represents the game board, an int numTurns
+that represents the number of turns and an int isMouseTurn that represents if it's the mouse's turn. Creates a new
+GameState with the given parameters. 
 Returns NULL pointer if the allocation has failed. */
 GameState* createState(char **board, int numTurns, BoardPoint catPoint, BoardPoint mousePoint, BoardPoint cheesePoint, int isMouseTurn, int isMouseTree) {
 	// Creating the state
@@ -66,11 +67,10 @@ GameState* createState(char **board, int numTurns, BoardPoint catPoint, BoardPoi
 	return state;
 }
 
-// TODO edit
 /* This function is used by getChildrenList and creates a new state according to its parent. 
-This function receives an int colIndex that represents the column index indicated by this child.
-A new state is created similar to parentState except the moves list which is increased by 1 and colIndex 
-is added at it's end. The state is pointer is returned at the end */
+This function receives a moveDirection that represents one of the possible move directions indicated by this child.
+A new state is created similar to parentState with the numTurns reduced and chancing the current player turn.
+ The state is pointer is returned , or NULL in case of an error. */
 GameState* createStateFromParent(GameState *parentState, MoveDirection moveDirection) {
 	GameState *childState;
 	BoardPoint mousePoint = parentState->mousePoint, catPoint = parentState->catPoint;
@@ -98,6 +98,7 @@ void freeState(void *state){
 	free(gameState);
 }
 
+// Returns the current player's point on the board.
 BoardPoint getPlayerPoint(GameState *gameState) {
 	if (gameState->isMouseTurn) {
 		return gameState->mousePoint;
@@ -114,7 +115,6 @@ ListRef getGameStateChildren(void *state) {
  	ListRef childrenList = newList(NULL);
 	
 	// If the game isn't won yet - find the list of the children
-//	printf("CHECKING HAS WINNER TURN %d\n", gameState->numTurns);
 	if (hasWinner(gameState->board, gameState->catPoint, gameState->mousePoint, gameState->cheesePoint, gameState->numTurns) == NO_WIN) {
  		int moveIndex;
 		ListRef tempList = childrenList;
@@ -123,8 +123,6 @@ ListRef getGameStateChildren(void *state) {
 		// Going through the possible moves and creating a child for each one that is valid
  		for (moveIndex = 0; moveIndex < NUM_POSSIBLE_MOVES; moveIndex++) {
 			if (isMoveValid(gameState->board, gameState->cheesePoint, playerPoint, moveIndexToMoveDirection(moveIndex))) {
-//				printf("CREATING NEW CHILD WITH MOVE DIRECTION %d FOR NUM TURNS %d \n",moveIndex, gameState->numTurns);
-				
 				GameState *childState = createStateFromParent(gameState, moveIndexToMoveDirection(moveIndex));
 				if (childState == NULL) { // standart function failed
 					destroyList(childrenList, freeState);
@@ -147,10 +145,8 @@ int stateEvaluation(void *state) {
 	return score;
 }
 
-// TODO edit
-/* This function receives a pointer to a two dimensional int array which represents the game board and an int chilIndex and returns
-the index of the column this child represents. 
-The child index is not necessarily the column index since some of the columns may be full.  */
+/* This function receives a pointer to the game state and an int chilIndex and returns the index of the direction of the move that this child represents. 
+The child index is not necessarily the move index since some of the moves may be invalid.  */
 int childIndexToMoveIndex(GameState *gameState, int childIndex)  {
 	int availableMoves = 0, moveIndex, result = -1;
 	BoardPoint playerPoint = getPlayerPoint(gameState);

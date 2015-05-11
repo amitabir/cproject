@@ -1,9 +1,5 @@
-#include "../gui/Widget.h"
-#include "../gui/Window.h"
 #include "../gui/WidgetFactory.h"
 #include "../gui/UITree.h"
-#include "../gui/Color.h"
-#include "../gui/GUIConstants.h"
 #include "SelectionWindow.h"
 #include "LogicalEvents.h"
 #include "ChooseType.h"
@@ -28,6 +24,7 @@ typedef enum {
 	BUTTON_BACK
 } ButtonId;
 
+// Rerturns 1 if the state is a cat type selection, 0 if it's the mouse type selection.
 int isCatSelectionWindow(StateId stateId) {
 	if (stateId == CAT_CHOOSE) {
 		return 1;
@@ -35,6 +32,7 @@ int isCatSelectionWindow(StateId stateId) {
 	return 0;
 }
 
+// Returns the correct button according to the given isHuman flag.
 int getButtonIdByPlayerType(int isHuman) {
 	if (isHuman) {
 		return BUTTON_HUMAN_TYPE;
@@ -43,6 +41,7 @@ int getButtonIdByPlayerType(int isHuman) {
 	}
 }
 
+// Sets the correct button to be marked according to the value in the configuration.
 void setMarkedButtonByConfig(SelectionModel *model, int isCatWindow) {
 	if (isCatWindow) {
 		model->markedButtonIndex = getButtonIdByPlayerType(model->gameConfig->isCatHuman);
@@ -51,6 +50,7 @@ void setMarkedButtonByConfig(SelectionModel *model, int isCatWindow) {
 	}
 }
 
+// Starts the choose type window -  see header for doc.
 void startChooseType(GUIState* chooseTypeState, void* initData) {
 	int isCatWindow = isCatSelectionWindow(chooseTypeState->stateId);
 	if (isCatWindow) {
@@ -77,11 +77,7 @@ void startChooseType(GUIState* chooseTypeState, void* initData) {
 	isError = drawUITree((Widget *) chooseTypeState->viewState);
 }
 
-
-void* viewTranslateEventChooseType(void* viewState, SDL_Event* event) {
-	return viewTranslateEventSelectionWindow(viewState, event);
-}
-
+// Updates the current player configuration to isHuman.
 void updateConfig(SelectionModel *selectionModel, int isCatWindow, int isHuman) {
 	if (isCatWindow) {
 		selectionModel->gameConfig->isCatHuman = isHuman;
@@ -90,6 +86,7 @@ void updateConfig(SelectionModel *selectionModel, int isCatWindow, int isHuman) 
 	}
 }
 
+// Handles the selected buttons events according to the given buttonId.
 StateId handleButtonSelectedChooseType(void* model, Widget *window, int buttonId) {
 	SelectionModel *selectionModel = (SelectionModel *) model;	
 	int isCatWindow = isCatSelectionWindow(selectionModel->stateId);
@@ -121,6 +118,7 @@ StateId handleButtonSelectedChooseType(void* model, Widget *window, int buttonId
 	return selectionModel->stateId;
 }
 
+// Handles logical events - see header for doc.
 StateId presenterHandleEventChooseType(void* model, void* viewState, void* logicalEvent) {
 	SelectionModel *selectionModel = (SelectionModel *) model;		
 	return presenterHandleEventSelectionWindow(model, (Widget *) viewState, logicalEvent, &(selectionModel->markedButtonIndex), 

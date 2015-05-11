@@ -2,6 +2,9 @@
 #include "../main/MiniMax.h"
 #include "BoardUtils.h"
 
+// TODO remove
+#include <stdio.h>
+
 #define BASE_SCORE 500
 #define CANT_REACH_CHEESE_BASE_SCORE_MOUSE 0
 #define CANT_REACH_CHEESE_BASE_SCORE_CAT BASE_SCORE * 2

@@ -18,12 +18,16 @@ int initScreen(Widget *window) {
 	SDL_Surface *fontImg = loadImage("images/Font.bmp");
 	Color fontImgBgColor = createColor(0xFF, 0xFF, 0xFF);
  	BitmapFont *bitmapFont = createFontFromImage(fontImg, fontImgBgColor, 10, 10);
+	if (bitmapFont == NULL) {
+		return 1;
+	}
 	setBitmapFont(window, bitmapFont);
 	
 	window->preparedForDraw = 1;
     return 0;
 }
 
+// Draw the window, init the screen on the first time.
 int windowDraw(Widget *window) {
 	if (!window->preparedForDraw) {
 		if (initScreen(window) != 0) {

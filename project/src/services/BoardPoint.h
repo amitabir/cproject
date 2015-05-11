@@ -1,9 +1,6 @@
 #ifndef BOARD_POINT_H_
 #define BOARD_POINT_H_
 
-#include "../model/Constants.h"
-#include "stdio.h"
-
 /* The MoveDirection enum defines all the possible moves. */
 typedef enum {
 	UP,

@@ -1,9 +1,6 @@
 #include <string.h>
-#include "../gui/Widget.h"
-#include "../gui/Window.h"
 #include "../gui/UITree.h"
 #include "../gui/WidgetFactory.h"
-#include "../gui/Color.h"
 #include "../gui/GUIConstants.h"
 #include "SelectionWindow.h"
 #include "../model/Constants.h"
@@ -74,6 +71,7 @@ Widget* createErrorView(char *errorMsg) {
 	return window;
 }
 
+// Starts the error state window - see header for doc.
 void startError(GUIState* errorState, void* initData) {	
 	SelectionModel *model = createSelectionModelByState(errorState->stateId, initData);	
 	errorState->model = model;
@@ -83,10 +81,7 @@ void startError(GUIState* errorState, void* initData) {
 	drawUITree((Widget *) errorState->viewState);
 }
 
-void* viewTranslateEventError(void* viewState, SDL_Event* event) {
-	return viewTranslateEventSelectionWindow(viewState, event);
-}
-
+// Handles buttons selected events according to the buttonId, returns the next state ID.
 StateId handleButtonSelectedError(void* model, Widget *window, int buttonId) {
 	SelectionModel *selectionModel = (SelectionModel *) model;
 	switch (buttonId) {
@@ -98,12 +93,14 @@ StateId handleButtonSelectedError(void* model, Widget *window, int buttonId) {
 	return selectionModel->stateId;
 }
 
+// Handles logical events - see header for doc.
 StateId presenterHandleEventError(void* model, void* viewState, void* logicalEvent) {
 	SelectionModel *selectionModel = (SelectionModel *) model;
 	return presenterHandleEventSelectionWindow(model, (Widget *) viewState, logicalEvent, &(selectionModel->markedButtonIndex), 
 					handleButtonSelectedError, selectionModel->stateId, BUTTONS_NUMBER);
 }
 
+// Stops the error window - see header for doc.
 void* stopError(GUIState* state, StateId nextStateId) {
 	SelectionModel *selectionModel = (SelectionModel *) state->model;	
 	return selectionModel->previousStateModel;

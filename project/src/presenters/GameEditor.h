@@ -13,7 +13,6 @@ typedef struct game_editor_model {
 	StateId stateId; // The state ID of the current GUI state.
 	GameModel *game; // The game pointer which is being edited
 	BoardPoint markedPoint; // The marked point on the board.
-	char *errorMsg; // Error message when the game is inavlid.
 } GameEditorModel;
 
 /* Starts the game editor - creating the model and view. */

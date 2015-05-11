@@ -4,9 +4,7 @@
 /* This service responsible for finding the best move for a machine player. It does so by executing the minimax algorithm and
  find the best direction to go.*/
 
-#include "../main/ListUtils.h"
 #include "../services/BoardPoint.h"
-#include "../model/Constants.h"
 #include "../model/GameModel.h"
 
 // Number of possible moves

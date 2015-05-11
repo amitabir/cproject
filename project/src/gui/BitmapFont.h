@@ -5,7 +5,6 @@
   It does so by clipping a large picture with all the letters according to their ascii values. */
 
 #include <SDL.h>
-#include "string.h"
 #include "Color.h"
 
 #define ASCII_CHARS_NUM 256

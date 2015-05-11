@@ -1,7 +1,8 @@
 #ifndef GAME_MODEL_H_
 #define GAME_MODEL_H_
 
-#include "Constants.h"
+/* The game model for the whole application */
+
 #include "GameConfigModel.h"
 #include "../services/BoardPoint.h"
 

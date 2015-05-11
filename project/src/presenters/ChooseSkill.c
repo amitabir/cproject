@@ -1,13 +1,8 @@
 #include <string.h>
-#include "../gui/Widget.h"
-#include "../gui/Window.h"
 #include "../gui/UITree.h"
 #include "../gui/WidgetFactory.h"
-#include "../gui/Color.h"
-#include "../gui/GUIConstants.h"
-#include "SelectionWindow.h"
-#include "LogicalEvents.h"
 #include "../model/Constants.h"
+#include "SelectionWindow.h"
 
 // Number of buttons in this selection window
 #define BUTTONS_NUMBER 3

@@ -1,12 +1,8 @@
-#include "MainMenu.h"
-#include "../gui/Widget.h"
-#include "../gui/Window.h"
 #include "../gui/UITree.h"
 #include "../gui/WidgetFactory.h"
-#include "../gui/Color.h"
 #include "../gui/GUIConstants.h"
 #include "SelectionWindow.h"
-#include "LogicalEvents.h"
+#include "MainMenu.h"
 
 #define BUTTONS_NUMBER 5
 
@@ -21,6 +17,7 @@ typedef enum {
 	BUTTON_QUIT
 } ButtonId;
 
+// Starts the main menu window - see header for doc.
 void startMainMenu(GUIState* mainMenuState, void* initData) {
 	mainMenuState->viewState = createSelectionWindowView(NULL, 0, 0, BUTTONS_NUMBER, MAIN_MENU_BUTTONS_IMAGES, MAIN_MENU_MARKED_BUTTONS_IMAGES);
 	if (mainMenuState->viewState == NULL) {
@@ -38,10 +35,7 @@ void startMainMenu(GUIState* mainMenuState, void* initData) {
  	isError = drawUITree((Widget *) mainMenuState->viewState);
 }
 
-void* viewTranslateEventMainMenu(void* viewState, SDL_Event* event) {
-	return viewTranslateEventSelectionWindow(viewState, event);
-}
-
+// Handles button selected events according to the buttonID, just pass to the next state.
 StateId handleButtonSelectedMainMenu(void* model, Widget *window, int buttonId) {	
 	switch (buttonId) {
 		case BUTTON_NEW_GAME:
@@ -60,25 +54,33 @@ StateId handleButtonSelectedMainMenu(void* model, Widget *window, int buttonId) 
 	return MAIN_MENU;
 }
 
+// By passing the handleButtonSelectedMainMenu to the general logic in SelectionWindow, the specific behaviour for this window will be considered.
 StateId presenterHandleEventMainMenu(void* model, void* viewState, void* logicalEvent) {
 	SelectionModel *selectionModel = (SelectionModel *) model;	
 	return presenterHandleEventSelectionWindow(model, (Widget *) viewState, logicalEvent, &(selectionModel->markedButtonIndex), 
 					handleButtonSelectedMainMenu, MAIN_MENU, BUTTONS_NUMBER);
 }
 
+// Stop the window and freeing resources.
 void* stopMainMenu(GUIState* state, StateId nextStateId) {
+	// Free the widgets
 	if (state->viewState != NULL) {
 		freeWidget((Widget *) state->viewState);
 	}
+	
+	// The game editor does not need the selection model
 	if (nextStateId == GAME_EDITOR) {
 		freeSelectionModel((SelectionModel *) state->model, 1, 1);
 		return NULL;
 	}
+	
 	if (nextStateId == QUIT) {
 		if (state->model != NULL) {
 			freeSelectionModel((SelectionModel *) state->model, 1, 1);
 		}
 		return NULL;
 	}
+	
+	// Returns the state model for the next state
 	return state->model;
 }
