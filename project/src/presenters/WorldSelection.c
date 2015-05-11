@@ -5,6 +5,7 @@
 #include "../services/WorldFilesService.h"
 #include "../services/GameLogicService.h"
 #include "../model/Constants.h"
+#include "LogicalEvents.h"
 #include "WorldSelection.h"
 
 
@@ -125,6 +126,27 @@ void handleSaveGame(SelectionModel *selectionModel) {
 	saved = 1;
 }
 
+/* Handles world up or down: isUp is 1 for up and 0 for down, and shouldMark specify if we should mark the world index widget, 
+	Since when we push the arrows keys we shouldn't mark it, only when clicking with the mouse. */
+int handleWorldUpDown(SelectionModel *selectionModel, Widget* window, int isUp, int shouldMark) {
+	int result;
+	if (selectionModel->markedButtonIndex == BUTTON_WORLD_INDEX) {
+		if (isUp) {
+			result = handleWorldIndexUp(selectionModel, window);
+		} else {
+			result = handleWorldIndexDown(selectionModel, window);
+		}
+		if (result != 0) {
+			return 1;
+		}
+		return drawUITree(window);
+	} else if (shouldMark) {
+		markButton(window, &(selectionModel->markedButtonIndex), BUTTON_WORLD_INDEX);
+		return drawUITree(window);
+	}
+	return 0;
+}
+
 // Handles the button selected event according to the given buttonId.
 StateId handleButtonSelectedWorldSelection(void* model, Widget *window, int buttonId) {
 	SelectionModel *selectionModel = (SelectionModel *) model;
@@ -142,22 +164,16 @@ StateId handleButtonSelectedWorldSelection(void* model, Widget *window, int butt
 			}
 			break;
 		case BUTTON_WORLD_UP:
-			if (selectionModel->markedButtonIndex == BUTTON_WORLD_INDEX) {
-				if (handleWorldIndexUp(selectionModel, window) != 0) {
-					isError = 1;
-					return selectionModel->stateId;
-				}
-				isError = drawUITree(window);
+			if (handleWorldUpDown(selectionModel, window, 1, 1) != 0) {
+				isError = 1;
+				return selectionModel->stateId;
 			}
 			break;
 		case BUTTON_WORLD_DOWN:
-				if (selectionModel->markedButtonIndex == BUTTON_WORLD_INDEX) {
-				if (handleWorldIndexDown(selectionModel, window) != 0) {
-					isError = 1;
-					return selectionModel->stateId;
-				}
-				isError = drawUITree(window);	
-			}	
+			if (handleWorldUpDown(selectionModel, window, 0, 1) != 0) {
+				isError = 1;
+				return selectionModel->stateId;
+			}
 			break;
 		case BUTTON_BACK:
 			return selectionModel->previousStateModel->stateId;
@@ -170,6 +186,21 @@ StateId handleButtonSelectedWorldSelection(void* model, Widget *window, int butt
 // Handle logical events, using handleButtonSelectedWorldSelection - see header for doc
 StateId presenterHandleEventWorldSelection(void* model, void* viewState, void* logicalEvent) {
 	SelectionModel *selectionModel = (SelectionModel *) model;
+	Widget *window = (Widget *) viewState;
+	LogicalEvent *logicalEventPtr = (LogicalEvent *) logicalEvent;
+	
+	// If we got UP_PRESSED or DOWN_PRESSED - handle special logic
+	if (logicalEventPtr->type == UP_PRESSED) {
+		if (handleWorldUpDown(selectionModel, window, 1, 0) != 0) {
+			isError = 1;
+			return selectionModel->stateId;
+		}
+	} else if (logicalEventPtr->type == DOWN_PRESSED) {
+		if (handleWorldUpDown(selectionModel, window, 0, 0) != 0) {
+			isError = 1;
+			return selectionModel->stateId;
+		}
+	}
 	return presenterHandleEventSelectionWindow(model, (Widget *) viewState, logicalEvent, &(selectionModel->markedButtonIndex), 
 					handleButtonSelectedWorldSelection, selectionModel->stateId, BUTTONS_NUMBER);
 }

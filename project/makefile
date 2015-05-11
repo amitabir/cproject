@@ -106,7 +106,7 @@ MainMenu.o: $(PRESENTERS_PATH)/MainMenu.c $(PRESENTERS_PATH)/MainMenu.h $(PRESEN
 	
 WorldSelection.o: $(PRESENTERS_PATH)/WorldSelection.c $(PRESENTERS_PATH)/WorldSelection.h $(PRESENTERS_PATH)/GUIState.h $(GUI_PATH)/WidgetFactory.h \
 												$(GUI_PATH)/UITree.h $(PRESENTERS_PATH)/SelectionWindow.h $(MODEL_PATH)/Constants.h \
-												$(SERVICES_PATH)/GameLogicService.h $(SERVICES_PATH)/WorldFilesService.h
+												$(SERVICES_PATH)/GameLogicService.h $(SERVICES_PATH)/WorldFilesService.h $(PRESENTERS_PATH)/LogicalEvents.h
 			
 	gcc -c $(CFLAGS) $(PRESENTERS_PATH)/$*.c $(SDL_COMPILE_FLAGS)
 	
@@ -115,7 +115,8 @@ ChooseType.o: $(PRESENTERS_PATH)/ChooseType.c $(PRESENTERS_PATH)/ChooseType.h $(
 	gcc -c $(CFLAGS) $(PRESENTERS_PATH)/$*.c $(SDL_COMPILE_FLAGS)
 	
 ChooseSkill.o: $(PRESENTERS_PATH)/ChooseSkill.c $(PRESENTERS_PATH)/ChooseSkill.h $(PRESENTERS_PATH)/GUIState.h $(GUI_PATH)/WidgetFactory.h \
-												$(GUI_PATH)/UITree.h $(PRESENTERS_PATH)/SelectionWindow.h $(MODEL_PATH)/Constants.h
+												$(GUI_PATH)/UITree.h $(PRESENTERS_PATH)/SelectionWindow.h $(MODEL_PATH)/Constants.h \
+												$(PRESENTERS_PATH)/LogicalEvents.h
 	gcc -c $(CFLAGS) $(PRESENTERS_PATH)/$*.c $(SDL_COMPILE_FLAGS)	
 	
 GamePlay.o: $(PRESENTERS_PATH)/GamePlay.c $(PRESENTERS_PATH)/GamePlay.h $(SERVICES_PATH)/BoardPoint.h $(MODEL_PATH)/GameModel.h \

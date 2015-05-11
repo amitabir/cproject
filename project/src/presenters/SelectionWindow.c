@@ -114,6 +114,8 @@ void* viewTranslateEventSelectionWindow(void* viewState, SDL_Event* event) {
 			}
 		case SDL_KEYDOWN:
 			switch (event->key.keysym.sym) {
+				case SDLK_UP: return createLogicalEvent(UP_PRESSED);
+				case SDLK_DOWN: return createLogicalEvent(DOWN_PRESSED);
                 case SDLK_TAB: 
 					return createLogicalEvent(MARK_NEXT_BUTTON);
                 case SDLK_RETURN:

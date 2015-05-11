@@ -41,6 +41,8 @@ int main(int argc, char* args[]) {
 	if (!init()) {
 		exit(1);
 	}
+	
+	int shouldWait = 1;
 
 	// initialize GUI structs mapping by state ids
 	GUIState guiStates[STATES_COUNT];
@@ -56,7 +58,7 @@ int main(int argc, char* args[]) {
 	GUIState activeGUI = guiStates[nextStateId];
 	activeGUI.start(&activeGUI, NULL);
 	
-	int shouldWait;
+
 
 	// Main handling events loop
 	while (!isError && nextStateId != QUIT) {

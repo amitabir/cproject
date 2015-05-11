@@ -17,6 +17,8 @@ typedef enum {
 	SELECT_MARKED_BUTTON,
 	// Mark and select (on click) the currently marked button in selection windows
 	MARK_AND_SELECT_BUTTON,
+	UP_PRESSED, 
+	DOWN_PRESSED, 
 	// Select some button in non-selection windows
 	SELECT_BUTTON,
 	// Move an item on the grid to a different point

@@ -37,8 +37,6 @@ Our design choices:
 		GameEditorModel:
 			The editor model is based on the game model, but also has the current marked grid point and the StateID as it might be Create game or Edit game states.
 		
-		
-
 ##########################################################################################
 
 List of modules:

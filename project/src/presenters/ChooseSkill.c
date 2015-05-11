@@ -2,6 +2,7 @@
 #include "../gui/UITree.h"
 #include "../gui/WidgetFactory.h"
 #include "../model/Constants.h"
+#include "LogicalEvents.h"
 #include "SelectionWindow.h"
 
 // Number of buttons in this selection window
@@ -142,6 +143,27 @@ int handleSkillDown(SelectionModel *selectionModel, Widget *window, int isCatWin
 	return 0;
 }
 
+/* Handles skill up or down: isUp is 1 for up and 0 for down, and shouldMark specify if we should mark the choose skill widget, 
+	Since when we push the arrows keys we shouldn't mark it, only when clicking with the mouse. */
+int handleSkillUpDown(SelectionModel *selectionModel, Widget* window, int isCatWindow, int isUp, int shouldMark) {
+	int result;
+	if (selectionModel->markedButtonIndex == BUTTON_SKILL_LEVEL) {
+		if (isUp) {
+			result = handleSkillUp(selectionModel, window, isCatWindow);
+		} else {
+			result = handleSkillDown(selectionModel, window, isCatWindow);
+		}
+		if (result != 0) {
+			return 1;
+		}
+		return drawUITree(window);
+	} else if (shouldMark) {
+		markButton(window, &(selectionModel->markedButtonIndex), BUTTON_SKILL_LEVEL);
+		return drawUITree(window);
+	}
+	return 0;
+}
+
 // Handles selected button according to the given buttonId. 
 StateId handleButtonSelectedChooseSkill(void* model, Widget *window, int buttonId) {
 	SelectionModel *selectionModel = (SelectionModel *) model;
@@ -162,23 +184,17 @@ StateId handleButtonSelectedChooseSkill(void* model, Widget *window, int buttonI
 			break;
 		case BUTTON_SKILL_UP:
 			// Update skill by 1 up.
-			if (selectionModel->markedButtonIndex == BUTTON_SKILL_LEVEL) {
-				if (handleSkillUp(selectionModel, window, isCatWindow) != 0) {
-					isError = 1;
-					return selectionModel->stateId;
-				}
-				isError = drawUITree(window);
+			if (handleSkillUpDown(selectionModel, window, isCatWindow, 1, 1) != 0) {
+				isError = 1;
+				return selectionModel->stateId;
 			}
 			break;
 		case BUTTON_SKILL_DOWN:
 			// Update skill by 1 down.
-			if (selectionModel->markedButtonIndex == BUTTON_SKILL_LEVEL) {
-				if (handleSkillDown(selectionModel, window, isCatWindow) != 0) {
-					isError = 1;
-					return selectionModel->stateId;
-				}
-				isError = drawUITree(window);
-			}	
+			if (handleSkillUpDown(selectionModel, window, isCatWindow, 0, 1) != 0) {
+				isError = 1;
+				return selectionModel->stateId;
+			}
 			break;
 		case BUTTON_BACK:
 			// Go back to previose state
@@ -192,6 +208,23 @@ StateId handleButtonSelectedChooseSkill(void* model, Widget *window, int buttonI
 // Handle logical event by calling using the specific handleButtonSelectedChooseSkill method.
 StateId presenterHandleEventChooseSkill(void* model, void* viewState, void* logicalEvent) {
 	SelectionModel *selectionModel = (SelectionModel *) model;
+	Widget *window = (Widget *) viewState;
+	LogicalEvent *logicalEventPtr = (LogicalEvent *) logicalEvent;
+	int isCatWindow = isCatSkillSelectionWindow(selectionModel->stateId);	
+	
+	// If we got UP_PRESSED or DOWN_PRESSED - handle special logic
+	if (logicalEventPtr->type == UP_PRESSED) {
+		if (handleSkillUpDown(selectionModel, window, isCatWindow, 1, 0) != 0) {
+			isError = 1;
+			return selectionModel->stateId;
+		}
+	} else if (logicalEventPtr->type == DOWN_PRESSED) {
+		if (handleSkillUpDown(selectionModel, window, isCatWindow, 0, 0) != 0) {
+			isError = 1;
+			return selectionModel->stateId;
+		}
+	}
+	// Go to general selection model method
 	return presenterHandleEventSelectionWindow((SelectionModel *) model, (Widget *) viewState, logicalEvent, &(selectionModel->markedButtonIndex), 
 					handleButtonSelectedChooseSkill, selectionModel->stateId, BUTTONS_NUMBER);
 }
