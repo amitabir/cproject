@@ -13,8 +13,4 @@ void startError(GUIState* mainMenuState, void* initData);
    Returns the next state ID. */
 StateId presenterHandleEventError(void* model, void* viewState, void* logicalEvent);
 
-/* Stops the error window.
-   Returns the next state initiliazation data. */
-void* stopError(GUIState* state, StateId nextStateId);
-
 #endif /* ERROR_H_ */

@@ -324,6 +324,7 @@ int setText(Widget *widget, const char *text, int textPosX, int textPosY) {
 	return 0;
 }
 
+// When adding a child widget, update its position according to the parent's starting position
 void addWidget(Widget *parent, Widget *child) {
 	if (parent->children == NULL) {
 		parent->children = newList(NULL);

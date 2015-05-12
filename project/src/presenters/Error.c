@@ -99,9 +99,3 @@ StateId presenterHandleEventError(void* model, void* viewState, void* logicalEve
 	return presenterHandleEventSelectionWindow(model, (Widget *) viewState, logicalEvent, &(selectionModel->markedButtonIndex), 
 					handleButtonSelectedError, selectionModel->stateId, BUTTONS_NUMBER);
 }
-
-// Stops the error window - see header for doc.
-void* stopError(GUIState* state, StateId nextStateId) {
-	SelectionModel *selectionModel = (SelectionModel *) state->model;	
-	return selectionModel->previousStateModel;
-}

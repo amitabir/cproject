@@ -57,7 +57,7 @@ GUIState createGUIForState(StateId stateId) {
 			guiState.start = startError;
 			guiState.viewTranslateEvent = viewTranslateEventSelectionWindow;
 			guiState.presenterHandleEvent = presenterHandleEventError;
-			guiState.stop = stopError;
+			guiState.stop = stopSelectionWindow;
 			break;
 		default:
 			break;

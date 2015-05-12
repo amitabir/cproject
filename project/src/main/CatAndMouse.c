@@ -90,7 +90,9 @@ int main(int argc, char* args[]) {
 			}
 		}
 		
-		SDL_Delay(POLLING_DELAY);
+		if (shouldWait) {
+			SDL_Delay(POLLING_DELAY);
+		}
 	}
 
 	activeGUI.stop(&activeGUI, nextStateId);
