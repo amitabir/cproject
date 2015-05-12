@@ -214,8 +214,8 @@ void* stopWorldSelection(GUIState* state, StateId nextStateId) {
 	if (state->model == NULL) {
 		return NULL;
 	}
-	SelectionModel *selectionModel = (SelectionModel *) state->model;	
 	
+	SelectionModel *selectionModel = (SelectionModel *) state->model;	
 	
 	if (nextStateId == QUIT) {
 		freeSelectionModel(selectionModel, 1, 1);
@@ -226,8 +226,9 @@ void* stopWorldSelection(GUIState* state, StateId nextStateId) {
 		2) The user pushed the back button, the game was not saved.
 	   The behaviour in these two cases is different, so we must know if the game was saved or not */
 	if (nextStateId == selectionModel->previousStateModel->stateId && !saved) {
-		freeSelectionModel((SelectionModel *) state->model, 0, 0);
-		return selectionModel->previousStateModel;
+		SelectionModel *previousModel = selectionModel->previousStateModel;
+		freeSelectionModel(selectionModel, 0, 0);
+		return previousModel;
 	} else {
 		return selectionModel;
 	}

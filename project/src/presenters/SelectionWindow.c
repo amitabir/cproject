@@ -184,8 +184,9 @@ void* stopSelectionWindow(GUIState* state, StateId nextStateId) {
 	}
 	
 	if (nextStateId == selectionModel->previousStateModel->stateId && nextStateId != GAME_PLAY) {
-		freeSelectionModel((SelectionModel *) state->model, 0, 0);
-		return selectionModel->previousStateModel;
+		SelectionModel *previousModel = selectionModel->previousStateModel;
+		freeSelectionModel(selectionModel, 0, 0);
+		return previousModel;
 	} else {
 		return selectionModel;
 	}
