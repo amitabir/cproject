@@ -53,10 +53,10 @@ int innerEvaluate(char **board, BoardPoint catPoint, BoardPoint mousePoint, Boar
 	int catToCheese = calcShortestDistance(board, catPoint, cheesePoint, catPoint, cheesePoint, 0);
 	
 	
-	printf("Mouse to Cheese = %d\n", mouseToCheese);
-	printf("Mouse to Cheese no Cat = %d\n", mouseToCheeseNoCat);
-	printf("Cat to mouse = %d\n", catToMouse);
-	printf("Cat to Cheese = %d\n", catToCheese);
+	// printf("Mouse to Cheese = %d\n", mouseToCheese);
+	// printf("Mouse to Cheese no Cat = %d\n", mouseToCheeseNoCat);
+	// printf("Cat to mouse = %d\n", catToMouse);
+	// printf("Cat to Cheese = %d\n", catToCheese);
 	
 	if (isMouseTree) {
 		if (mouseToCheese == CANNOT_REACH_RESULT && mouseToCheeseNoCat == CANNOT_REACH_RESULT) {
@@ -108,15 +108,15 @@ int innerEvaluate(char **board, BoardPoint catPoint, BoardPoint mousePoint, Boar
 int getScoreForState(char **board, BoardPoint catPoint, BoardPoint mousePoint, BoardPoint cheesePoint, int numTurns, int isMouseTurn, int isMouseTree) {
 	if(isAdjacent(mousePoint, catPoint)) {
 		if (isMouseTree) {
-			return MIN_EVALUATION;
+			return MIN_EVALUATION + 100 - numTurns;
 		} else {
-			return MAX_EVALUATION;
+			return MAX_EVALUATION - 100 + numTurns;
 		}
-	} else if(isAdjacent(mousePoint, cheesePoint)){
+	} else if(isAdjacent(mousePoint, cheesePoint)) {
 		if (isMouseTree) {
-			return MAX_EVALUATION;
+			return MAX_EVALUATION - 100 + numTurns;
 		} else {
-			return MIN_EVALUATION;
+			return MIN_EVALUATION + 100 - numTurns;
 		}
 	}
 		

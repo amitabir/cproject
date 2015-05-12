@@ -1,5 +1,7 @@
 #include "../src/services/BoardPoint.h"
 #include "../src/services/BoardUtils.h"
+#include "../src/model/Constants.h"
+#include <stdio.h>
 #include <assert.h>
 
 int main() {
