@@ -123,7 +123,6 @@ Widget *createSidePanel(Widget *parent) {
 		if (createSideButton(sidePanel, buttonIdx, SIDE_BUTTON_POSX, SIDE_BASE_BUTTON_POSY + SIDE_BASE_SPACING * (buttonIdx - 1), SIDE_BUTTON_WIDTH,
 			 		SIDE_BUTTON_HEIGHT, GAME_PLAY_BUTTONS_IMAGES[buttonIdx], GAME_PLAY_MARKED_BUTTONS_IMAGES[buttonIdx],
 					GAME_PLAY_DISABLED_BUTTONS_IMAGES[buttonIdx]) == NULL) {
-			freeWidget(sidePanel);
 			return NULL;
 		}
 	}
@@ -368,6 +367,7 @@ void startGamePlay(GUIState* gamePlayState, void* initData) {
 		return;
 	}
 	gamePlayState->model = gameModel;
+	gamePlayState->viewState = NULL;
 		
 	Widget *window = createGamePlayView(gameModel);
 	if (window == NULL) {
@@ -552,9 +552,16 @@ void* prepareInitDataForConfigureWindows(GameModel *gameModel, StateId stateOnBa
 
 // Stops the game play - freeing the resources -  see header for doc.
 void* stopGamePlay(GUIState* state, StateId nextStateId) {
-	freeWidget((Widget *) state->viewState);
-	GameModel *gameModel = (GameModel *) state->model;
+	if (state->viewState != NULL) {
+		freeWidget((Widget *) state->viewState);
+	}
 	
+	if (state->model == NULL) {		
+		return NULL;
+	}
+	
+	GameModel *gameModel = (GameModel *) state->model;
+		
 	switch (nextStateId) {
 		case MAIN_MENU:
 			freeGame(gameModel);

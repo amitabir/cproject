@@ -56,19 +56,4 @@ int main() {
 	mousePoint.col = 0;
 	score = getScoreForState(board, catPoint, mousePoint, cheesePoint, 16, !isMouseTurn, mousePlayer);
 	printf("Evalution result for mouse moving DOWN is: %d \n", score);
-	
-	// printf("##################\n");
-	// catPoint.row = 0;
-	// catPoint.col = 6;
-	//
-	// mousePoint.row = 0;
-	// mousePoint.col = 1;
-	// score = getScoreForState(board, catPoint, mousePoint, cheesePoint, 4, !isMouseTurn, mousePlayer);
-	// printf("Evalution result for mouse moving RIGHT is: %d \n", score);
-	//
-	// mousePoint.row = 1;
-	// mousePoint.col = 0;
-	// score = getScoreForState(board, catPoint, mousePoint, cheesePoint, 4, !isMouseTurn, mousePlayer);
-	// printf("Evalution result for mouse moving DOWN is: %d \n", score);
-	
 }

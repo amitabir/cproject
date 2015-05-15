@@ -11,10 +11,7 @@ struct MiniMaxResult getBestChild(
 	int (*evaluate) (void* state),
 	int isMaxPlayer,
 	int alpha,
-	int beta) {
-		// TODO remove prints
-//		printf("ALPHA IS %d, BETA IS %d \n", alpha, beta);
-		
+	int beta) {	
 		struct MiniMaxResult childResult; // result for recursive calls on children
 		int currChildIndex = 0; // holds the current child index
 		int bestChildIndex = 0; // holds the best child index
@@ -52,24 +49,11 @@ struct MiniMaxResult getBestChild(
 					return childResult;
 				}
 				
-				// if (maxDepth == 5) {
-				// 	if (isMaxPlayer) {
-				// 		printf("MAX: ");
-				// 	} else {
-				// 		printf("MIN: ");
-				// 	}
-				// 	printf("For Depth 5: \n");
-				// 	printf("CURRENT CHILD VALUE IS %d \n", childResult.value);
-				// 	printf("CURRENT CHILD INDEX IS %d \n", childResult.index);
-				//
-				// }
-				
 				// Check if the child is the best
 				
 				if ((isMaxPlayer && childResult.value > bestChildValue) 
 						|| (!isMaxPlayer && childResult.value < bestChildValue)) {
 					bestChildValue = childResult.value;
-//					printf("UPDATE BEST CHILD VALUE TO %d \n", bestChildValue);
 					bestChildIndex = currChildIndex;
 				}
 				
@@ -100,12 +84,6 @@ struct MiniMaxResult getBestChild(
 		
 		// Construct the result
 		struct MiniMaxResult totalResult = {bestChildIndex, bestChildValue};
-		if (isMaxPlayer) {
-//			printf("MAX: ");
-		} else {
-//			printf("MIN: ");
-		}
-//		printf("total result is: %d \n", bestChildValue);
 		return totalResult;
 	}
 	

@@ -2,6 +2,8 @@
 #include "BitmapFont.h"
 
 #define FIRST_ASCII_CHAR 32
+#define SPACE 2
+#define NEW_LINE 1
 
 // Returns a single pixel from the sruface.
 Uint32 getPixelFromSurface(int x, int y, SDL_Surface *surface) {
@@ -92,10 +94,10 @@ void buildFont(BitmapFont *bitmapFont, SDL_Surface *fontImg, Uint32 imgBgColor, 
     }
 
     //Calculate space
-    bitmapFont->space = cellW / 2;
+    bitmapFont->space = cellW / SPACE;
 
     //Calculate new line
-    bitmapFont->newLine = cellH + 1;
+    bitmapFont->newLine = cellH + NEW_LINE;
 }
 
 // Adds the given text to the surface - see header for doc.
@@ -143,7 +145,11 @@ BitmapFont *createFontFromImage(SDL_Surface *fontImg, Color fontImgBgColor, int 
 	
     SDL_Surface *fontImageOpt = SDL_DisplayFormat(fontImg);
     SDL_FreeSurface(fontImg);
-    SDL_SetColorKey(fontImageOpt, SDL_SRCCOLORKEY, getFormattedColor(fontImgBgColor, fontImageOpt));
+    if (SDL_SetColorKey(fontImageOpt, SDL_SRCCOLORKEY, getFormattedColor(fontImgBgColor, fontImageOpt)) < 0) {
+		SDL_FreeSurface(fontImageOpt);
+		free(result);
+    	return NULL;
+    }
 	buildFont(result, fontImageOpt, getFormattedColor(fontImgBgColor, fontImageOpt), numCellRows, numCellsCols);
 	return result;
 }
