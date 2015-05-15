@@ -49,8 +49,14 @@ List of modules:
 ##########################################################################################
 
 Utility evaluation function:
-	high level description - 
-	reasoning -
-	running time - 
+	High Level Description: Our evaulation function is not a symmetric one, with a different behaviour for the mouse and the cat. 
+		We calculate the BFS shortest distance from the cat to the mouse and from mouse to the cheese. One more useful measure for how much the cat interrupts the mouse getting to the cheese is the difference between the distance from the mouse to cheese and the distance from the mouse to the cheese while ignoring the cat completely, we will call it the "Diff distance". We give different weights to those three parameters, and also taking into account the number of turns and the depth of the tree.
+		
+	Reasoning: First we will consider the number of turns left. If the mouse can't reach the cheese in the remaining turns, the mouse should simply run away and the cat should only be chasing after the mouse, so the only parameter considered is the distance between the mouse and the cat.
+	If the mouse has enough turns to reach the cheese, then all the parameters should be consideres. The cat wants to be close to the mouse (small cat to mous distance), and also to interrupt the way for the mouse, but at a lower priority, so the diff distance will be multiplied by a lower weight.
+	The mouse wants to get to the cheese at top priority, so this is the largest weight for the mouse. The second priority is to minimize the diff distance and the third would be to get away from the cat.
+	We also change the winning score by taking into account the depth of the tree, which can be calculated using the remaining number of turns. If there are several leafs in the tree that leads to victory - we want the highest one, meaning the one whose "numTurns" variable is the largest.
+	
+	Running Time: Calculating BFS distance is done in time: O(|V| + |E|). In our case, |V| = n^2 and |E| = O(n^2), so we get O(n^2) complexity. Since this is the only time consuming part of the evaluation, the total complexity is O(n^2).
 
 ##########################################################################################

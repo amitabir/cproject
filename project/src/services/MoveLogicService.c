@@ -15,9 +15,9 @@ MoveDirection moveIndexToMoveDirection(int moveIndex) {
 // Runs the evaluation function with the mouse as maxPlayer, returns the win type.
 WinnerType hasWinner(char **board, BoardPoint catPoint, BoardPoint mousePoint, BoardPoint cheesePoint, int numTurns) {
 	int score = getScoreForState(board, catPoint, mousePoint, cheesePoint, numTurns, 1, 1);
-	if (score >= MAX_EVALUATION - 100) {
+	if (score >= MAX_EVALUATION - EVALUATION_SHIFT_RESULT_FOR_WIN) {
 		return MOUSE_WINS;
-	} else if (score <= MIN_EVALUATION + 100) {
+	} else if (score <= MIN_EVALUATION + EVALUATION_SHIFT_RESULT_FOR_WIN) {
 		return CAT_WINS;
 	} else if (numTurns == 0) {
 		return DRAW;

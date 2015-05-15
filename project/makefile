@@ -17,7 +17,7 @@ SERVICES_PATH=src/services
 SDL_COMPILE_FLAGS=`sdl-config --cflags`
 SDL_EXEC_FLAGS=`sdl-config --libs`
 
-all: MiniMaxDemo ListUtilsDemo CatAndMouse
+all: test MiniMaxDemo ListUtilsDemo CatAndMouse
 	
 test: WorldFilesServiceTest GameLogicServiceTest EvaluationTest BoardUtilsTest
 
