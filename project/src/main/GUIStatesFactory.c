@@ -12,6 +12,8 @@
 GUIState createGUIForState(StateId stateId) {
 	GUIState guiState;
 	guiState.stateId = stateId;
+	guiState.viewState = NULL;
+	guiState.model = NULL;
 	switch(stateId) {
 		case MAIN_MENU:
 			guiState.start = startMainMenu;

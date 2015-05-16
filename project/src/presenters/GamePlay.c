@@ -367,7 +367,6 @@ void startGamePlay(GUIState* gamePlayState, void* initData) {
 		return;
 	}
 	gamePlayState->model = gameModel;
-	gamePlayState->viewState = NULL;
 		
 	Widget *window = createGamePlayView(gameModel);
 	if (window == NULL) {

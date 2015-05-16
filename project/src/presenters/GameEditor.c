@@ -238,7 +238,7 @@ void startEditGame(GUIState* editGameState, void* initData) {
 		isError = 1;
 		return;
 	}
-	editGameState->model = editModel;	
+	editGameState->model = editModel;
 	
 	Widget *window = createEditGameView(editModel);
 	if (window == NULL) {
@@ -429,7 +429,9 @@ void* prepareInitDataForSaveWindow(GameModel *gameModel) {
 void* stopEditGame(GUIState* state, StateId nextStateId) {
 	void *nextStateInitData = NULL;
 	GameEditorModel *editModel = (GameEditorModel *) state->model;
-	freeWidget((Widget *) state->viewState);
+	if (state->viewState != NULL) {
+		freeWidget((Widget *) state->viewState);
+	}
 	
 	if (nextStateId == SAVE_GAME || nextStateId == ERROR) {	
 		nextStateInitData = prepareInitDataForSaveWindow(editModel->game);

@@ -96,7 +96,6 @@ Widget* createGridPanel(Widget *parent, GameModel *gameModel) {
 		catLabel = createLabel(DEFAULT_POSX, DEFAULT_POSY, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
 		setGridLabelCoordinates(catLabel, gameModel->catPoint, 1);
 		if (setImage(catLabel, CAT_IMAGE) != 0) {
-			freeWidget(gridPanel);
 			return NULL;
 		}
 		addWidget(gridButton, catLabel);
@@ -104,7 +103,6 @@ Widget* createGridPanel(Widget *parent, GameModel *gameModel) {
 		mouseLabel = createLabel(DEFAULT_POSX, DEFAULT_POSY, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
 		setGridLabelCoordinates(mouseLabel, gameModel->mousePoint, 1);
 		if (setImage(mouseLabel, MOUSE_IMAGE) != 0) {
-			freeWidget(gridPanel);
 			return NULL;
 		}
 		addWidget(gridButton, mouseLabel);
@@ -112,13 +110,11 @@ Widget* createGridPanel(Widget *parent, GameModel *gameModel) {
 		cheeseLabel = createLabel(DEFAULT_POSX, DEFAULT_POSY, GRID_CELL_WIDTH, GRID_CELL_HEIGHT);
 		setGridLabelCoordinates(cheeseLabel, gameModel->cheesePoint, 1);
 		if (setImage(cheeseLabel, CHEESE_IMAGE) != 0) {
-			freeWidget(gridPanel);
 			return NULL;
 		}
 		addWidget(gridButton, cheeseLabel);
 	
 		if (placeWalls(gridButton, gameModel) != 0) {
-			freeWidget(gridPanel);
 			return NULL;
 		}
 	}
